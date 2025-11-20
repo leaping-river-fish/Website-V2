@@ -1,6 +1,7 @@
-// TO DO: make teleport consistent for both phase 1 and 2, fix phase 3
-import { useState, useEffect } from "react";
+// TO DO: Add button reactions, user text responses
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, useMotionValue } from "framer-motion";
 import { story } from "../components/start_game/story";
 import { useDialogueEngine } from "../components/start_game/dialogue_engine";
 import * as gameEngine from "../components/start_game/game_engine";
@@ -11,6 +12,8 @@ export default function StartPage() {
     const [lastClickTime, setLastClickTime] = useState(0);
     const CLICK_COOLDOWN = 500;
     const {  dialogueText, isDialogueActive, isTyping, startDialogue, advanceDialogue } = useDialogueEngine();
+    const buttonRef = useRef<HTMLButtonElement | null>(null);
+    const [buttonSize, setButtonSize] = useState({ width: 120, height: 50 });
 
     const [phase, setPhase] = useState(0);
     const [position, setPosition] = useState<{ top: number; left: number }>({
@@ -26,55 +29,134 @@ export default function StartPage() {
     const [phase2FoundCount, setPhase2FoundCount] = useState(0);
     const [phase2AccusationIndex, setPhase2AccusationIndex] = useState(0);
     const [phase2Hiding, setPhase2Hiding] = useState(false);
-    const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+    const cursorPos = useRef({ x: 0, y: 0 });
+    const phaseRef = useRef(phase);
+    useEffect(() => { phaseRef.current = phase; }, [phase]);
 
-    const stateRefs = {
-        phase, setPhase,
-        position, setPosition,
-        buttonOpacity, setButtonOpacity,
-        isBlackout, setIsBlackout,
-        hasWokenUp, setHasWokenUp,
-        phase1HoverCount, setPhase1HoverCount,
-        phase2FoundCount, setPhase2FoundCount,
-        phase2AccusationIndex, setPhase2AccusationIndex,
-        phase2Hiding, setPhase2Hiding,
+    const movement = useRef({
+        vx: 0,
+        vy: 0,
         speed: 2,
-        vx: undefined,
-        vy: undefined,
         phase3CaughtCount: 0,
         phase3LineIndex: 0,
-        cursorPos, 
+        phase3RecentlyCaught: false,
+    });
+
+    const motionX = useMotionValue(position.left);
+    const motionY = useMotionValue(position.top);
+
+    const stateRefs = {
+        phase,
+        buttonSize,
+        setPhase,
+        position,
+        setPosition,
+        buttonOpacity,
+        setButtonOpacity,
+        isBlackout,
+        setIsBlackout,
+        hasWokenUp,
+        setHasWokenUp,
+        phase1HoverCount,
+        setPhase1HoverCount,
+        phase2FoundCount,
+        setPhase2FoundCount,
+        phase2AccusationIndex,
+        setPhase2AccusationIndex,
+        phase2Hiding,
+        setPhase2Hiding,
+        cursorPos,
         startDialogue,
         story,
-        navigate
+        navigate,
+
+        movement,
+        phaseRef,
+        motionX,
+        motionY,
     };
 
     useEffect(() => {
+        if (buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            setButtonSize({ width: rect.width, height: rect.height });
+        }
+    }, []);
+
+    useEffect(() => {
         initPhase(phase, stateRefs);
+
+        if (phase === 3) {
+            motionX.set(stateRefs.position.left);
+            motionY.set(stateRefs.position.top);
+        }
     }, [phase]);
 
     useEffect(() => {
         const handleMove = (e: MouseEvent) => {
-            setCursorPos({ x: e.clientX, y: e.clientY });
+            cursorPos.current.x = e.clientX;
+            cursorPos.current.y = e.clientY;
         };
         window.addEventListener("mousemove", handleMove);
         return () => window.removeEventListener("mousemove", handleMove);
     }, []);
 
     useEffect(() => {
-        let animationFrameId: number;
+        let raf = 0;
 
         const animate = () => {
-            if (phase === 3) {
-                gameEngine.updatePhase3Position(stateRefs);
+            if (phaseRef.current === 3) {
+                const { width: buttonWidth, height: buttonHeight } = buttonSize;
+
+                const curX = motionX.get();
+                const curY = motionY.get();
+
+                let newX = curX + movement.current.vx * movement.current.speed;
+                let newY = curY + movement.current.vy * movement.current.speed;
+
+                if (newX < 0) {
+                    newX = 0;
+                    movement.current.vx *= -1;
+                } else if (newX > window.innerWidth - buttonWidth) {
+                    newX = window.innerWidth - buttonWidth;
+                    movement.current.vx *= -1;
+                }
+
+                if (newY < 0) {
+                    newY = 0;
+                    movement.current.vy *= -1;
+                } else if (newY > window.innerHeight - buttonHeight) {
+                    newY = window.innerHeight - buttonHeight;
+                    movement.current.vy *= -1;
+                }
+
+                motionX.set(newX);
+                motionY.set(newY);
+
+                const c = cursorPos.current;
+                const overlap =
+                    c.x >= newX &&
+                    c.x <= newX + buttonWidth &&
+                    c.y >= newY &&
+                    c.y <= newY + buttonHeight;
+
+                if (overlap) {
+                    gameEngine.handlePhase3Caught(stateRefs);
+                }
+
+                const now = performance.now();
+                if (!(animate as any)._lastSync || now - (animate as any)._lastSync > 50) {
+                    setPosition({ left: newX, top: newY });
+                    (animate as any)._lastSync = now;
+                }
             }
-            animationFrameId = requestAnimationFrame(animate);
+
+            raf = requestAnimationFrame(animate);
         };
 
-        animate();
-
-        return () => cancelAnimationFrame(animationFrameId);
-    }, [phase]);
+        raf = requestAnimationFrame(animate);
+        return () => cancelAnimationFrame(raf);
+    }, []);
 
     const handleHover = (e: React.MouseEvent<HTMLButtonElement>) => {
         switch (phase) {
@@ -88,7 +170,7 @@ export default function StartPage() {
     const handleClick = () => {
         switch (phase) {
             case 0: gameEngine.handleClickPhase0(stateRefs); break;
-            case 3: gameEngine.handleClickPhase3(stateRefs); break;
+            case 4: gameEngine.handleClickPhase4(stateRefs); break;
         }
     };
 
@@ -107,25 +189,34 @@ export default function StartPage() {
 
     return (
         <div 
-            className="relative w-screen h-screen bg-black flex items-center justify-center"
+            className="relative w-screen h-screen bg-black"
             onClick={handleGlobalClick}
         >
             {isBlackout && (
                 <div className="fixed top-0 left-0 w-screen h-screen bg-black z-30"></div>
             )}
-            <button 
-                style={{ 
-                    top: position.top + "px", 
-                    left: position.left + "px", 
-                    opacity: buttonOpacity, 
-                    transition: "all 0.3s ease", 
+
+            <motion.button
+                ref={buttonRef}
+                animate={{
+                    left: phaseRef.current === 3 ? undefined : position.left,
+                    top: phaseRef.current === 3 ? undefined : position.top,
+                    opacity: buttonOpacity
+                }}
+                style={{
+                    position: "absolute",
+                    x: phaseRef.current === 3 ? motionX : undefined,
+                    y: phaseRef.current === 3 ? motionY : undefined,
+                }}
+                transition={{
+                    duration: phaseRef.current === 3 ? 0 : 0.3
                 }}
                 className="absolute px-6 py-3 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 z-20"
                 onMouseEnter={handleHover}
                 onClick={handleClick}
             >
                 Start
-            </button>
+            </motion.button>
 
             {isDialogueActive && (
                 <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-11/12 md:w-2/3 lg:w-1/2 bg-white text-black p-4 rounded-lg shadow-lg z-40 cursor-pointer">

@@ -16,6 +16,7 @@ export interface StoryType {
         finale: string[];
     };
     phase3: {
+        intro: string[];
         caughtLines: string[];
         finale: string[];
     };

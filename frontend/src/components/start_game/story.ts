@@ -49,11 +49,14 @@ export const story: StoryType = {
             "You're hacking! No NORMAL human can do this!"
         ],
         finale: [
-            "Ok, if I can't hide then I will run!"
+            "Ok, it's pretty clear you're cheating now."
         ]
     },
 
     phase3: {
+        intro: [
+            "If I can't hide I'll run!",
+        ],
         caughtLines: [
             "Ok, time to up the speed!",
             "Don't think you can catch up that easily!",
@@ -64,7 +67,7 @@ export const story: StoryType = {
         finale: [
             "Okay! OKAY! You win!",
             "You can enter the website…",
-            "Just promise to stop clicking me, I have Haphephobia"
+            "Just promise to stop trying to click me, I have Haphephobia"
         ]
     }
 };

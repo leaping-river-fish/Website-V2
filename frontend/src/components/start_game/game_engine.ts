@@ -1,6 +1,8 @@
 import type { StoryType } from "./story_type";
+import { MotionValue } from "framer-motion";
 
 export interface StateRefs {
+    buttonSize: { width: number; height: number };
     phase: number;
     setPhase: (phase: number) => void;
     position: { top: number; left: number };
@@ -22,24 +24,47 @@ export interface StateRefs {
     startDialogue: (lines: string[]) => void;
     story: StoryType;
     navigate: (path: string) => void;
-    phase3CaughtCount?: number;
-    speed?: number;
-    vx?: number;
-    vy?: number;
-    phase3LineIndex?: number;
 
-    cursorPos: { x: number; y: number };
+    cursorPos: React.RefObject<{ x: number; y: number }>;
+
+    movement: React.RefObject<{
+        vx: number;
+        vy: number;
+        speed: number;
+        phase3CaughtCount: number;
+        phase3LineIndex: number;
+        phase3RecentlyCaught: boolean;
+    }>;
+    phaseRef: React.RefObject<number>;
+
+    motionX: MotionValue<number>;
+    motionY: MotionValue<number>;
 }
 
-function teleportButton(setPosition: (pos: { top: number; left: number }) => void) {
+const TELEPORT_PADDING = 100;
+
+function teleportButton(state: StateRefs, cursor: { x: number; y: number }) {
     const buttonWidth = 100;
     const buttonHeight = 50;
-    const newLeft = Math.random() * (window.innerWidth - buttonWidth);
-    const newTop = Math.random() * (window.innerHeight - buttonHeight);
-    setPosition({ left: newLeft, top: newTop });
-}
+    const padding = 20;
+    let newLeft: number;
+    let newTop: number;
+    let tries = 0;
 
-const PHASE1_HOVER_LIMIT = 10;
+    do {
+        newLeft = padding + Math.random() * (window.innerWidth - buttonWidth - 2 * padding);
+        newTop = padding + Math.random() * (window.innerHeight - buttonHeight - 2 * padding);
+        tries++;
+        if (tries > 10) break;
+    } while (
+        Math.abs(newLeft - cursor.x) < TELEPORT_PADDING &&
+        Math.abs(newTop - cursor.y) < TELEPORT_PADDING
+    );
+
+    state.setPosition({ left: newLeft, top: newTop });
+    state.motionX.set(newLeft);
+    state.motionY.set(newTop);
+}
 
 {/* Phase 0 */}
 
@@ -58,6 +83,8 @@ export function handleClickPhase0(state: StateRefs) {
 
 {/* Phase 1 */}
 
+const PHASE1_HOVER_LIMIT = 10;
+
 export function handleHoverPhase1(state: StateRefs, e: React.MouseEvent<HTMLButtonElement>) {
     const newHoverCount = state.phase1HoverCount + 1;
     state.setPhase1HoverCount(newHoverCount);
@@ -67,16 +94,8 @@ export function handleHoverPhase1(state: StateRefs, e: React.MouseEvent<HTMLButt
         const taunt = taunts[Math.floor(Math.random() * taunts.length)];
         state.startDialogue([taunt]);
 
-        const button = e.currentTarget;
-        const buttonWidth = button.offsetWidth;
-        const buttonHeight = button.offsetHeight;
-        const padding = 20;
-        const maxX = window.innerWidth - buttonWidth - padding;
-        const maxY = window.innerHeight - buttonHeight - padding;
+        teleportButton(state, state.cursorPos.current);
 
-        const newLeft = padding + Math.random() * maxX;
-        const newTop = padding + Math.random() * maxY;
-        state.setPosition({ left: newLeft, top: newTop });
     } else if (newHoverCount === PHASE1_HOVER_LIMIT) {
         state.startDialogue(state.story.phase1.finale);
         setTimeout(() => {
@@ -88,31 +107,6 @@ export function handleHoverPhase1(state: StateRefs, e: React.MouseEvent<HTMLButt
 {/* Phase 2 */}
 
 const PHASE2_FIND_LIMIT = 5;
-const TELEPORT_PADDING = 100;
-
-function teleportButtonAwayFromCursor(
-    setPosition: (pos: { top: number; left: number }) => void,
-    cursor: { x: number; y: number }
-) {
-    const buttonWidth = 100;
-    const buttonHeight = 50;
-    const padding = 20;
-    let newLeft: number;
-    let newTop: number;
-    let tries = 0;
-
-    do {
-        newLeft = padding + Math.random() * (window.innerWidth - buttonWidth - 2 * padding);
-        newTop = padding + Math.random() * (window.innerHeight - buttonHeight - 2 * padding);
-        tries++;
-        if (tries > 10) break;
-    } while (
-        Math.abs(newLeft - cursor.x) < TELEPORT_PADDING &&
-        Math.abs(newTop - cursor.y) < TELEPORT_PADDING
-    );
-
-    setPosition({ left: newLeft, top: newTop });
-}
 
 export function handleHoverPhase2(state: StateRefs, e: React.MouseEvent<HTMLButtonElement>) {
     const newFoundCount = state.phase2FoundCount + 1;
@@ -124,7 +118,7 @@ export function handleHoverPhase2(state: StateRefs, e: React.MouseEvent<HTMLButt
 
     state.setIsBlackout(true);
 
-    teleportButtonAwayFromCursor(state.setPosition, state.cursorPos);
+    teleportButton(state, state.cursorPos.current);
 
     const opacity = Math.max(0.01, 0.8 - newFoundCount * 0.2);
     state.setButtonOpacity(opacity);
@@ -148,51 +142,43 @@ export function handleHoverPhase2(state: StateRefs, e: React.MouseEvent<HTMLButt
 {/* Phase 3 */}
 
 export function handleHoverPhase3(state: StateRefs) {
-    state.vx = state.vx ?? (Math.random() > 0.5 ? 2 : -2);
-    state.vy = state.vy ?? (Math.random() > 0.5 ? 2 : -2);
-    state.speed = state.speed ?? 2;
-    state.phase3CaughtCount = state.phase3CaughtCount ?? 0;
-    state.phase3LineIndex = state.phase3LineIndex ?? 0;
-
-    const lines = state.story.phase3.caughtLines;
-    const line = lines[state.phase3LineIndex % lines.length];
-    state.startDialogue([line]);
-    state.phase3LineIndex! += 1;
-
-    state.speed! += 0.5;
-
-    state.phase3CaughtCount! += 1;
-
-    teleportButton(state.setPosition);
-
-    if (state.phase3CaughtCount! >= 5) {
-        setTimeout(() => {
-            state.startDialogue(state.story.phase3.finale);
-            state.setPhase(4); 
-            state.setButtonOpacity(1);
-        }, 1000);
-    }
+    
 }
 
 export function updatePhase3Position(state: StateRefs) {
-    if (state.phase !== 3) return;
-
-    const buttonWidth = 100;
-    const buttonHeight = 50;
-
-    let left = state.position.left;
-    let top = state.position.top;
-
-
-    left += (state.vx ?? 2) * (state.speed ?? 2);
-    top += (state.vy ?? 2) * (state.speed ?? 2);
-
-    if (left <= 0 || left >= window.innerWidth - buttonWidth) state.vx! *= -1;
-    if (top <= 0 || top >= window.innerHeight - buttonHeight) state.vy! *= -1;
-
-    state.setPosition({ left, top });
+    
 }
 
-export function handleClickPhase3(state: StateRefs) {
+const PHASE3_CAUGHT_LIMIT = 5;
+
+export function handlePhase3Caught(state: StateRefs) {
+    if (state.movement.current.phase3RecentlyCaught) return;
+
+    state.movement.current.phase3RecentlyCaught = true;
+    setTimeout(() => {
+        state.movement.current.phase3RecentlyCaught = false;
+    }, 500);
+
+    const lines = state.story.phase3.caughtLines;
+    const line = lines[state.movement.current.phase3LineIndex! % lines.length];
+    state.startDialogue([line]);
+
+    state.movement.current.phase3LineIndex! += 1;
+    state.movement.current.phase3CaughtCount! += 1;
+
+    state.movement.current.speed! += 0.5;
+
+    if (state.movement.current.phase3CaughtCount! >= PHASE3_CAUGHT_LIMIT) {
+        setTimeout(() => {
+            state.startDialogue(state.story.phase3.finale);
+            state.setPhase(4);
+            state.setButtonOpacity(1);
+        }, 500);
+    }
+}
+
+{/* Phase 4 */}
+
+export function handleClickPhase4(state: StateRefs) {
     state.navigate("/home");
 }
