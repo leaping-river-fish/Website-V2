@@ -1,37 +1,42 @@
-// TO DO: Add button reactions, user text responses
+// TO DO: Add button reactions, add another found line, make phase 2 button only appear after choice is made
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useMotionValue } from "framer-motion";
 import { story } from "../components/start_game/story";
 import { useDialogueEngine } from "../components/start_game/dialogue_engine";
+import type { DialogueNode } from "../components/start_game/story_type";
 import * as gameEngine from "../components/start_game/game_engine";
 import { initPhase } from "../components/start_game/phase_inits";
+import { advanceNode } from "../components/start_game/game_engine";
 
 export default function StartPage() {
+    /* ----------------------- NAVIGATION & HOOKS ----------------------- */
     const navigate = useNavigate();
-    const [lastClickTime, setLastClickTime] = useState(0);
-    const CLICK_COOLDOWN = 500;
-    const {  dialogueText, isDialogueActive, isTyping, startDialogue, advanceDialogue } = useDialogueEngine();
+    const { dialogueText, isDialogueActive, isTyping, startDialogue, setIsDialogueActive, completeDialogue } = useDialogueEngine();
+
+    /* ----------------------- BUTTON REFS & STATE ----------------------- */
     const buttonRef = useRef<HTMLButtonElement | null>(null);
     const [buttonSize, setButtonSize] = useState({ width: 120, height: 50 });
+    const [buttonOpacity, setButtonOpacity] = useState(1);
+    const CLICK_COOLDOWN = 500;
+    const [lastClickTime, setLastClickTime] = useState(0);
 
+    /* ----------------------- PHASE STATE ----------------------- */
     const [phase, setPhase] = useState(0);
+    const phaseRef = useRef(phase); // keep latest phase in ref
+    useEffect(() => { phaseRef.current = phase; }, [phase]); 
+
+    /* ----------------------- DIALOGUE / NODE STATE ----------------------- */
+    const prevNodeRef = useRef<string | null>(null);
+    const [currentNode, setCurrentNode] = useState<DialogueNode | null>(null);
+    const [currentPhaseNodes, setCurrentPhaseNodes] = useState<{ [key: string]: DialogueNode }>({});
+
+    /* ----------------------- POSITION / MOVEMENT ----------------------- */
     const [position, setPosition] = useState<{ top: number; left: number }>({
         top: Math.floor(window.innerHeight / 2),
         left: Math.floor(window.innerWidth / 2),
     });
-    const [buttonOpacity, setButtonOpacity] = useState(1);
-    const [isBlackout, setIsBlackout] = useState(false);
-
-    {/* Phase Specific */}
-    const [hasWokenUp, setHasWokenUp] = useState(false);
-    const [phase1HoverCount, setPhase1HoverCount] = useState(0);
-    const [phase2FoundCount, setPhase2FoundCount] = useState(0);
-    const [phase2AccusationIndex, setPhase2AccusationIndex] = useState(0);
-    const [phase2Hiding, setPhase2Hiding] = useState(false);
     const cursorPos = useRef({ x: 0, y: 0 });
-    const phaseRef = useRef(phase);
-    useEffect(() => { phaseRef.current = phase; }, [phase]);
 
     const movement = useRef({
         vx: 0,
@@ -45,6 +50,17 @@ export default function StartPage() {
     const motionX = useMotionValue(position.left);
     const motionY = useMotionValue(position.top);
 
+    /* ----------------------- PHASE-SPECIFIC STATE ----------------------- */
+    const [hasWokenUp, setHasWokenUp] = useState(false);
+    const [phase1HoverCount, setPhase1HoverCount] = useState(0);
+    const [phase2FoundCount, setPhase2FoundCount] = useState(0);
+    const [phase2AccusationIndex, setPhase2AccusationIndex] = useState(0);
+    const [phase2Hiding, setPhase2Hiding] = useState(false);
+
+    /* ----------------------- GLOBAL / MISC ----------------------- */
+    const [isBlackout, setIsBlackout] = useState(false);
+
+    /* ----------------------- STATE REFS FOR ENGINE ----------------------- */
     const stateRefs = {
         phase,
         buttonSize,
@@ -69,13 +85,23 @@ export default function StartPage() {
         startDialogue,
         story,
         navigate,
-
+        currentNode,
+        setCurrentNode,
+        currentPhaseNodes,
+        setCurrentPhaseNodes,
+        isDialogueActive,
+        setIsDialogueActive,
+        prevNodeRef,
+        advanceNode,
         movement,
         phaseRef,
         motionX,
         motionY,
     };
 
+    /* ----------------------- EFFECTS ----------------------- */
+
+    /* Set initial button size */
     useEffect(() => {
         if (buttonRef.current) {
             const rect = buttonRef.current.getBoundingClientRect();
@@ -83,6 +109,16 @@ export default function StartPage() {
         }
     }, []);
 
+    /* Track previous node on currentNode change */
+    useEffect(() => {
+        const key = Object.entries(currentPhaseNodes).find(
+            ([k, node]) => node === currentNode
+        )?.[0] ?? null;
+
+        prevNodeRef.current = key;
+    }, [currentNode, currentPhaseNodes]);
+
+    /* Initialize phase */
     useEffect(() => {
         initPhase(phase, stateRefs);
 
@@ -92,6 +128,7 @@ export default function StartPage() {
         }
     }, [phase]);
 
+    /* Track cursor position */
     useEffect(() => {
         const handleMove = (e: MouseEvent) => {
             cursorPos.current.x = e.clientX;
@@ -101,6 +138,7 @@ export default function StartPage() {
         return () => window.removeEventListener("mousemove", handleMove);
     }, []);
 
+    /* Animate moving button for phase 3 */
     useEffect(() => {
         let raf = 0;
 
@@ -161,9 +199,9 @@ export default function StartPage() {
     const handleHover = (e: React.MouseEvent<HTMLButtonElement>) => {
         switch (phase) {
             case 0: gameEngine.handleHoverPhase0(stateRefs); break;
-            case 1: gameEngine.handleHoverPhase1(stateRefs, e); break;
-            case 2: gameEngine.handleHoverPhase2(stateRefs, e); break;
-            case 3: gameEngine.handleHoverPhase3(stateRefs); break;
+            case 1: gameEngine.handleHoverPhase1(stateRefs); break;
+            case 2: gameEngine.handleHoverPhase2(stateRefs); break;
+            case 3: gameEngine.handlePhase3Caught(stateRefs); break;
         }
     };
 
@@ -177,10 +215,49 @@ export default function StartPage() {
     const handleGlobalClick = () => {
         const now = Date.now();
         if (now - lastClickTime < CLICK_COOLDOWN) return;
-
         setLastClickTime(now);
 
-        advanceDialogue();
+        console.log(
+            "%cCLICK",
+            "background: #222; color: #bada55; font-size: 14px; padding: 2px 6px;",
+            {
+                phase,
+                isDialogueActive,
+                isTyping,
+                currentNode,
+                prevNodeRef: prevNodeRef.current,
+                blackout: isBlackout
+            }
+        );
+
+
+        if (isDialogueActive && isTyping) {
+            completeDialogue();
+            return;
+        }
+
+        if (isDialogueActive && !isTyping) {
+            if (currentNode?.choices?.length) return;
+
+            if (currentNode?.next) {
+                const nextNode = currentPhaseNodes[currentNode.next];
+                if (nextNode) {
+                    advanceNode(stateRefs, currentNode.next);
+                    return;
+                }
+            }
+
+            if (currentNode?.done) {
+                setIsDialogueActive(false);
+                setCurrentNode(null);
+                setPhase(prev => prev + 1);
+                return;
+            }
+
+            setIsDialogueActive(false);
+            setCurrentNode(null);
+            return;
+        }
 
         if (isBlackout && phase !== 2) {
             setIsBlackout(false);
@@ -218,10 +295,41 @@ export default function StartPage() {
                 Start
             </motion.button>
 
-            {isDialogueActive && (
-                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-11/12 md:w-2/3 lg:w-1/2 bg-white text-black p-4 rounded-lg shadow-lg z-40 cursor-pointer">
+            {isDialogueActive && currentNode && (
+                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-11/12 md:w-2/3 lg:w-1/2 bg-white text-black p-4 rounded-lg shadow-lg z-40">
                     <div>{dialogueText}</div>
-                    {!isTyping && (
+
+                    {!isTyping && currentNode.choices && (
+                        <div className="mt-4 flex flex-col gap-2">
+                            {currentNode.choices.map((choice, idx) => (
+                                <button
+                                    key={idx}
+                                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                                    onClick={() => {
+                                        if (choice.next) {
+                                        const nextNode = currentPhaseNodes[choice.next];
+                                        if (nextNode) {
+                                            setCurrentNode(nextNode);
+                                            startDialogue([nextNode.text]);
+                                            setIsDialogueActive(true);
+                                        }
+                                    } else if (currentNode.done) {
+                                        setIsDialogueActive(false);
+                                        setCurrentNode(null);
+                                        setPhase(prev => prev + 1);
+                                    } else {
+                                        setIsDialogueActive(false);
+                                        setCurrentNode(null);
+                                    }  
+                                    }}
+                                >
+                                    {choice.text}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    {!isTyping && !currentNode.choices && (
                         <div className="text-gray-600 mt-3 text-sm blink select-none">
                             Click anywhere to continue
                         </div>

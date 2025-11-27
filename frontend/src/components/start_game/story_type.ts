@@ -1,23 +1,24 @@
 export interface StoryType {
     phase0: {
-        intro: string[];
-        userResponses1: string[];
-        buttonResponse1: string[];
-        userResponses2: string[];
-        buttonFinal: string[];
+        nodes: Record<string, DialogueNode>;
     };
     phase1: {
-        taunts: string[];
-        finale: string[];
+        nodes: Record<string, DialogueNode>;
     };
     phase2: {
-        intro: string[];
-        foundLines: string[];
-        finale: string[];
+        nodes: Record<string, DialogueNode>;
     };
     phase3: {
-        intro: string[];
-        caughtLines: string[];
-        finale: string[];
+        nodes: Record<string, DialogueNode>;
     };
+    phase4: { 
+        nodes: Record<string, DialogueNode>;
+    };
+}
+
+export interface DialogueNode {
+    text: string;
+    choices?: { text: string; next: string | null }[];
+    next?: string | null;
+    done?: boolean;
 }

@@ -1,30 +1,20 @@
-import type { StoryType } from "./story_type";
+import type { StoryType, DialogueNode } from "./story_type";
 import { MotionValue } from "framer-motion";
 
 export interface StateRefs {
+    /* ----------------------- BUTTON STATE ----------------------- */
     buttonSize: { width: number; height: number };
+    setButtonOpacity: (opacity: number) => void;
+    buttonOpacity: number;
+
+    /* ----------------------- PHASE STATE ----------------------- */
     phase: number;
-    setPhase: (phase: number) => void;
+    setPhase: React.Dispatch<React.SetStateAction<number>>;
+    phaseRef: React.RefObject<number>;
+
+    /* ----------------------- POSITION & MOVEMENT ----------------------- */
     position: { top: number; left: number };
     setPosition: (pos: { top: number; left: number }) => void;
-    buttonOpacity: number;
-    setButtonOpacity: (opacity: number) => void;
-    isBlackout: boolean;
-    setIsBlackout: (b: boolean) => void;
-    hasWokenUp: boolean;
-    setHasWokenUp: (b: boolean) => void;
-    phase1HoverCount: number;
-    setPhase1HoverCount: (n: number) => void;
-    phase2FoundCount: number;
-    setPhase2FoundCount: (n: number) => void;
-    phase2AccusationIndex: number;
-    setPhase2AccusationIndex: (n: number) => void;
-    phase2Hiding: boolean;
-    setPhase2Hiding: (b: boolean) => void;
-    startDialogue: (lines: string[]) => void;
-    story: StoryType;
-    navigate: (path: string) => void;
-
     cursorPos: React.RefObject<{ x: number; y: number }>;
 
     movement: React.RefObject<{
@@ -35,15 +25,50 @@ export interface StateRefs {
         phase3LineIndex: number;
         phase3RecentlyCaught: boolean;
     }>;
-    phaseRef: React.RefObject<number>;
 
     motionX: MotionValue<number>;
     motionY: MotionValue<number>;
+
+    /* ----------------------- GLOBAL STATE ----------------------- */
+    isBlackout: boolean;
+    setIsBlackout: (b: boolean) => void;
+
+    /* ----------------------- PHASE-SPECIFIC STATE ----------------------- */
+    hasWokenUp: boolean;
+    setHasWokenUp: (b: boolean) => void;
+
+    phase1HoverCount: number;
+    setPhase1HoverCount: (n: number) => void;
+
+    phase2FoundCount: number;
+    setPhase2FoundCount: (n: number) => void;
+
+    phase2AccusationIndex: number;
+    setPhase2AccusationIndex: (n: number) => void;
+
+    phase2Hiding: boolean;
+    setPhase2Hiding: (b: boolean) => void;
+
+    /* ----------------------- DIALOGUE / STORY ----------------------- */
+    isDialogueActive: boolean;
+    setIsDialogueActive: (b: boolean) => void;
+    prevNodeRef: React.RefObject<string | null>;
+    currentNode: DialogueNode | null;
+    setCurrentNode: (node: DialogueNode | null) => void;
+    currentPhaseNodes: { [key: string]: DialogueNode };
+    setCurrentPhaseNodes: (nodes: { [key: string]: DialogueNode }) => void;
+
+    startDialogue: (lines: string[]) => void;
+    advanceNode: (state: StateRefs, nextKey: string) => void;
+    story: StoryType;
+
+    /* ----------------------- NAVIGATION ----------------------- */
+    navigate: (path: string) => void;
 }
 
 const TELEPORT_PADDING = 100;
 
-function teleportButton(state: StateRefs, cursor: { x: number; y: number }) {
+export function teleportButton(state: StateRefs, cursor: { x: number; y: number }) {
     const buttonWidth = 100;
     const buttonHeight = 50;
     const padding = 20;
@@ -66,76 +91,122 @@ function teleportButton(state: StateRefs, cursor: { x: number; y: number }) {
     state.motionY.set(newTop);
 }
 
+function blackoutAndTeleport(state: StateRefs, count: number) {
+    state.setIsBlackout(true);
+    teleportButton(state, state.cursorPos.current);
+
+    const opacity = Math.max(0.01, 0.8 - count * 0.2);
+    state.setButtonOpacity(opacity);
+
+    setTimeout(() => state.setIsBlackout(false), 2500);
+}
+
+export function advanceNode(state: StateRefs, nextKey: string) {
+    const nextNode = state.currentPhaseNodes?.[nextKey];
+    if (!nextNode) return null;
+
+    state.setCurrentNode(nextNode);
+    if (state.prevNodeRef) state.prevNodeRef.current = nextKey;
+
+    if (nextNode.text && nextNode.text.length > 0) {
+        state.startDialogue([nextNode.text]);
+        state.setIsDialogueActive(true);
+    }
+
+    return nextNode;
+}
+
+export function completePhase(state: StateRefs) {
+    const nextPhase = state.phase + 1;
+    state.setPhase(nextPhase);
+}
+
 {/* Phase 0 */}
 
 export function handleHoverPhase0(state: StateRefs) {
+    const startNode = state.currentPhaseNodes["start"];
+    if (!startNode) return;
+
     if (!state.hasWokenUp) {
-        state.startDialogue(state.story.phase0.intro);
+        state.setCurrentNode(startNode);
+        state.startDialogue([startNode.text])
+        state.setIsDialogueActive(true);
         state.setHasWokenUp(true);
     }
 }
 
 export function handleClickPhase0(state: StateRefs) {
     if (!state.hasWokenUp) return;
-    state.startDialogue(state.story.phase0.buttonFinal);
-    state.setPhase(1);
+
+    if (state.isDialogueActive) return;
+
+    const node = state.currentNode;
+
+    if (node?.done) {
+        return;
+    }
+
+    if (node?.next) {
+        advanceNode(state, node.next);
+    }
 }
+
 
 {/* Phase 1 */}
 
-const PHASE1_HOVER_LIMIT = 10;
+const PHASE1_HOVER_LIMIT = 8;
+export function handleHoverPhase1(state: StateRefs) {
+    if (state.isDialogueActive) return;
 
-export function handleHoverPhase1(state: StateRefs, e: React.MouseEvent<HTMLButtonElement>) {
     const newHoverCount = state.phase1HoverCount + 1;
     state.setPhase1HoverCount(newHoverCount);
 
     if (newHoverCount < PHASE1_HOVER_LIMIT) {
-        const taunts = state.story.phase1.taunts;
-        const taunt = taunts[Math.floor(Math.random() * taunts.length)];
-        state.startDialogue([taunt]);
+        const tauntKeys = Object.keys(state.story.phase1.nodes).filter(k => k.startsWith("taunt"));
+        const randomKey = tauntKeys[Math.floor(Math.random() * tauntKeys.length)];
 
+        advanceNode(state, randomKey);
         teleportButton(state, state.cursorPos.current);
+        return;
+    } 
 
-    } else if (newHoverCount === PHASE1_HOVER_LIMIT) {
-        state.startDialogue(state.story.phase1.finale);
-        setTimeout(() => {
-            state.setPhase(2);  
-        }, 3000);
+    if (newHoverCount === PHASE1_HOVER_LIMIT) {
+        advanceNode(state, "finale");
     }
 }
 
 {/* Phase 2 */}
 
-const PHASE2_FIND_LIMIT = 5;
+const PHASE2_FIND_LIMIT = 4;
 
-export function handleHoverPhase2(state: StateRefs, e: React.MouseEvent<HTMLButtonElement>) {
+export function handleHoverPhase2(state: StateRefs) {
+    if (state.isDialogueActive) return;  
+
     const newFoundCount = state.phase2FoundCount + 1;
     state.setPhase2FoundCount(newFoundCount);
 
-    const accusation = state.story.phase2.foundLines[state.phase2AccusationIndex];
-    state.setPhase2AccusationIndex(state.phase2AccusationIndex + 1);
-    state.startDialogue([accusation]);
+    const nodeOrder = ["found1", "found2", "found3", "found4"];
+    const nextKey = nodeOrder[newFoundCount - 1];
 
-    state.setIsBlackout(true);
+    if (!nextKey) return;
 
-    teleportButton(state, state.cursorPos.current);
+    const node = advanceNode(state, nextKey);
+    if (!node) return;
 
-    const opacity = Math.max(0.01, 0.8 - newFoundCount * 0.2);
-    state.setButtonOpacity(opacity);
+    if (node.choices?.length) {
+        blackoutAndTeleport(state, newFoundCount);
+        return;
+    }
 
-    setTimeout(() => {
-        state.setIsBlackout(false);
-    }, 2500);
+    if (node.next) {
+        advanceNode(state, node.next);
+    }
 
-    if (newFoundCount >= PHASE2_FIND_LIMIT) {
-        state.startDialogue([accusation]);
-        setTimeout(() => {
-            state.startDialogue(state.story.phase2.finale);
-        }, 3000)
-        setTimeout(() => {
-            state.setPhase(3);
-            state.setButtonOpacity(1);
-        }, 6000);
+    blackoutAndTeleport(state, newFoundCount);
+
+    if (newFoundCount === PHASE2_FIND_LIMIT) {
+        advanceNode(state, 'finale');
+        state.setButtonOpacity(1);
     }
 }
 
@@ -149,32 +220,52 @@ export function updatePhase3Position(state: StateRefs) {
     
 }
 
-const PHASE3_CAUGHT_LIMIT = 5;
+export function handlePhase3Caught(state: StateRefs) {  
+    if (state.phase !== 3) return; 
 
-export function handlePhase3Caught(state: StateRefs) {
-    if (state.movement.current.phase3RecentlyCaught) return;
+    if (!state.currentPhaseNodes) return;
+    const movement = state.movement.current;
 
-    state.movement.current.phase3RecentlyCaught = true;
-    setTimeout(() => {
-        state.movement.current.phase3RecentlyCaught = false;
-    }, 500);
+    if (movement.phase3RecentlyCaught) return;
+    movement.phase3RecentlyCaught = true;
+    setTimeout(() => { movement.phase3RecentlyCaught = false; }, 500);
 
-    const lines = state.story.phase3.caughtLines;
-    const line = lines[state.movement.current.phase3LineIndex! % lines.length];
-    state.startDialogue([line]);
+    movement.phase3CaughtCount += 1;
+    const newCount = movement.phase3CaughtCount;
 
-    state.movement.current.phase3LineIndex! += 1;
-    state.movement.current.phase3CaughtCount! += 1;
+    const nodeOrder = ["caught1", "caught2", "caught3", "caught4", "caught5"];
+    const nextKey = nodeOrder[newCount - 1];
+    if (!nextKey) return;
 
-    state.movement.current.speed! += 0.5;
+    const node = advanceNode(state, nextKey);
+    if (!node) return;
 
-    if (state.movement.current.phase3CaughtCount! >= PHASE3_CAUGHT_LIMIT) {
-        setTimeout(() => {
-            state.startDialogue(state.story.phase3.finale);
-            state.setPhase(4);
-            state.setButtonOpacity(1);
-        }, 500);
+    movement.speed += 1;
+
+    // teleport/blackout for all except last catch
+    if (newCount < nodeOrder.length) {
+        state.setIsBlackout(true);
+        teleportButton(state, state.cursorPos.current);
+        setTimeout(() => state.setIsBlackout(false), 1000);
+        return;
     }
+
+    // final catch: center button and advance finale
+
+    if (newCount === nodeOrder.length) {
+    const centerX = window.innerWidth / 2 - 50;
+    const centerY = window.innerHeight / 2 - 25;
+    state.setPosition({ left: centerX, top: centerY });
+    state.motionX.set(centerX);
+    state.motionY.set(centerY);
+
+    state.movement.current.vx = 0;
+    state.movement.current.vy = 0;
+    state.movement.current.speed = 0;
+
+    advanceNode(state, "finale");
+    return;
+}
 }
 
 {/* Phase 4 */}

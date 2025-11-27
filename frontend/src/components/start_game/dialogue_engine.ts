@@ -44,28 +44,20 @@ export function useDialogueEngine() {
     };
 
     const startDialogue = (lines: string[]) => {
+        setIsDialogueActive(true);
         if (!lines || lines.length === 0) return;
         setDialogueQueue(lines);
         setCurrentIndex(0);
         startTypewriter(lines[0]);
     };
 
-    const advanceDialogue = () => {
+    const completeDialogue = () => {
         if (!isDialogueActive) return;
 
         if (isTyping) {
             clearTimer();
             setDialogueText(fullDialogue);
             setIsTyping(false);
-            return;
-        }
-
-        const nextIndex = currentIndex + 1;
-        if (nextIndex < dialogueQueue.length) {
-            setCurrentIndex(nextIndex);
-            startTypewriter(dialogueQueue[nextIndex]);
-        } else {
-            setIsDialogueActive(false);
         }
     };
 
@@ -75,11 +67,10 @@ export function useDialogueEngine() {
 
     return {
         dialogueText,
-        fullDialogue,
         isDialogueActive,
+        setIsDialogueActive,
         isTyping,
         startDialogue,
-        advanceDialogue,
-        setIsDialogueActive,
+        completeDialogue
     };
 }
