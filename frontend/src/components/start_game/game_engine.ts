@@ -177,7 +177,7 @@ export function handleHoverPhase1(state: StateRefs) {
 
 {/* Phase 2 */}
 
-const PHASE2_FIND_LIMIT = 4;
+const PHASE2_FIND_LIMIT = 5;
 
 export function handleHoverPhase2(state: StateRefs) {
     if (state.isDialogueActive) return;  
@@ -185,7 +185,7 @@ export function handleHoverPhase2(state: StateRefs) {
     const newFoundCount = state.phase2FoundCount + 1;
     state.setPhase2FoundCount(newFoundCount);
 
-    const nodeOrder = ["found1", "found2", "found3", "found4"];
+    const nodeOrder = ["found1", "found2", "found3", "found4", "found5"];
     const nextKey = nodeOrder[newFoundCount - 1];
 
     if (!nextKey) return;
@@ -198,14 +198,13 @@ export function handleHoverPhase2(state: StateRefs) {
         return;
     }
 
-    if (node.next) {
-        advanceNode(state, node.next);
-    }
+    // if (node.next) {
+    //     advanceNode(state, node.next);
+    // }
 
     blackoutAndTeleport(state, newFoundCount);
 
     if (newFoundCount === PHASE2_FIND_LIMIT) {
-        advanceNode(state, 'finale');
         state.setButtonOpacity(1);
     }
 }
@@ -242,30 +241,19 @@ export function handlePhase3Caught(state: StateRefs) {
 
     movement.speed += 1;
 
-    // teleport/blackout for all except last catch
-    if (newCount < nodeOrder.length) {
-        state.setIsBlackout(true);
-        teleportButton(state, state.cursorPos.current);
-        setTimeout(() => state.setIsBlackout(false), 1000);
+    if (newCount === nodeOrder.length) {
+        const centerX = window.innerWidth / 2 - 50;
+        const centerY = window.innerHeight / 2 - 25;
+        state.setPosition({ left: centerX, top: centerY });
+        state.motionX.set(centerX);
+        state.motionY.set(centerY);
+
+        state.movement.current.vx = 0;
+        state.movement.current.vy = 0;
+        state.movement.current.speed = 0;
+
         return;
     }
-
-    // final catch: center button and advance finale
-
-    if (newCount === nodeOrder.length) {
-    const centerX = window.innerWidth / 2 - 50;
-    const centerY = window.innerHeight / 2 - 25;
-    state.setPosition({ left: centerX, top: centerY });
-    state.motionX.set(centerX);
-    state.motionY.set(centerY);
-
-    state.movement.current.vx = 0;
-    state.movement.current.vy = 0;
-    state.movement.current.speed = 0;
-
-    advanceNode(state, "finale");
-    return;
-}
 }
 
 {/* Phase 4 */}

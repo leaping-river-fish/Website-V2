@@ -1,5 +1,6 @@
-// TO DO: Add button reactions, add another found line, make phase 2 button only appear after choice is made
-import { useState, useEffect, useRef } from "react";
+// TO DO: Add button reactions, make phase 2 button only appear after choice is made,
+// figure out teleporting from top left corner issue(may require refactoring using motion)
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useMotionValue } from "framer-motion";
 import { story } from "../components/start_game/story";
@@ -275,6 +276,7 @@ export default function StartPage() {
 
             <motion.button
                 ref={buttonRef}
+                // initial={false}
                 animate={{
                     left: phaseRef.current === 3 ? undefined : position.left,
                     top: phaseRef.current === 3 ? undefined : position.top,

@@ -97,6 +97,11 @@ export const story: StoryType = {
             },  
 
             found3: {
+                text: "Are you actually tracking my CSS? That's illegal!",
+                next: null
+            },
+
+            found4: {
                 text: "STOP FINDING ME! I'M SUPPOSED TO BE INVISIBLE! That's it, you'll never find me now!",
                 choices: [
                     { text: "I won't stop!", next: null },
@@ -104,7 +109,7 @@ export const story: StoryType = {
                 ]
             },
 
-            found4: {
+            found5: {
                 text: "You're hacking! No NORMAL human can do this!",
                 next: "finale"
             },
