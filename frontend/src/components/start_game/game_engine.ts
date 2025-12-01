@@ -1,5 +1,7 @@
 import type { StoryType, DialogueNode } from "./story_type";
 import { MotionValue } from "framer-motion";
+import { triggerNodeAnimation } from "./animation";
+import type { AnimationName } from "./animation";
 
 export interface StateRefs {
     /* ----------------------- BUTTON STATE ----------------------- */
@@ -101,7 +103,12 @@ function blackoutAndTeleport(state: StateRefs, count: number) {
     setTimeout(() => state.setIsBlackout(false), 2500);
 }
 
-export function advanceNode(state: StateRefs, nextKey: string) {
+export function advanceNode(
+    state: StateRefs,
+    nextKey: string,
+    buttonEl?: HTMLElement | null,
+    animationOverride?: AnimationName
+) {
     const nextNode = state.currentPhaseNodes?.[nextKey];
     if (!nextNode) return null;
 
@@ -111,6 +118,11 @@ export function advanceNode(state: StateRefs, nextKey: string) {
     if (nextNode.text && nextNode.text.length > 0) {
         state.startDialogue([nextNode.text]);
         state.setIsDialogueActive(true);
+    }
+
+    const animationToPlay = animationOverride ?? nextNode.animation;
+    if (animationToPlay && buttonEl) {
+        triggerNodeAnimation({ animation: animationToPlay }, buttonEl);
     }
 
     return nextNode;
@@ -123,15 +135,14 @@ export function completePhase(state: StateRefs) {
 
 {/* Phase 0 */}
 
-export function handleHoverPhase0(state: StateRefs) {
-    const startNode = state.currentPhaseNodes["start"];
+export function handleHoverPhase0(state: StateRefs, buttonEl?: HTMLElement | null) {
+    const startNodeKey = "start";
+    const startNode = state.currentPhaseNodes[startNodeKey];
     if (!startNode) return;
 
     if (!state.hasWokenUp) {
-        state.setCurrentNode(startNode);
-        state.startDialogue([startNode.text])
-        state.setIsDialogueActive(true);
         state.setHasWokenUp(true);
+        advanceNode(state, startNodeKey, buttonEl);
     }
 }
 
@@ -155,7 +166,7 @@ export function handleClickPhase0(state: StateRefs) {
 {/* Phase 1 */}
 
 const PHASE1_HOVER_LIMIT = 8;
-export function handleHoverPhase1(state: StateRefs) {
+export function handleHoverPhase1(state: StateRefs, buttonEl?: HTMLElement | null) {
     if (state.isDialogueActive) return;
 
     const newHoverCount = state.phase1HoverCount + 1;
@@ -179,7 +190,7 @@ export function handleHoverPhase1(state: StateRefs) {
 
 const PHASE2_FIND_LIMIT = 5;
 
-export function handleHoverPhase2(state: StateRefs) {
+export function handleHoverPhase2(state: StateRefs, buttonEl?: HTMLElement | null) {
     if (state.isDialogueActive) return;  
 
     const newFoundCount = state.phase2FoundCount + 1;
@@ -190,7 +201,7 @@ export function handleHoverPhase2(state: StateRefs) {
 
     if (!nextKey) return;
 
-    const node = advanceNode(state, nextKey);
+    const node = advanceNode(state, nextKey, buttonEl);
     if (!node) return;
 
     if (node.choices?.length) {
@@ -219,7 +230,7 @@ export function updatePhase3Position(state: StateRefs) {
     
 }
 
-export function handlePhase3Caught(state: StateRefs) {  
+export function handlePhase3Caught(state: StateRefs, buttonEl?: HTMLElement | null) {  
     if (state.phase !== 3) return; 
 
     if (!state.currentPhaseNodes) return;
@@ -236,7 +247,7 @@ export function handlePhase3Caught(state: StateRefs) {
     const nextKey = nodeOrder[newCount - 1];
     if (!nextKey) return;
 
-    const node = advanceNode(state, nextKey);
+    const node = advanceNode(state, nextKey, buttonEl);
     if (!node) return;
 
     movement.speed += 1;
@@ -251,6 +262,13 @@ export function handlePhase3Caught(state: StateRefs) {
         state.movement.current.vx = 0;
         state.movement.current.vy = 0;
         state.movement.current.speed = 0;
+
+        const buttonEl = document.querySelector('button');
+        if (buttonEl) {
+            buttonEl.classList.add('anim-spin-out');
+
+            setTimeout(() => buttonEl.classList.remove('anim-spin-out'), 1000);
+        }
 
         return;
     }

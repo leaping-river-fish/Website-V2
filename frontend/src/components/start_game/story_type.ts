@@ -1,3 +1,5 @@
+import type { AnimationName } from "./animation";
+
 export interface StoryType {
     phase0: {
         nodes: Record<string, DialogueNode>;
@@ -18,7 +20,14 @@ export interface StoryType {
 
 export interface DialogueNode {
     text: string;
-    choices?: { text: string; next: string | null }[];
+    choices?: DialogueChoice[];
     next?: string | null;
     done?: boolean;
+    animation?: AnimationName;
+}
+
+export interface DialogueChoice {
+    text: string;
+    next: string | null;
+    animation?: AnimationName;
 }

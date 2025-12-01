@@ -8,25 +8,28 @@ export const story: StoryType = {
                 choices: [
                     { text: "?", next: "buttonResponse1" },
                     { text: "I'm just trying to click the button…", next: "buttonResponse2" }
-                ]
+                ],
+                animation: "shake-x"
             },
 
             buttonResponse1: {
                 text: "HELLO, I'M TALKING TO YOU! ME, THE BUTTON!",
-                next: "argue"
+                next: "argue",
+                animation: "frustrated-wobble"
             },
 
             buttonResponse2: {
                 text: "I AM THE BUTTON! I'M TALKING TO YOU!",
-                next: "argue"
+                next: "argue",
+                animation: "frustrated-wobble"
             },
 
             argue: {
                 text: "Are you gonna acknowledge my existence?",
                 choices: [
-                    { text: "You're probably just a bunch of parameters...", next: "finale" },
+                    { text: "You're probably just a bunch of parameters...", next: "finale", animation: "shake-y" },
                     { text: "I've never met a talking button before...", next: "finale" }
-                ]
+                ],
             },
 
             finale: {

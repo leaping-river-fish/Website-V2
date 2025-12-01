@@ -1,6 +1,6 @@
-// TO DO: Add button reactions, make phase 2 button only appear after choice is made,
-// figure out teleporting from top left corner issue(may require refactoring using motion)
-import { useState, useEffect, useRef, useLayoutEffect } from "react";
+// TO DO: make phase 2 button only appear after choice is made,
+// top left corner issue(may require refactoring using motion), Add button reactions(fix phase 3 spin out)
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useMotionValue } from "framer-motion";
 import { story } from "../components/start_game/story";
@@ -197,12 +197,13 @@ export default function StartPage() {
         return () => cancelAnimationFrame(raf);
     }, []);
 
-    const handleHover = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleHover = () => {
+        const buttonEl = buttonRef.current;
         switch (phase) {
-            case 0: gameEngine.handleHoverPhase0(stateRefs); break;
-            case 1: gameEngine.handleHoverPhase1(stateRefs); break;
-            case 2: gameEngine.handleHoverPhase2(stateRefs); break;
-            case 3: gameEngine.handlePhase3Caught(stateRefs); break;
+            case 0: gameEngine.handleHoverPhase0(stateRefs, buttonEl); break;
+            case 1: gameEngine.handleHoverPhase1(stateRefs, buttonEl); break;
+            case 2: gameEngine.handleHoverPhase2(stateRefs, buttonEl); break;
+            case 3: gameEngine.handlePhase3Caught(stateRefs, buttonEl); break;
         }
     };
 
@@ -243,7 +244,7 @@ export default function StartPage() {
             if (currentNode?.next) {
                 const nextNode = currentPhaseNodes[currentNode.next];
                 if (nextNode) {
-                    advanceNode(stateRefs, currentNode.next);
+                    advanceNode(stateRefs, currentNode.next!, buttonRef.current);
                     return;
                 }
             }
@@ -309,20 +310,15 @@ export default function StartPage() {
                                     className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                                     onClick={() => {
                                         if (choice.next) {
-                                        const nextNode = currentPhaseNodes[choice.next];
-                                        if (nextNode) {
-                                            setCurrentNode(nextNode);
-                                            startDialogue([nextNode.text]);
-                                            setIsDialogueActive(true);
-                                        }
-                                    } else if (currentNode.done) {
-                                        setIsDialogueActive(false);
-                                        setCurrentNode(null);
-                                        setPhase(prev => prev + 1);
-                                    } else {
-                                        setIsDialogueActive(false);
-                                        setCurrentNode(null);
-                                    }  
+                                            advanceNode(stateRefs, choice.next, buttonRef.current, choice.animation);
+                                        } else if (currentNode.done) {
+                                            setIsDialogueActive(false);
+                                            setCurrentNode(null);
+                                            setPhase(prev => prev + 1);
+                                        } else {
+                                            setIsDialogueActive(false);
+                                            setCurrentNode(null);
+                                        }  
                                     }}
                                 >
                                     {choice.text}
