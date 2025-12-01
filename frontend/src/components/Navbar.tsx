@@ -6,21 +6,21 @@ export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false)
 
     return (
-        <nav className="bg-slate-800 text-white shadow-md relative">
+        <nav className="bg-[#1A1410] text-white shadow-md relative">
             <div className="flex h-16 items-center px-4 md:px-8 justify-between">
                 
                 {/* DESKTOP */}
-                <div className="flex items-center space-x-6">
+                <div className="flex items-center flex-1">
                     {/* Logo */}
                     <Link to="/home">
-                        <img src={Logo} alt="Logo" className="h-12 w-auto" />
+                        <img src={Logo} alt="Logo" className="h-16 w-auto" />
                     </Link>
 
-                    <div className="hidden md:flex space-x-6">
-                        <Link to="/about" className="hover:text-slate-300">About</Link>
-                        <Link to="/projects" className="hover:text-slate-300">Projects</Link>
-                        <Link to="/gallery" className="hover:text-slate-300">Gallery</Link>
-                        <Link to="/contact" className="hover:text-slate-300">Contact</Link>
+                    <div className="hidden md:flex flex-1 justify-center space-x-6 md:text-lg">
+                        <Link to="/about" className="nav-link hover:text-slate-300 font-semibold">About</Link>
+                        <Link to="/projects" className="nav-link hover:text-slate-300 font-semibold">Projects</Link>
+                        <Link to="/gallery" className="nav-link hover:text-slate-300 font-semibold">Gallery</Link>
+                        <Link to="/contact" className="nav-link hover:text-slate-300 font-semibold">Contact</Link>
                     </div>
                 </div>
 
@@ -37,12 +37,37 @@ export default function Navbar() {
                     </button>
 
                     {isOpen && (
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-slate-800 text-white p-4 flex flex-col space-y-2 rounded-md shadow-lg z-50">
-                            <Link to="/home" className="hover:text-slate-300">Home</Link>
-                            <Link to="/about" className="hover:text-slate-300">About</Link>
-                            <Link to="/projects" className="hover:text-slate-300">Projects</Link>
-                            <Link to="/gallery" className="hover:text-slate-300">Gallery</Link>
-                            <Link to="/contact" className="hover:text-slate-300">Contact</Link>
+                        <div className="absolute right-0 top-full mt-2 w-48 bg-slate-800 text-white rounded-md shadow-lg z-50 overflow-hidden">
+                            <Link 
+                                to="/home" 
+                                className="block w-full py-2 px-3 border-b border-slate-700 hover:bg-slate-700"
+                            >
+                                Home
+                            </Link>
+                            <Link 
+                                to="/about" 
+                                className="block w-full py-2 px-3 border-b border-slate-700 hover:bg-slate-700"
+                            >
+                                About
+                            </Link>
+                            <Link 
+                                to="/projects" 
+                                className="block w-full py-2 px-3 border-b border-slate-700 hover:bg-slate-700"
+                            >
+                                Projects
+                            </Link>
+                            <Link 
+                                to="/gallery" 
+                                className="block w-full py-2 px-3 border-b border-slate-700 hover:bg-slate-700"
+                            >
+                                Gallery
+                            </Link>
+                            <Link 
+                                to="/contact" 
+                                className="block w-full py-2 px-3 border-b border-slate-700 hover:bg-slate-700"
+                            >
+                                Contact
+                            </Link>
                         </div>
                     )}
                 </div>

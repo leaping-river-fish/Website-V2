@@ -1,4 +1,6 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react';
+
 import StartPage from './pages/Start'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
@@ -7,10 +9,33 @@ import Projects from './pages/Projects'
 import Gallery from './pages/Gallery'
 import Contact from './pages/Contact'
 
+import GridTransition from './components/grid_transition/GridTransition'
+
 export default function App() {
+    const location = useLocation();
+
+    const [displayedPath, setDisplayedPath] = useState(location.pathname);
+
+    const [triggerTransition, setTriggerTransition] = useState(false);
+
+    useEffect(() => {
+        if (location.pathname != displayedPath) {
+            setTriggerTransition(true);
+        }
+    }, [location.pathname, displayedPath])
+
+    const handTransitionComplete = () => {
+        setDisplayedPath(location.pathname);
+        setTriggerTransition(false);    
+    }
+
     return (
-        <div className="bg-slate-900 min-h-screen text-white">
-            <Routes>
+        <div className="bg-slate-900 min-h-screen text-white relative">
+            <GridTransition
+                trigger={triggerTransition}
+                onComplete={handTransitionComplete}
+            />
+            <Routes location={{ pathname: displayedPath }}>
                 <Route path="/" element={<StartPage />} />
 
                 <Route path="/home" element={<> <Navbar /> <Home /> </>} />

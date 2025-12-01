@@ -271,6 +271,24 @@ export default function StartPage() {
             className="relative w-screen h-screen bg-black"
             onClick={handleGlobalClick}
         >
+            <button
+                onClick={() => navigate("/home")}
+                style={{
+                    position: "fixed",
+                    top: 20,
+                    right: 20,
+                    zIndex: 9999,
+                    padding: "8px 14px",
+                    background: "red",
+                    color: "white",
+                    borderRadius: "8px",
+                    border: "none",
+                    cursor: "pointer"
+                }}
+            >
+                Skip Game
+            </button>
+
             {isBlackout && (
                 <div className="fixed top-0 left-0 w-screen h-screen bg-black z-30"></div>
             )}
