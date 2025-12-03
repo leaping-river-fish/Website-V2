@@ -1,3 +1,4 @@
+// may need to reduce number of columns and rows for smaller screens
 import { useEffect, useRef } from "react";
 import "./transition.css";
 
