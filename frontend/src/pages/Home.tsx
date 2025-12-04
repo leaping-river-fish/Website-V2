@@ -56,23 +56,40 @@ const [currentQuote, setCurrentQuote] = useState<string>(quotes[0]);
                 <div className='pt-[140px] text-white space-y-6'>
                     <p className=''>Hello,</p>
 
-                    <h1 className="text-4xl font-bold leading-tight whitespace-nowrap">
-                        I'm{" "}
-                        <AnimatePresence mode='wait'>
-                            <motion.span
-                                key={currentDescription}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                transition={{ duration: 0.6 }}
-                                className="gradient-text-animate"
-                            >
-                                {currentDescription}
-                            </motion.span>
-                        </AnimatePresence>
-                    </h1>
+                    <div className='min-h-40 sm:min-h-[100px] md:min-h-[180px] flex items-start'>
+                        <h1 
+                            className='
+                                font-bold 
+                                leading-tight 
+                                text-3xl sm:text-4xl md:text-5xl 
+                                max-w-xs sm:max-w-md md:max-w-2xl 
+                                wrap-break-word
+                            '
+                        >
+                            I'm{' '}
+                            <AnimatePresence mode='wait'>
+                                <motion.span
+                                    key={currentDescription}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ duration: 0.6 }}
+                                    className="gradient-text-animate block"
+                                >
+                                    {currentDescription}
+                                </motion.span>
+                            </AnimatePresence>
+                        </h1>
+                    </div>
 
-                    <div className='text-2xl italic text-gray-300 max-w-2xl'>
+                    <div className='
+                            italic text-gray-300
+                            text-lg sm:text-xl md:text-2xl
+                            max-w-sm sm:max-w-lg md:max-w-2xl
+                            wrap-break-word
+                            mt-6
+                        '
+                    >
                         <AnimatePresence mode='wait'>
                             <motion.p
                                 key={currentQuote}
