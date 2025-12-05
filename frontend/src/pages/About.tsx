@@ -1,16 +1,15 @@
-// add regular card slider with text for career timeline on mobile
-import React from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/pagination';
+// add daitaflow section to desktop timeline
+import React from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
 
 import RifoImg from "../assets/timeline_imgs/rifo.png"
 import DaitaflowImg from "../assets/timeline_imgs/daitaflow.png"
 
 
 function About() {
-    // may need to change this!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     const timelineEvents = [
         {
             title: "RIFO Holding Group",
@@ -27,15 +26,15 @@ function About() {
     ]
 
     return (
-        <div className='bg-[#1A1410] min-h-screen text-white overflow-hidden'>
+        <div className="bg-[#1A1410] min-h-screen text-white overflow-hidden">
             <h1 className="text-3xl font-bold p-4">About</h1>
 
-            <div className='relative w-full py-12'>
+            <div className="relative w-full py-12">
                 <h1
                     className="
                         font-bold 
                         text-left 
-                        pl-6 sm:pl-8 md:pl-12
+                        pl-2 sm:pl-4 md:pl-6
                         pt-6 sm:pt-8 
                         text-[3rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] 
                         leading-[0.8]                                               
@@ -46,68 +45,111 @@ function About() {
                     Career Timeline
                 </h1>
 
-                <svg 
-                    className='absolute top-[60px] left-0 w-full h-full z-0 pointer-events-none'
-                    viewBox="0 0 1200 1400"
-                    preserveAspectRatio="none"
-                >
-                    <path
-                        d='M780,125 H960 V1020 H300 V1350'
-                        stroke='#ffffff'
-                        strokeWidth='3'
-                        fill='transparent'
-                        strokeDasharray='5,5'
-                    />
-                </svg>
+                {/* MOBILE SWIPER */}
+                <div className="block laptop:hidden px-4 mb-16">
+                    <Swiper
+                        modules={[Pagination]}
+                        pagination={{ clickable: true }}
+                        spaceBetween={20}
+                        slidesPerView={1}
+                    >
+                        {timelineEvents.map((event, idx) => (
+                            <SwiperSlide key={idx}>
+                                <div className="bg-[#007ACC] rounded-2xl p-6 shadow-xl">
+                                    <img
+                                        src={event.img}
+                                        alt={event.title}
+                                        className="w-full h-auto rounded-xl shadow-lg mb-4"
+                                    />
 
-                <section className='bg-[#007ACC] py-20 mt-10'>
-                    <div className='grid md:grid-cols-2 items-center'>
-                        <div 
-                            className='
-                                text-left 
-                                font-bold 
-                                text-base sm:text-lg md:text-[1.2rem]
-                                max-w-full sm:max-w-[500px] md:max-w-[700px]
-                                pl-6 sm:pl-12 md:pl-[150px] 
-                            '
-                        >
-                            <p>
-                                During my first internship, I worked as a QA Engineer for RIFO
-                                Holding Group as part of the R&D team. I automated test cases
-                                for their client, agent, and vendor applications using Python
-                                scripts. Throughout the internship, I built strong relationships
-                                with my colleagues and developed valuable skills in app testing.
-                                I also gained hands-on experience with tools such as Appium and
-                                Selenium for automation, as well as Clipchamp and Canva for
-                                creating demo videos through video editing.
-                            </p>
-                        </div>
+                                    <h2 className="text-2xl font-bold mb-2">
+                                        {event.title}
+                                    </h2>
 
-                        <div className='flex justify-end items-start pr-10 md:pr-40 pt-24 pb-30 w-auto z-10'>
-                            <a
-                                href="https://www.rifo.com/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="pointer-events-auto"
+                                    <p className="text-base leading-relaxed mb-4">
+                                        {event.description}
+                                    </p>
+
+                                    <a
+                                        href={event.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-white underline font-semibold"
+                                    >
+                                        Visit Website →
+                                    </a>
+                                </div>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
+                </div>
+
+                <div className="hidden laptop:block">
+                    <svg 
+                        className="absolute top-[60px] left-0 w-full h-full z-0 pointer-events-none"
+                        viewBox="0 0 1200 1400"
+                        preserveAspectRatio="none"
+                    >
+                        <path
+                            d="M750,125 H960 V1020 H300 V1350"
+                            stroke="#ffffff"
+                            strokeWidth="3"
+                            fill="transparent"
+                            strokeDasharray="5,5"
+                        />
+                    </svg>
+
+                    <section className="bg-[#007ACC] py-20 mt-10">
+                        <div className="grid md:grid-cols-2 items-center">
+                            <div 
+                                className="
+                                    text-left 
+                                    font-bold 
+                                    text-base sm:text-lg md:text-[1.2rem]
+                                    max-w-full sm:max-w-[500px] md:max-w-[700px]
+                                    pl-6 sm:pl-12 md:pl-[150px] 
+                                "
                             >
-                                <img
-                                    src={RifoImg}
-                                    className="
-                                        w-40 sm:w-56 md:w-64 lg:w-72
-                                        max-h-[400px] 
-                                        rounded-2xl 
-                                        shadow-xl 
-                                        transition-transform duration-300 hover:-translate-y-1"
-                                    alt="RIFO Logo"
-                                />
-                            </a>
-                        </div>
-                    </div>
-                </section>
+                                <p>
+                                    During my first internship, I worked as a QA Engineer for RIFO
+                                    Holding Group as part of the R&D team. I automated test cases
+                                    for their client, agent, and vendor applications using Python
+                                    scripts. Throughout the internship, I built strong relationships
+                                    with my colleagues and developed valuable skills in app testing.
+                                    I also gained hands-on experience with tools such as Appium and
+                                    Selenium for automation, as well as Clipchamp and Canva for
+                                    creating demo videos through video editing.
+                                </p>
+                            </div>
 
-                <section className='py-10'>
-                    <h1 className='text-center text-3xl'>To be continued...</h1>
-                </section>
+                            <div className="flex justify-end items-start pr-10 md:pr-40 pt-24 pb-30 w-auto z-10">
+                                <a
+                                    href="https://www.rifo.com/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="pointer-events-auto"
+                                >
+                                    <img
+                                        src={RifoImg}
+                                        className="
+                                            w-40 sm:w-56 md:w-64 lg:w-72
+                                            max-h-[400px] 
+                                            rounded-2xl 
+                                            shadow-xl 
+                                            transition-transform duration-300 hover:-translate-y-1"
+                                        alt="RIFO Logo"
+                                    />
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+
+
+
+                    <section className="py-10">
+                        <h1 className="text-center text-3xl">To be continued...</h1>
+                    </section>
+                </div>
             </div>
         </div>
     );

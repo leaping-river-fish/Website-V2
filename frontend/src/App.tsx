@@ -1,15 +1,15 @@
-import { Routes, Route, useLocation } from 'react-router-dom'
-import { useState, useEffect } from 'react';
+import { Routes, Route, useLocation } from "react-router-dom"
+import { useState, useEffect } from "react";
 
-import StartPage from './pages/Start'
-import Navbar from './components/Navbar'
-import Home from './pages/Home'
-import About from './pages/About'
-import Projects from './pages/Projects'
-import Gallery from './pages/Gallery'
-import Contact from './pages/Contact'
+import StartPage from "./pages/Start"
+import Navbar from "./components/Navbar"
+import Home from "./pages/Home"
+import About from "./pages/About"
+import Projects from "./pages/Projects"
+import Gallery from "./pages/Gallery"
+import Contact from "./pages/Contact"
 
-import GridTransition from './components/grid_transition/GridTransition'
+import GridTransition from "./components/grid_transition/GridTransition"
 
 export default function App() {
     const location = useLocation();

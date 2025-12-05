@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion";
 
 function Home() {
@@ -51,23 +51,23 @@ const [currentQuote, setCurrentQuote] = useState<string>(quotes[0]);
     })
 
     return (
-        <div className='bg-[#1A1410] min-h-screen overflow-hidden w-screen flex items-start justify-start'>
-            <div className='flex flex-col items-start justify-start w-full h-[70%] mt-[5%] px-16'>
-                <div className='pt-[140px] text-white space-y-6'>
-                    <p className=''>Hello,</p>
+        <div className="bg-[#1A1410] min-h-screen overflow-hidden w-screen flex items-start justify-start">
+            <div className="flex flex-col items-start justify-start w-full h-[70%] mt-[5%] px-16">
+                <div className="pt-[140px] text-white space-y-6">
+                    <p className="">Hello,</p>
 
-                    <div className='min-h-40 sm:min-h-[100px] md:min-h-[180px] flex items-start'>
+                    <div className="min-h-40 sm:min-h-[100px] md:min-h-[180px] flex items-start">
                         <h1 
-                            className='
+                            className="
                                 font-bold 
                                 leading-tight 
                                 text-3xl sm:text-4xl md:text-5xl 
                                 max-w-xs sm:max-w-md md:max-w-2xl 
                                 wrap-break-word
-                            '
+                            "
                         >
-                            I'm{' '}
-                            <AnimatePresence mode='wait'>
+                            I"m{" "}
+                            <AnimatePresence mode="wait">
                                 <motion.span
                                     key={currentDescription}
                                     initial={{ opacity: 0, y: 10 }}
@@ -82,15 +82,15 @@ const [currentQuote, setCurrentQuote] = useState<string>(quotes[0]);
                         </h1>
                     </div>
 
-                    <div className='
+                    <div className="
                             italic text-gray-300
                             text-lg sm:text-xl md:text-2xl
                             max-w-sm sm:max-w-lg md:max-w-2xl
                             wrap-break-word
                             mt-6
-                        '
+                        "
                     >
-                        <AnimatePresence mode='wait'>
+                        <AnimatePresence mode="wait">
                             <motion.p
                                 key={currentQuote}
                                 initial={{ opacity: 0 }}

@@ -263,11 +263,11 @@ export function handlePhase3Caught(state: StateRefs, buttonEl?: HTMLElement | nu
         state.movement.current.vy = 0;
         state.movement.current.speed = 0;
 
-        const buttonEl = document.querySelector('button');
+        const buttonEl = document.querySelector("button");
         if (buttonEl) {
-            buttonEl.classList.add('anim-spin-out');
+            buttonEl.classList.add("anim-spin-out");
 
-            setTimeout(() => buttonEl.classList.remove('anim-spin-out'), 1000);
+            setTimeout(() => buttonEl.classList.remove("anim-spin-out"), 1000);
         }
 
         return;
