@@ -1,0 +1,21 @@
+/* Card hover pop effect */
+.project-card:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 255, 255, 0.15);
+}
+
+/* Smooth transitions for cards */
+.project-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Tag hover pop effect */
+.tag:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+/* Smooth transitions for tags */
+.tag {
+  transition: transform 0.2s ease;
+}

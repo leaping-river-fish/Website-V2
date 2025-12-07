@@ -1,12 +1,12 @@
-// add daitaflow section to desktop timeline
-import React from "react";
+// add timeline animation on scroll, sections slide into place animation on scroll
+
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
-import RifoImg from "../assets/timeline_imgs/rifo.png"
-import DaitaflowImg from "../assets/timeline_imgs/daitaflow.png"
+import RifoImg from "/images/timeline_imgs/rifo.png"
+import DaitaflowImg from "/images/timeline_imgs/daitaflow.png"
 
 
 function About() {
@@ -91,7 +91,7 @@ function About() {
                         preserveAspectRatio="none"
                     >
                         <path
-                            d="M750,125 H960 V1020 H300 V1350"
+                            d="M750,75 H960 V675 H300 V1150 H960 V1350"
                             stroke="#ffffff"
                             strokeWidth="3"
                             fill="transparent"
@@ -144,7 +144,52 @@ function About() {
                         </div>
                     </section>
 
+                    <section className="bg-[#00aeef] py-20 mt-10">
+                        <div className="grid md:grid-cols-2 items-center">
 
+                            <div className="flex justify-end items-start pr-10 md:pr-60 pt-24 pb-30 w-auto z-10">
+                                <a
+                                    href="https://www.rifo.com/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="pointer-events-auto"
+                                >
+                                    <img
+                                        src={DaitaflowImg}
+                                        className="
+                                            w-40 sm:w-56 md:w-64 lg:w-72
+                                            max-h-[400px] 
+                                            rounded-2xl 
+                                            shadow-xl 
+                                            transition-transform duration-300 hover:-translate-y-1"
+                                        alt="Daitaflow Logo"
+                                    />
+                                </a>
+                            </div>
+
+                            <div
+                                className="
+                                    text-left 
+                                    font-bold 
+                                    text-base sm:text-lg md:text-[1.2rem]
+                                    max-w-full sm:max-w-[500px] md:max-w-[700px]
+                                    pl-6 sm:pl-12 md:pl-[150px] 
+                                "
+                            >
+                                <p>
+                                    For my second internship, I worked at a startup called 
+                                    dAItaflow Automated Software Administration Inc. as
+                                    a full-stack developer. I built the frontend UI for 
+                                    the change management forms using JavaScript and 
+                                    integrated the backend using Python and Django. I
+                                    developed the whitelisting and notification system,
+                                    creating new Django models to suit the need of each
+                                    system. Lastly, I worked with HubSpot to create our
+                                    company's landing page.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
 
                     <section className="py-10">
                         <h1 className="text-center text-3xl">To be continued...</h1>

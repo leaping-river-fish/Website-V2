@@ -1,11 +1,10 @@
+// fix tags?
+import AllProjects from "../components/projects/AllProjects";
 
-function Projects() {
-
+const Projects = () => {
     return (
-        <div className="bg-[#1A1410] min-h-screen">
-            <h1 className="text-white text-3xl font-bold p-4">
-                Projects
-            </h1>
+        <div className="bg-[#1A1410] min-h-screen px-4 py-6">
+            <AllProjects />
         </div>
     );
 }
