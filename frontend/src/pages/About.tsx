@@ -1,4 +1,4 @@
-// add timeline animation on scroll, sections slide into place animation on scroll
+// add timeline animation on scroll, sections slide into place animation on scroll, ADD LUMIE
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";

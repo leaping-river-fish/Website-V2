@@ -7,7 +7,7 @@ const ProjectModal = ({ project, onClose }: { project: any, onClose: () => void 
 
     return (
         <div
-            className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4"
+            className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4"
             onClick={onClose}
         >
             <div
@@ -40,7 +40,7 @@ const ProjectModal = ({ project, onClose }: { project: any, onClose: () => void 
                                 key={idx}
                                 src={img}
                                 alt={`Screenshot ${idx + 1}`}
-                                className="w-full h-48 object-contain rounded"
+                                className="w-full max-h-72 object-contain rounded"
                             />
                         ))}
                     </div>
@@ -68,7 +68,16 @@ const ProjectModal = ({ project, onClose }: { project: any, onClose: () => void 
 
                 {/* Close Button */}
                 <button
-                    className="absolute top-4 right-4 text-gray-800 dark:text-gray-200 font-bold text-lg"
+                    className="
+                        absolute top-4 right-4 
+                        text-gray-800 dark:text-gray-200 
+                        font-bold text-lg 
+                        cursor-pointer
+                        transition-all duration-200 
+                        hover:text-red-400
+                        hover:scale-110
+                        hover:drop-shadow-[0_0_6px_rgba(255,80,80,0.7)]
+                    "
                     onClick={onClose}
                 >
                     ✕

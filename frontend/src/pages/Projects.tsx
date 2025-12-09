@@ -1,4 +1,4 @@
-// fix tags?
+// fix tags?, unlock project animation(gamify)
 import AllProjects from "../components/projects/AllProjects";
 
 const Projects = () => {
