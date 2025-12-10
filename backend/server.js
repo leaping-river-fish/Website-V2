@@ -6,11 +6,51 @@ dotenv.config();
 
 import nodemailer from "nodemailer";
 
+import { v2 as cloudinary } from 'cloudinary';
+
 const app = express();
-app.use(cors({ origin: "http://localhost:5173" }));
+
+app.use(cors({ 
+    origin: "http://localhost:5173",
+    methods: ["GET"]
+}));
+
 app.use(express.json());
 
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
 const PORT = 5000;
+
+app.get("/getImages", async (req, res) => {
+    try {
+        const category = req.query.category;
+
+        if (!category) {
+            return res.status(400).json({ error: "Category is required" });
+        }
+
+        const result = await cloudinary.search
+            .expression(`tags=${category}`)
+            .sort_by("created_at", "desc")
+            .max_results(40)
+            .execute();
+
+        const images = result.resources.map(img => ({
+            src: img.secure_url,
+            alt: img.public_id,
+            category
+        }));
+
+        res.json(images);
+    } catch (error) {
+        console.error("Error fetching images:", error);
+        res.status(500).json({ error: "Error fetching images" });
+    }
+});
 
 app.get("/api/github-projects", async (req, res) => {
     try {

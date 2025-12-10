@@ -7,7 +7,7 @@ export default function Navbar() {
 
     return (
         <nav className="bg-[#1A1410] text-white shadow-md relative">
-            <div className="flex h-16 items-center px-4 md:px-8 justify-between">
+            <div className="flex h-16 items-center px-4 md:px-8 justify-between relative">
                 
                 {/* DESKTOP */}
                 <div className="flex items-center flex-1">
@@ -16,7 +16,7 @@ export default function Navbar() {
                         <img src={Logo} alt="Logo" className="h-16 w-auto" />
                     </Link>
 
-                    <div className="hidden md:flex flex-1 justify-center space-x-6 md:text-lg">
+                    <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 space-x-6 md:text-lg">
                         <Link to="/about" className="nav-link hover:text-slate-300 font-semibold">About</Link>
                         <Link to="/projects" className="nav-link hover:text-slate-300 font-semibold">Projects</Link>
                         <Link to="/gallery" className="nav-link hover:text-slate-300 font-semibold">Gallery</Link>
