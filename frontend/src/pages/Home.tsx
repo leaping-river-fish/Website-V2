@@ -66,7 +66,7 @@ const [currentQuote, setCurrentQuote] = useState<string>(quotes[0]);
                                 wrap-break-word
                             "
                         >
-                            I"m{" "}
+                            I'm{" "}
                             <AnimatePresence mode="wait">
                                 <motion.span
                                     key={currentDescription}

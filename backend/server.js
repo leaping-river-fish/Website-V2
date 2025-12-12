@@ -5,14 +5,15 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import nodemailer from "nodemailer";
-
 import { v2 as cloudinary } from 'cloudinary';
+import { router as chatbotRouter } from "./src/chatbot.js";
 
 const app = express();
 
 app.use(cors({ 
     origin: "http://localhost:5173",
-    methods: ["GET"]
+    methods: ["GET", "POST"],
+    credentials: true
 }));
 
 app.use(express.json());
@@ -23,8 +24,12 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+{/* chatbot */}
+app.use("/chatbot", chatbotRouter);
+
 const PORT = 5000;
 
+{/* Image get for gallery */}
 app.get("/getImages", async (req, res) => {
     try {
         const category = req.query.category;
@@ -52,6 +57,7 @@ app.get("/getImages", async (req, res) => {
     }
 });
 
+{/* Project get for projects */}
 app.get("/api/github-projects", async (req, res) => {
     try {
         const username = "leaping-river-fish";
@@ -66,6 +72,7 @@ app.get("/api/github-projects", async (req, res) => {
     }
 });
 
+{/* Email post for contact */}
 app.post("/send", async (req, res) => {
     const { name, email, subject, message } = req.body;
 

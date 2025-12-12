@@ -5,6 +5,8 @@ import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
+import Chatbot from "../components/Chatbot";
+
 import RifoImg from "/images/timeline_imgs/rifo.png"
 import DaitaflowImg from "/images/timeline_imgs/daitaflow.png"
 
@@ -27,7 +29,8 @@ function About() {
 
     return (
         <div className="bg-[#1A1410] min-h-screen text-white overflow-hidden">
-            <h1 className="text-3xl font-bold p-4">About</h1>
+
+            <Chatbot />
 
             <div className="relative w-full py-12">
                 <h1
