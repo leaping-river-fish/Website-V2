@@ -1,5 +1,3 @@
-// make personality more friendly, fix openAI fall back to be more creative
-// add rate limiter? add "thinking" time?
 import React, { useState, useEffect, useRef } from "react";
 
 interface ChatMessage {
@@ -18,6 +16,11 @@ const Chatbot: React.FC = () => {
     const [typingDotsIndex, setTypingDotsIndex] = useState(0);
 
     const chatBoxRef = useRef<HTMLDivElement>(null);
+
+    const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+    const isGreeting = (text: string) =>
+        /^(hi|hello|hey|yo|sup|wassup|greetings)[.!]?$/i.test(text.trim());
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -44,6 +47,10 @@ const Chatbot: React.FC = () => {
         const updatedChats = [...chats, { role: "user" as const, content: message }];
         setChats(updatedChats);
         setMessage("");
+
+        if (isGreeting(message) || message.length < 10) {
+            await sleep(1500);
+        }
 
         try {
             const backendUrl = "http://localhost:5000/chatbot/";

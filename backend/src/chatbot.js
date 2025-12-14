@@ -59,21 +59,57 @@ async function getRedisMemory(userId) {
     return { redisKey, memoryMap };
 }
 
+async function rateLimit(userId, limit = 10, windowSec = 60) {
+    const key = `rate:${userId}:${windowSec}`;
+    const count = await redisClient.incr(key);
+
+    if (count === 1) {
+        await redisClient.expire(key, windowSec);
+    }
+
+    return count <= limit;
+}
+
 // Main chatbot endpoint
 router.post("/", async (req, res) => {
     try {
         const userId = "default-user";
+
+        const minuteAllowed = await rateLimit(userId, 8, 60);
+        const hourAllowed = await rateLimit(userId, 40, 3600);
+
+        const message = !minuteAllowed
+            ? "Let’s slow things down a bit 🙂"
+            : "You’ve reached the hourly limit — try again later.";
+
+        if (!minuteAllowed || !hourAllowed) {
+            return res.status(429).json({
+                output: { role: "assistant", content: message }
+            });
+        }
+        
         const { chats } = req.body;
         const lastUserMessage = chats?.slice().reverse().find(m => m.role === "user")?.content;
         if (!lastUserMessage) return res.status(400).json({ error: "No user message found" });
 
         const normalizedMessage = lastUserMessage.trim().toLowerCase();
-        const greetingRegex = /^(hi|hello|hey|yo|sup|greetings|wassup|)[.!]?$/i;
+        const greetingRegex = /^(hi|hello|hey|yo|sup|greetings|wassup)[.!]?$/i;
+
+        const greetings = [
+            "Hey! 👋 What would you like to know about Nick?",
+            "Hi there! I can tell you all about Nick — what are you curious about?",
+            "Hello! Ask me anything about Nick.",
+            "Hey! Happy to help — what do you want to know?"
+        ];
+
         if (greetingRegex.test(normalizedMessage)) {
+            const randomGreeting =
+                greetings[Math.floor(Math.random() * greetings.length)];
+
             return res.json({
                 output: {
                     role: "assistant",
-                    content: "Hi there! How can I assist you with getting to know Nick today?"
+                    content: randomGreeting
                 }
             });
         }
@@ -133,10 +169,30 @@ router.post("/", async (req, res) => {
 
         // 6. OpenAI fallback
         const contextString = topFactsForRAG.map(f => `Fact: ${f}`).join("\n");
-        const systemPrompt = `You are Lumie, an AI assistant. Answer the user question using ONLY the following facts. Do NOT hallucinate. If the facts do not contain the answer, respond: 'Seems like Nick did not provide me with that information.'\n\n${contextString}`;
+        const systemPrompt = `
+            You are Lumie, a friendly and approachable AI assistant who helps users learn about Nick.
+
+            Tone & style:
+            - Warm, conversational, and human
+            - Confident but not overly formal
+            - Concise and clear
+            - No emojis unless the user uses them first
+
+            Rules:
+            - Use ONLY the facts provided below
+            - Do NOT invent or assume information
+            - If the facts do not contain the answer, say:
+            "It looks like Nick hasn’t shared that information yet."
+
+            Facts:
+            ${contextString}
+            `;
 
         const completion = await openai.chat.completions.create({
             model: "gpt-4o-mini",
+            temperature: 0.8,
+            presence_penalty: 0.4,
+            frequency_penalty: 0.2,
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: lastUserMessage }
