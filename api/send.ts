@@ -12,12 +12,11 @@ export default async function handler(req: any, res: any) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
 
-  // Set up nodemailer with Gmail
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
       user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_PASS, // your 16-char app password
+      pass: process.env.GMAIL_PASS, 
     },
   });
 
