@@ -1,5 +1,5 @@
-// add timeline animation on scroll, sections slide into place animation on scroll, ADD LUMIE
-
+// add timeline animation on scroll, sections slide into place animation on scroll
+import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import "swiper/css";
@@ -12,18 +12,21 @@ import DaitaflowImg from "/images/timeline_imgs/daitaflow.png"
 
 
 function About() {
+    const [activeIndex, setActiveIndex] = useState(0);
     const timelineEvents = [
         {
             title: "RIFO Holding Group",
-            description: "During my first internship, I worked as a QA Engineer for RIFO Holding Group. I automated test cases for client, agent, and vendor applications using Python scripts. Also gained hands-on experience with Appium, Selenium, Clipchamp, and Canva.",
+            description: "During my first internship, I worked as a QA Engineer for RIFO Holding Group as part of the R&D team. I automated test cases for their client, agent, and vendor applications using Python scripts. Throughout the internship, I built strong relationships with my colleagues and developed valuable skills in app testing. I also gained hands-on experience with tools such as Appium and Selenium for automation, as well as Clipchamp and Canva for creating demo videos.",
             img: RifoImg,
             link: "https://www.rifo.com/",
+            color: "#007ACC",
         },
         {
             title: "DAItaflow",
-            description: "Description of next event...",
+            description: "For my second internship, I worked at a startup called dAItaflow Automated Software Administration Inc. as a full-stack developer. I built the frontend UI for the change management forms using JavaScript and integrated the backend using Python and Django. I developed the whitelisting and notification system, creating new Django models to suit the need of each system. Lastly, I worked with HubSpot to create our company's landing page.",
             img: DaitaflowImg,
             link: "https://next.com/",
+            color: "#00aeef",
         },
     ]
 
@@ -31,7 +34,7 @@ function About() {
         <div className="bg-[#1A1410] min-h-screen text-white overflow-hidden">
 
             <Chatbot />
-
+            
             <div className="relative w-full py-12">
                 <h1
                     className="
@@ -49,16 +52,20 @@ function About() {
                 </h1>
 
                 {/* MOBILE SWIPER */}
-                <div className="block laptop:hidden px-4 mb-16">
+                <div 
+                    className="block laptop:hidden px-4 py-12 mb-16 min-h-[80vh] transition-colors duration-500"
+                    style={{ backgroundColor: timelineEvents[activeIndex]?.color }}
+                >
                     <Swiper
                         modules={[Pagination]}
                         pagination={{ clickable: true }}
                         spaceBetween={20}
                         slidesPerView={1}
+                        onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
                     >
                         {timelineEvents.map((event, idx) => (
-                            <SwiperSlide key={idx}>
-                                <div className="bg-[#007ACC] rounded-2xl p-6 shadow-xl">
+                            <SwiperSlide key={idx} className="flex items-center">
+                                <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
                                     <img
                                         src={event.img}
                                         alt={event.title}
@@ -94,7 +101,7 @@ function About() {
                         preserveAspectRatio="none"
                     >
                         <path
-                            d="M750,75 H960 V675 H300 V1150 H960 V1350"
+                            d="M770,75 H960 V675 H300 V1150 H960 V1350"
                             stroke="#ffffff"
                             strokeWidth="3"
                             fill="transparent"

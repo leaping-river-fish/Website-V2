@@ -81,7 +81,7 @@ const Chatbot: React.FC = () => {
     };
 
     return (
-        <section className="py-8 w-full flex flex-col items-center">
+        <section className="py-8 w-full flex flex-col items-center px-4 md:px-6 md:px-0">
             <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-center">Ask Lumie About Me</h1>
             <h6 className="text-lg mb-4 text-center">Say Hello!</h6>
 

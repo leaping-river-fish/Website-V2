@@ -1,4 +1,3 @@
-// implement different emailing service
 import { useState } from "react";
 import Toast from "../components/Toast";
 

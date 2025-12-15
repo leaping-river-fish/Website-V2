@@ -11,6 +11,9 @@ import { initPhase } from "../components/start_game/phase_inits";
 import { advanceNode } from "../components/start_game/game_engine";
 
 export default function StartPage() {
+    /* --------------------------- DEVELOPMENT -------------------------- */
+    const isDev = import.meta.env.DEV;
+
     /* ----------------------- NAVIGATION & HOOKS ----------------------- */
     const navigate = useNavigate();
     const { dialogueText, isDialogueActive, isTyping, startDialogue, setIsDialogueActive, completeDialogue } = useDialogueEngine();
@@ -100,7 +103,26 @@ export default function StartPage() {
         motionY,
     };
 
+    /* ----------------------- Mobile Check ----------------------- */
+    const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
+
+
     /* ----------------------- EFFECTS ----------------------- */
+    /* Check screen size, redirect if mobile */
+    useEffect(() => {
+        const mq = window.matchMedia("(min-width: 1024px)");
+        setIsDesktop(mq.matches);
+    }, []);
+
+    useEffect(() => {
+        if (isDesktop === false) {
+            const timer = setTimeout(() => {
+                navigate("/home");
+            }, 800); 
+
+            return () => clearTimeout(timer);
+        }
+    }, [isDesktop, navigate]);
 
     /* Set initial button size */
     useEffect(() => {
@@ -266,28 +288,43 @@ export default function StartPage() {
         }
     };
 
+    if (isDesktop === false) {
+        return (
+            <div className="w-screen h-screen bg-black flex items-center justify-center text-white px-6 text-center">
+                <p className="text-sm sm:text-base max-w-md leading-relaxed">
+                    Some interactive features are best experienced on desktop.
+                    <br />
+                    Taking you inside…
+                </p>
+            </div>
+        );
+    }
+
     return (
         <div 
             className="relative w-screen h-screen bg-black"
             onClick={handleGlobalClick}
         >
-            <button
-                onClick={() => navigate("/home")}
-                style={{
-                    position: "fixed",
-                    top: 20,
-                    right: 20,
-                    zIndex: 9999,
-                    padding: "8px 14px",
-                    background: "red",
-                    color: "white",
-                    borderRadius: "8px",
-                    border: "none",
-                    cursor: "pointer"
-                }}
-            >
-                Skip Game
-            </button>
+            {/* Only available in development */}
+            {isDev && (
+                <button
+                    onClick={() => navigate("/home")}
+                    style={{
+                        position: "fixed",
+                        top: 20,
+                        right: 20,
+                        zIndex: 9999,
+                        padding: "8px 14px",
+                        background: "red",
+                        color: "white",
+                        borderRadius: "8px",
+                        border: "none",
+                        cursor: "pointer"
+                    }}
+                >
+                    Skip Game
+                </button>
+            )}
 
             {isBlackout && (
                 <div className="fixed top-0 left-0 w-screen h-screen bg-black z-30"></div>
