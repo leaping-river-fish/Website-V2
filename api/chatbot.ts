@@ -1,11 +1,9 @@
 import mongoose from "mongoose";
 import { OpenAI } from "openai";
-import dotenv from "dotenv";
 import AboutMe from "../backend/src/AboutMe"; 
 import Chat from "../backend/src/Chat"; 
 import { redisClient } from "../backend/src/redis";
 
-dotenv.config();
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
