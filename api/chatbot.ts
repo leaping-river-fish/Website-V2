@@ -110,12 +110,12 @@ export default async function handler(req: any, res: any) {
 
         const allEntries: { question: string; text: string; sim: number }[] = [];
 
-        aboutMes.forEach(f => {
+        aboutMes.forEach((f: any) => {
             if (f.embedding) {
                 allEntries.push({ question: f.question, text: f.answer, sim: cosineSimilarity(userEmbedding, f.embedding) });
             }
         });
-        chatsData.forEach(f => {
+        chatsData.forEach((f: any) => {
             if (f.embedding) {
                 allEntries.push({ question: f.question, text: f.answer, sim: cosineSimilarity(userEmbedding, f.embedding) });
             }

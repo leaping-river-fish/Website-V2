@@ -135,7 +135,7 @@ export default function StartPage() {
     /* Track previous node on currentNode change */
     useEffect(() => {
         const key = Object.entries(currentPhaseNodes).find(
-            ([k, node]) => node === currentNode
+            ([_k, node]) => node === currentNode
         )?.[0] ?? null;
 
         prevNodeRef.current = key;

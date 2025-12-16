@@ -9,8 +9,8 @@ export function useDialogueEngine() {
     const [dialogueText, setDialogueText] = useState("");
     const [fullDialogue, setFullDialogue] = useState("");
     const [isTyping, setIsTyping] = useState(false);
-    const [dialogueQueue, setDialogueQueue] = useState<string[]>([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
+    const [_dialogueQueue, setDialogueQueue] = useState<string[]>([]);
+    const [_currentIndex, setCurrentIndex] = useState(0);
 
     const timerRef = useRef<number | null>(null);
 

@@ -166,7 +166,7 @@ export function handleClickPhase0(state: StateRefs) {
 {/* Phase 1 */}
 
 const PHASE1_HOVER_LIMIT = 8;
-export function handleHoverPhase1(state: StateRefs, buttonEl?: HTMLElement | null) {
+export function handleHoverPhase1(state: StateRefs, _buttonEl?: HTMLElement | null) {
     if (state.isDialogueActive) return;
 
     const newHoverCount = state.phase1HoverCount + 1;
@@ -222,11 +222,11 @@ export function handleHoverPhase2(state: StateRefs, buttonEl?: HTMLElement | nul
 
 {/* Phase 3 */}
 
-export function handleHoverPhase3(state: StateRefs) {
+export function handleHoverPhase3(_state: StateRefs) {
     
 }
 
-export function updatePhase3Position(state: StateRefs) {
+export function updatePhase3Position(_state: StateRefs) {
     
 }
 
