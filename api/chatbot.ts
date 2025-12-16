@@ -13,7 +13,7 @@ const openai = new OpenAI({
 if (!mongoose.connection.readyState) {
     mongoose.connect(process.env.MONGO_URI || "")
         .then(() => console.log("✔ MongoDB connected"))
-        .catch(err => console.error("MongoDB connection error:", err));
+        .catch((err: any) => console.error("MongoDB connection error:", err));
 }
 
 function cosineSimilarity(a: number[], b: number[]) {
