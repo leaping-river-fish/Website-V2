@@ -25,12 +25,12 @@ cloudinary.config({
 });
 
 {/* chatbot */}
-app.use("/chatbot", chatbotRouter);
+app.use("/api/chatbot", chatbotRouter);
 
 const PORT = 5000;
 
 {/* Image get for gallery */}
-app.get("/getImages", async (req, res) => {
+app.get("/api/getImages", async (req, res) => {
     try {
         const category = req.query.category;
 
@@ -73,7 +73,7 @@ app.get("/api/github-projects", async (req, res) => {
 });
 
 {/* Email post for contact */}
-app.post("/send", async (req, res) => {
+app.post("/api/send", async (req, res) => {
     const { name, email, subject, message } = req.body;
 
     if (!name || !email || !subject || !message) {

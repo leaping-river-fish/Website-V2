@@ -30,7 +30,9 @@ function Contact() {
         setStatus({ type: "info", message: "Sending..." });
 
         try {
-            const response = await fetch("http://localhost:5000/send", {
+            const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+            const response = await fetch(`${API_BASE}/send`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

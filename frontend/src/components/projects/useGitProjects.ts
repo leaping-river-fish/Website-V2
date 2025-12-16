@@ -15,11 +15,9 @@ export function useGitProjects() {
     useEffect(() => {
         async function load() {
             try {
-                // allow dynamic switching between local dev backend and production serverless function
-                const API_BASE = import.meta.env.DEV 
-                    ? "http://localhost:5000"
-                    : "";
-                const res = await fetch(`${API_BASE}/api/github-projects`);
+                const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+                const res = await fetch(`${API_BASE}/github-projects`);
                 const data: GitProject[] = await res.json();
                 setProjects(data);
             } catch (err) {

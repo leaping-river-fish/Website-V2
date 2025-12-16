@@ -34,10 +34,12 @@ export const ImageProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     useEffect(() => {
         const loadImages = async () => {
             try {
+                const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
                 const [fundraising, event, art] = await Promise.all([
-                    fetch("http://localhost:5000/getImages?category=Fundraising").then(res => res.json()),
-                    fetch("http://localhost:5000/getImages?category=Event-Advertising").then(res => res.json()),
-                    fetch("http://localhost:5000/getImages?category=Art").then(res => res.json()),
+                    fetch(`${API_BASE}/getImages?category=Fundraising`).then(res => res.json()),
+                    fetch(`${API_BASE}/getImages?category=Event-Advertising`).then(res => res.json()),
+                    fetch(`${API_BASE}/getImages?category=Art`).then(res => res.json()),
                 ]);
 
                 setFundraisingImages(fundraising);
