@@ -9,7 +9,7 @@ function Home() {
         "a Systems Design Engineer",
         "a Passionate Gamer",
         "a Dragon Enthusiast",
-        "a Lifelong learner"
+        "a Lifelong Learner"
     ];
 
     const quotes = [

@@ -59,7 +59,7 @@ const Gallery: React.FC = () => {
     );
 
     return (
-        <div className="w-full max-w-6xl mx-auto pt-10 pb-20 px-4">
+        <div className="bg-[#1A1410] w-full max-w-6xl mx-auto pt-10 pb-20 px-4">
             <Section title="Art" images={artImages} />
             <Section title="Fundraising" images={fundraisingImages} />
             <Section title="Event Advertising" images={eventImages} />

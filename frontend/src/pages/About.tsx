@@ -25,7 +25,7 @@ function About() {
             title: "DAItaflow",
             description: "For my second internship, I worked at a startup called dAItaflow Automated Software Administration Inc. as a full-stack developer. I built the frontend UI for the change management forms using JavaScript and integrated the backend using Python and Django. I developed the whitelisting and notification system, creating new Django models to suit the need of each system. Lastly, I worked with HubSpot to create our company's landing page.",
             img: DaitaflowImg,
-            link: "https://next.com/",
+            link: "https://next.com/", // need to change
             color: "#00aeef",
         },
     ]
