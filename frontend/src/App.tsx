@@ -9,7 +9,8 @@ import Projects from "./pages/Projects"
 import Gallery from "./pages/Gallery"
 import Contact from "./pages/Contact"
 
-import GridTransition from "./components/grid_transition/GridTransition"
+import GridTransition from "./components/transitions/GridTransition"
+import VerticalWipeTransition from "./components/transitions/VerticalWipeTransition";
 
 export default function App() {
     const location = useLocation();
@@ -17,6 +18,11 @@ export default function App() {
     const [displayedPath, setDisplayedPath] = useState(location.pathname);
 
     const [triggerTransition, setTriggerTransition] = useState(false);
+
+    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+    const isSmallScreen = window.innerWidth < 900;
+
+    const useWipe = isPortrait || isSmallScreen;
 
     useEffect(() => {
         if (location.pathname != displayedPath) {
@@ -31,10 +37,17 @@ export default function App() {
 
     return (
         <div className="bg-slate-900 min-h-screen text-white relative">
-            <GridTransition
-                trigger={triggerTransition}
-                onComplete={handTransitionComplete}
-            />
+            {useWipe ? (
+                <VerticalWipeTransition
+                    trigger={triggerTransition}
+                    onComplete={handTransitionComplete}
+                />
+            ) : (
+                <GridTransition
+                    trigger={triggerTransition}
+                    onComplete={handTransitionComplete}
+                />
+            )}
             <Routes location={{ pathname: displayedPath }}>
                 <Route path="/" element={<StartPage />} />
 

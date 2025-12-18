@@ -1,0 +1,89 @@
+/* Grid container */
+.transition-grid {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  pointer-events: none;
+  z-index: 9999;
+  background: transparent;
+  overflow: hidden;
+}
+
+/* Tiles */
+.tile {
+  background-color: white;
+  opacity: 0;
+  transform: scale(0);
+  transition: transform 0.6s ease, opacity 0.6s ease;
+}
+
+/* Bubble up animation */
+.tile.bubble-up {
+  opacity: 1;
+  transform: scale(1.5);
+}
+
+/* Bubble down animation */
+.tile.bubble-down {
+  opacity: 0;
+  transform: scale(0);
+}
+
+/* Container */
+.wipe-container {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+
+/* Panels */
+.wipe-top,
+.wipe-bottom {
+  position: absolute;
+  width: 100%;
+  height: 50%;
+  background-color: #1A1410;
+}
+
+/* Start positions */
+.wipe-top {
+  top: -50%;
+  animation: wipeTopIn 0.4s ease-out forwards,
+             wipeTopOut 0.4s ease-in forwards 0.4s;
+}
+
+.wipe-bottom {
+  bottom: -50%;
+  animation: wipeBottomIn 0.4s ease-out forwards,
+             wipeBottomOut 0.4s ease-in forwards 0.4s;
+}
+
+/* Keyframes */
+@keyframes wipeTopIn {
+  to {
+    top: 0;
+  }
+}
+
+@keyframes wipeBottomIn {
+  to {
+    bottom: 0;
+  }
+}
+
+@keyframes wipeTopOut {
+  to {
+    top: -50%;
+  }
+}
+
+@keyframes wipeBottomOut {
+  to {
+    bottom: -50%;
+  }
+}
