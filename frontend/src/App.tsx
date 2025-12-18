@@ -24,6 +24,8 @@ export default function App() {
 
     const useWipe = isPortrait || isSmallScreen;
 
+    const [transitionKey, setTransitionKey] = useState(0);
+
     useEffect(() => {
         if (location.pathname != displayedPath) {
             setTriggerTransition(true);
@@ -35,15 +37,24 @@ export default function App() {
         setTriggerTransition(false);    
     }
 
+    useEffect(() => {
+        if (location.pathname !== displayedPath) {
+            setTriggerTransition(true);
+            setTransitionKey((k) => k + 1);
+        }
+    }, [location.pathname, displayedPath]);
+
     return (
         <div className="bg-slate-900 min-h-screen text-white relative">
             {useWipe ? (
                 <VerticalWipeTransition
+                    key={transitionKey}
                     trigger={triggerTransition}
                     onComplete={handTransitionComplete}
                 />
             ) : (
                 <GridTransition
+                    key={transitionKey}
                     trigger={triggerTransition}
                     onComplete={handTransitionComplete}
                 />
