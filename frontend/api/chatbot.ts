@@ -114,8 +114,6 @@ interface ProfileType {
 }
 
 export default async function handler(req: IncomingMessage & { body?: ChatRequestBody }, res: ServerResponse) {
-    const profile = await getProfile();
-
     const sendJSON = (status: number, data: object) => {
         res.statusCode = status;
         res.setHeader("Content-Type", "application/json");
@@ -124,7 +122,28 @@ export default async function handler(req: IncomingMessage & { body?: ChatReques
 
     if (req.method !== "POST") return sendJSON(405, { error: "Method not allowed" });
 
+    let body: ChatRequestBody | undefined;
     try {
+        let raw = "";
+        await new Promise<void>((resolve, reject) => {
+            req.on("data", chunk => raw += chunk);
+            req.on("end", () => resolve());
+            req.on("error", err => reject(err));
+        });
+
+        if (raw) {
+            body = JSON.parse(raw);
+            console.log("✅ Parsed request body:", body);
+        } else {
+            console.warn("⚠ Empty request body");
+        }
+    } catch (err) {
+        console.error("❌ Error parsing request body:", err);
+        return sendJSON(400, { error: "Invalid JSON" });
+    }
+    
+    try {
+        const profile = await getProfile();
         const userId = "default-user";
 
         const minuteAllowed = await rateLimit(userId, 8, 60);
