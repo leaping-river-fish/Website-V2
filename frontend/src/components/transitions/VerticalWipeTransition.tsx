@@ -1,3 +1,4 @@
+// sort of laggy on mobile
 import { useEffect, useState } from "react";
 import "./transition.css";
 

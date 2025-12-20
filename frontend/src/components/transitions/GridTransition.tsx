@@ -1,4 +1,3 @@
-// update to consider device orientation
 import { useEffect, useRef } from "react";
 import "./transition.css";
 

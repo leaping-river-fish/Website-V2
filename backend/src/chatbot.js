@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { OpenAI } from "openai";
 import dotenv from "dotenv";
 import AboutMe from "./AboutMe.js";
+import Profile from "./Profile.js";
 import Chat from "./Chat.js";
 import { redisClient } from "./redis.js";
 
@@ -70,6 +71,28 @@ async function rateLimit(userId, limit = 10, windowSec = 60) {
     return count <= limit;
 }
 
+const profile = await Profile.findOne({ name: "Nick Zheng" });
+
+if (!profile) {
+    console.warn("⚠ No profile found — running without structured validation");
+}
+
+function contradictsProfile(answer, profile) {
+    if (!profile) return false;
+
+    const text = answer.toLowerCase();
+
+    if (profile.location?.city && text.includes("from") && !text.includes(profile.location.city.toLowerCase())) {
+        return true;
+    }
+
+    if (profile.goals?.fiveYear?.role && text.includes("works as") && !text.includes(profile.goals.fiveYear.role.toLowerCase())) {
+        return true;
+    }
+
+    return false;
+}
+
 // Main chatbot endpoint
 router.post("/", async (req, res) => {
     try {
@@ -134,15 +157,24 @@ router.post("/", async (req, res) => {
         aboutMes.forEach(f => {
             if (f.embedding) {
                 const sim = cosineSimilarity(userEmbedding, f.embedding);
-                allEntries.push({ question: f.question, text: f.answer, sim });
-                console.log(`[AboutMe] Question: "${f.question}" | Similarity: ${sim.toFixed(4)}`);
+                allEntries.push({
+                    question: f.question,
+                    text: f.answer,
+                    sim: sim * (f.confidence ?? 1.0),
+                    source: "aboutMe"
+                });
             }
         });
+
         chatsData.forEach(c => {
             if (c.embedding) {
                 const sim = cosineSimilarity(userEmbedding, c.embedding);
-                allEntries.push({ question: c.question, text: c.answer, sim });
-                console.log(`[Chat] Question: "${c.question}" | Similarity: ${sim.toFixed(4)}`);
+                allEntries.push({
+                    question: c.question,
+                    text: c.answer,
+                    sim: sim * (c.confidence ?? 0.5),
+                    source: "chat"
+                });
             }
         });
 
@@ -181,6 +213,7 @@ router.post("/", async (req, res) => {
             Rules:
             - Use ONLY the facts provided below
             - Do NOT invent or assume information
+            - If multiple facts are relevant, combine them naturally without adding new information
             - If the facts do not contain the answer, say:
             "It looks like Nick hasn’t shared that information yet."
 
@@ -203,11 +236,25 @@ router.post("/", async (req, res) => {
 
         // 7. Save new chat to MongoDB, ignoring duplicates
         try {
-            await Chat.updateOne(
-                { question: lastUserMessage },
-                { $setOnInsert: { answer, embedding: userEmbedding } },
-                { upsert: true }
-            );
+            if (contradictsProfile(answer, profile)) {
+                console.warn("⚠ Chat answer contradicts profile — not saved", {
+                    question: lastUserMessage,
+                    answer
+                });
+            } else if (!directMatch || directMatch.source !== "aboutMe") {
+                await Chat.updateOne(
+                    { question: lastUserMessage },
+                    {
+                        $setOnInsert: {
+                            answer,
+                            embedding: userEmbedding,
+                            source: "conversation",
+                            confidence: 0.5
+                        }
+                    },
+                    { upsert: true }
+                );
+            }
         } catch (err) {
             console.error("Error saving chat to MongoDB:", err);
         }

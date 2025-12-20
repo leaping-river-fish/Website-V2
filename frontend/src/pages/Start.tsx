@@ -1,5 +1,6 @@
 // TO DO: make phase 2 button only appear after choice is made,
 // top left corner issue(may require refactoring using motion), Add button reactions(fix phase 3 spin out)
+// Game still shows up for large Ipads
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useMotionValue } from "framer-motion";

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { OpenAI } from "openai";
 import AboutMe from "./models/AboutMe";
 import Chat from "./models/Chat";
+import Profile from "./models/Profile";
 import { redisClient } from "./models/redis";
 import type { IncomingMessage, ServerResponse } from "http";
 
@@ -54,6 +55,39 @@ async function rateLimit(userId: string, limit = 10, windowSec = 60): Promise<bo
     return count <= limit;
 }
 
+let cachedProfile: ProfileType | null = null;
+
+async function getProfile(): Promise<ProfileType | null> {
+    if (cachedProfile !== null) return cachedProfile;
+
+    const profileDoc = await Profile.findOne({ name: "Nick Zheng" }).lean<ProfileType>();
+    cachedProfile = profileDoc ?? null;
+
+    if (!cachedProfile) {
+        console.warn("⚠ No profile found — running without structured validation");
+    }
+
+    return cachedProfile;
+}
+
+function contradictsProfile(answer: string, profile: ProfileType | null): boolean {
+    if (!profile) return false;
+
+    const text = answer.toLowerCase();
+
+    if (profile.location?.city && text.includes("from") &&
+        !text.includes(profile.location.city.toLowerCase())) {
+        return true;
+    }
+
+    if (profile.goals?.fiveYear?.role && text.includes("works as") &&
+        !text.includes(profile.goals.fiveYear.role.toLowerCase())) {
+        return true;
+    }
+
+    return false;
+}
+
 interface ChatMessage {
     role: "user" | "assistant";
     content: string;
@@ -63,7 +97,25 @@ interface ChatRequestBody {
     chats?: ChatMessage[];
 }
 
+interface ProfileType {
+    name: string;
+    location?: {
+        city?: string;
+        province?: string;
+        country?: string;
+    };
+    goals?: {
+        fiveYear?: {
+            role?: string;
+            industries?: string[];
+        };
+    };
+    // Add other fields as needed if you plan to use them
+}
+
 export default async function handler(req: IncomingMessage & { body?: ChatRequestBody }, res: ServerResponse) {
+    const profile = await getProfile();
+
     const sendJSON = (status: number, data: object) => {
         res.statusCode = status;
         res.setHeader("Content-Type", "application/json");
@@ -112,27 +164,46 @@ export default async function handler(req: IncomingMessage & { body?: ChatReques
         const userEmbedding = await getEmbedding(lastUserMessage);
         const [aboutMes, chatsData] = await Promise.all([AboutMe.find({}), Chat.find({})]);
 
-        type Entry = { question: string; text: string; sim: number };
+        type Entry = { question: string; text: string; sim: number; source: "aboutMe" | "chat"; };
         const allEntries: Entry[] = [];
 
         aboutMes.forEach(f => {
             if (f.embedding) {
-                const sim = cosineSimilarity(userEmbedding, f.embedding);
-                allEntries.push({ question: f.question, text: f.answer, sim });
-                console.log(`[AboutMe] Question: "${f.question}" | Similarity: ${sim.toFixed(4)}`);
+                const sim =
+                    cosineSimilarity(userEmbedding, f.embedding) *
+                    (f.confidence ?? 1.0);
+
+                allEntries.push({
+                    question: f.question,
+                    text: f.answer,
+                    sim,
+                    source: "aboutMe",
+                });
             }
         });
 
-        chatsData.forEach(f => {
-            if (f.embedding) {
-                const sim = cosineSimilarity(userEmbedding, f.embedding);
-                allEntries.push({ question: f.question, text: f.answer, sim });
-                console.log(`[Chat] Question: "${f.question}" | Similarity: ${sim.toFixed(4)}`);
+        chatsData.forEach(c => {
+            if (c.embedding) {
+                const sim =
+                    cosineSimilarity(userEmbedding, c.embedding) *
+                    (c.confidence ?? 0.5);
+
+                allEntries.push({
+                    question: c.question,
+                    text: c.answer,
+                    sim,
+                    source: "chat",
+                });
             }
         });
+
+        const sortedEntries = [...allEntries].sort((a, b) => b.sim - a.sim);
 
         const similarityThreshold = lastUserMessage.trim().split(/\s+/).length < 6 ? 0.65 : 0.75;
-        const directMatch = allEntries.filter(e => e.sim >= similarityThreshold).sort((a, b) => b.sim - a.sim)[0];
+
+        const directMatch = sortedEntries.find(e => e.sim >= similarityThreshold);
+
+        const hasDirectMatch = Boolean(directMatch);
 
         if (directMatch) {
             console.log(`Direct match found! Question: "${directMatch.question}" | Similarity: ${directMatch.sim.toFixed(4)}`);
@@ -142,7 +213,7 @@ export default async function handler(req: IncomingMessage & { body?: ChatReques
             return sendJSON(200, { output: { role: "assistant", content: directMatch.text } });
         }
 
-        const topFactsForRAG = allEntries.sort((a, b) => b.sim - a.sim).slice(0, 3).map(f => f.text);
+        const topFactsForRAG = sortedEntries.slice(0, 3).map(e => e.text);
         const contextString = topFactsForRAG.map(f => `Fact: ${f}`).join("\n");
 
         const systemPrompt = `
@@ -178,13 +249,24 @@ export default async function handler(req: IncomingMessage & { body?: ChatReques
         const answer = completion.choices[0].message?.content?.trim() || "It looks like Nick hasn’t shared that information yet.";
 
         try {
-            await Chat.updateOne(
-                { question: lastUserMessage },
-                { $setOnInsert: { answer, embedding: userEmbedding } },
-                { upsert: true }
-            );
+            if (contradictsProfile(answer, profile)) {
+                console.warn("⚠ Chat answer contradicts profile — not saved");
+            } else if (!hasDirectMatch) {
+                await Chat.updateOne(
+                    { question: lastUserMessage },
+                    {
+                        $setOnInsert: {
+                            answer,
+                            embedding: userEmbedding,
+                            source: "conversation",
+                            confidence: 0.5,
+                        },
+                    },
+                    { upsert: true }
+                );
+            }
         } catch (err) {
-            console.error("Error saving chat to MongoDB:", err);
+            console.error("Error saving chat:", err);
         }
 
         const cacheEntry = { user: lastUserMessage, bot: answer, timestamp: Date.now() };
