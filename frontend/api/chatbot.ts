@@ -143,7 +143,16 @@ export default async function handler(req: IncomingMessage & { body?: ChatReques
     }
     
     try {
-        const profile = await getProfile();
+        // CHANGED
+        let profile: ProfileType | null = null;
+        try {
+            profile = await getProfile();
+            if (!profile) console.warn("⚠ Profile is null");
+        } catch (err) {
+            console.error("❌ Failed to get profile:", err);
+            return sendJSON(500, { error: "Could not load profile" });
+        }
+
         const userId = "default-user";
 
         const minuteAllowed = await rateLimit(userId, 8, 60);
@@ -160,6 +169,7 @@ export default async function handler(req: IncomingMessage & { body?: ChatReques
         if (!lastUserMessage) return sendJSON(400, { error: "No user message found" });
 
         const normalizedMessage = lastUserMessage.trim().toLowerCase();
+
         const greetingRegex = /^(hi|hello|hey|yo|sup|greetings|wassup)[.!]?$/i;
         const greetings = [
             "Hey! 👋 What would you like to know about Nick?",
@@ -173,48 +183,62 @@ export default async function handler(req: IncomingMessage & { body?: ChatReques
             return sendJSON(200, { output: { role: "assistant", content: randomGreeting } });
         }
 
+        // CHANGED
         const redisTTL = parseInt(process.env.REDIS_CACHE_TTL || "3600", 10);
-        const { redisKey, memoryMap } = await getRedisMemory(userId);
+        let redisData: { redisKey: string; memoryMap: Record<string, string> } = { redisKey: "", memoryMap: {} };
+        try {
+            redisData = await getRedisMemory(userId);
+        } catch (err) {
+            console.error("❌ Redis fetch failed:", err);
+        }
+        const { redisKey, memoryMap } = redisData;
 
         if (memoryMap[normalizedMessage]) {
             return sendJSON(200, { output: { role: "assistant", content: memoryMap[normalizedMessage] } });
         }
 
-        const userEmbedding = await getEmbedding(lastUserMessage);
-        const [aboutMes, chatsData] = await Promise.all([AboutMe.find({}), Chat.find({})]);
+        // CHANGED
+        let userEmbedding: number[] = [];
+        try {
+            userEmbedding = await getEmbedding(lastUserMessage);
+        } catch (err) {
+            console.error("❌ OpenAI embedding failed:", err);
+            return sendJSON(500, { error: "Failed to generate embedding" });
+        }
 
+        // CHANGED
+        let aboutMes: any[] = [];
+        let chatsData: any[] = [];
+        try {
+            [aboutMes, chatsData] = await Promise.all([AboutMe.find({}), Chat.find({})]);
+            console.log(`✅ Retrieved ${aboutMes.length} AboutMe and ${chatsData.length} Chat entries`);
+        } catch (err) {
+            console.error("❌ DB fetch failed:", err);
+            return sendJSON(500, { error: "Database fetch error" });
+        }
+
+        // CHANGED
         type Entry = { question: string; text: string; sim: number; source: "aboutMe" | "chat"; };
         const allEntries: Entry[] = [];
 
-        aboutMes.forEach(f => {
-            if (f.embedding) {
-                const sim =
-                    cosineSimilarity(userEmbedding, f.embedding) *
-                    (f.confidence ?? 1.0);
-
-                allEntries.push({
-                    question: f.question,
-                    text: f.answer,
-                    sim,
-                    source: "aboutMe",
-                });
-            }
-        });
-
-        chatsData.forEach(c => {
-            if (c.embedding) {
-                const sim =
-                    cosineSimilarity(userEmbedding, c.embedding) *
-                    (c.confidence ?? 0.5);
-
-                allEntries.push({
-                    question: c.question,
-                    text: c.answer,
-                    sim,
-                    source: "chat",
-                });
-            }
-        });
+        try {
+            aboutMes.forEach(f => {
+                if (f.embedding) {
+                    const sim = cosineSimilarity(userEmbedding, f.embedding) * (f.confidence ?? 1.0);
+                    allEntries.push({ question: f.question, text: f.answer, sim, source: "aboutMe" });
+                }
+            });
+            chatsData.forEach(c => {
+                if (c.embedding) {
+                    const sim = cosineSimilarity(userEmbedding, c.embedding) * (c.confidence ?? 0.5);
+                    allEntries.push({ question: c.question, text: c.answer, sim, source: "chat" });
+                }
+            });
+            console.log(`✅ Computed similarities for ${allEntries.length} entries`);
+        } catch (err) {
+            console.error("❌ Similarity calculation failed:", err);
+            return sendJSON(500, { error: "Similarity calculation error" });
+        }
 
         const sortedEntries = [...allEntries].sort((a, b) => b.sim - a.sim);
 
@@ -224,11 +248,15 @@ export default async function handler(req: IncomingMessage & { body?: ChatReques
 
         const hasDirectMatch = Boolean(directMatch);
 
+        // CHANGED
         if (directMatch) {
             console.log(`Direct match found! Question: "${directMatch.question}" | Similarity: ${directMatch.sim.toFixed(4)}`);
-            const cacheEntry = { user: lastUserMessage, bot: directMatch.text, timestamp: Date.now() };
-            await redisClient.rpush(redisKey, JSON.stringify(cacheEntry));
-            await redisClient.expire(redisKey, redisTTL);
+            try {
+                await redisClient.rpush(redisKey, JSON.stringify({ user: lastUserMessage, bot: directMatch.text, timestamp: Date.now() }));
+                await redisClient.expire(redisKey, redisTTL);
+            } catch (err) {
+                console.error("❌ Redis caching failed:", err);
+            }
             return sendJSON(200, { output: { role: "assistant", content: directMatch.text } });
         }
 
@@ -247,25 +275,33 @@ export default async function handler(req: IncomingMessage & { body?: ChatReques
             Rules:
             - Use ONLY the facts provided below
             - Do NOT invent or assume information
+            - If multiple facts are relevant, combine them naturally without adding new information
             - If the facts do not contain the answer, say:
             "It looks like Nick hasn’t shared that information yet."
 
             Facts:
             ${contextString}
                 `;
-
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            temperature: 0.8,
-            presence_penalty: 0.4,
-            frequency_penalty: 0.2,
-            messages: [
-                { role: "system", content: systemPrompt },
-                { role: "user", content: lastUserMessage }
-            ]
-        });
-
-        const answer = completion.choices[0].message?.content?.trim() || "It looks like Nick hasn’t shared that information yet.";
+        
+        // CHANGED
+        let answer = "It looks like Nick hasn’t shared that information yet.";
+        try {
+            const completion = await openai.chat.completions.create({
+                model: "gpt-4o-mini",
+                temperature: 0.8,
+                presence_penalty: 0.4,
+                frequency_penalty: 0.2,
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: lastUserMessage }
+                ]
+            });
+            answer = completion.choices[0].message?.content?.trim() || answer;
+            console.log("✅ OpenAI completion received");
+        } catch (err) {
+            console.error("❌ OpenAI completion failed:", err);
+            return sendJSON(500, { error: "OpenAI completion error" });
+        }
 
         try {
             if (contradictsProfile(answer, profile)) {
@@ -288,9 +324,13 @@ export default async function handler(req: IncomingMessage & { body?: ChatReques
             console.error("Error saving chat:", err);
         }
 
-        const cacheEntry = { user: lastUserMessage, bot: answer, timestamp: Date.now() };
-        await redisClient.rpush(redisKey, JSON.stringify(cacheEntry));
-        await redisClient.expire(redisKey, redisTTL);
+        // CHANGED
+        try {
+            await redisClient.rpush(redisKey, JSON.stringify({ user: lastUserMessage, bot: answer, timestamp: Date.now() }));
+            await redisClient.expire(redisKey, redisTTL);
+        } catch (err) {
+            console.error("❌ Redis caching of final answer failed:", err);
+        }
 
         sendJSON(200, { output: { role: "assistant", content: answer } });
     } catch (err: any) {
