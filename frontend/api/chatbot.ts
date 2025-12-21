@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
 import { OpenAI } from "openai";
 import AboutMe from "./models/AboutMe";
 import Chat from "./models/Chat";
 import Profile from "./models/Profile";
+import { connectMongo } from "./models/mongodb";
 import { redisClient } from "./models/redis";
 import type { IncomingMessage, ServerResponse } from "http";
 
@@ -11,12 +11,12 @@ const openai = new OpenAI({
     organization: process.env.ORGANIZATION,
 });
 
-if (!mongoose.connection.readyState) {
-    mongoose
-        .connect(process.env.MONGO_URI || "")
-        .then(() => console.log("✔ MongoDB connected"))
-        .catch((err: any) => console.error("MongoDB connection error:", err));
-}
+// if (!mongoose.connection.readyState) {
+//     mongoose
+//         .connect(process.env.MONGO_URI || "")
+//         .then(() => console.log("✔ MongoDB connected"))
+//         .catch((err: any) => console.error("MongoDB connection error:", err));
+// }
 
 function cosineSimilarity(a: number[], b: number[]): number {
     const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
@@ -121,6 +121,13 @@ export default async function handler(req: IncomingMessage & { body?: ChatReques
     };
 
     if (req.method !== "POST") return sendJSON(405, { error: "Method not allowed" });
+
+    try {
+        await connectMongo();
+    } catch (err) {
+        console.error("❌ MongoDB connection failed:", err);
+        return sendJSON(500, { error: "Database connection failed" });
+    }
 
     let body: ChatRequestBody | undefined;
     try {
