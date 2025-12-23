@@ -1,4 +1,4 @@
-import cookie from "cookie";
+import * as cookie from "cookie";
 import { connectMongo } from "./models/mongodb";
 import AnonymousProfile from "./models/AnonymousProfile";
 import mongoose from "mongoose";
