@@ -2,11 +2,15 @@ import express from "express";
 import fetch from "node-fetch";
 import cors from "cors";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 dotenv.config();
 
 import nodemailer from "nodemailer";
 import { v2 as cloudinary } from 'cloudinary';
 import { router as chatbotRouter } from "./src/chatbot.js";
+import { anonUser } from "./src/middleware/anonUser.js";
+import { identify } from "./src/routes/identify.js";
+import { connectMongo } from "./src/db/mongodb.js";
 
 const app = express();
 
@@ -17,6 +21,12 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+app.use(cookieParser());
+app.use(anonUser);
+connectMongo();
+app.post("/api/identify", identify);
+
 
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,

@@ -11,13 +11,6 @@ const openai = new OpenAI({
     organization: process.env.ORGANIZATION,
 });
 
-// if (!mongoose.connection.readyState) {
-//     mongoose
-//         .connect(process.env.MONGO_URI || "")
-//         .then(() => console.log("✔ MongoDB connected"))
-//         .catch((err: any) => console.error("MongoDB connection error:", err));
-// }
-
 function cosineSimilarity(a: number[], b: number[]): number {
     const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
     const magA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));

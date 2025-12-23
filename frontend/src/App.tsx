@@ -44,6 +44,28 @@ export default function App() {
         }
     }, [location.pathname, displayedPath]);
 
+    const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+    useEffect(() => {
+        if (document.cookie.includes("anon_id=")) return;
+
+        let anonId = localStorage.getItem("anon_id");
+
+        if (!anonId) {
+            anonId = crypto.randomUUID();
+            localStorage.setItem("anon_id", anonId);
+        }
+
+        fetch(`${API_BASE}/identify`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ anonId }),
+        }).catch(() => {
+            // silent fail in dev
+        });
+    }, []);
+
     return (
         <div className="bg-slate-900 min-h-screen text-white relative">
             {useWipe ? (
