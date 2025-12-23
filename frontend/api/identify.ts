@@ -1,6 +1,7 @@
 import cookie from "cookie";
 import { connectMongo } from "./models/mongodb";
 import AnonymousProfile from "./models/AnonymousProfile";
+import mongoose from "mongoose";
 
 interface IdentifyRequest {
     body?: { anonId?: string };
@@ -11,8 +12,11 @@ interface IdentifyRequest {
 export default async function identify(req: IdentifyRequest) {
     try {
         await connectMongo();
-
+        console.log("Mongo connection readyState:", mongoose.connection.readyState);
+        
+        console.log("Request body:", req.body);
         const { anonId } = req.body || {};
+        console.log("Received anonId:", anonId);
         if (!anonId) {
             return new Response(JSON.stringify({ error: "Missing anonId" }), { status: 400 });
         }
@@ -25,11 +29,22 @@ export default async function identify(req: IdentifyRequest) {
             path: "/",
         });
 
-        const profile = await AnonymousProfile.findOneAndUpdate(
-            { anonId },
-            { $setOnInsert: { createdAt: new Date() }, $set: { lastSeen: new Date() } },
-            { upsert: true, new: true }
-        );
+        let profile = await AnonymousProfile.findOne({ anonId });
+        if (!profile) {
+            console.log("Profile not found — creating new");
+            profile = await AnonymousProfile.create({
+                anonId,
+                introGameCompleted: false,
+                quests: [],
+                createdAt: new Date(),
+                lastSeen: new Date(),
+            });
+        } else {
+            console.log("Profile found — updating lastSeen");
+            profile.lastSeen = new Date();
+            await profile.save();
+        }
+        console.log("Profile after DB operation:", profile);
 
         return new Response(
             JSON.stringify({
