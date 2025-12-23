@@ -8,7 +8,6 @@ interface IdentifyRequest {
     headers?: Record<string, string>;
 }
 
-
 export default async function identify(req: IdentifyRequest) {
     try {
         await connectMongo();
@@ -29,7 +28,9 @@ export default async function identify(req: IdentifyRequest) {
             path: "/",
         });
 
-        let profile = await AnonymousProfile.findOne({ anonId });
+        const env = process.env.NODE_ENV === "production" ? "prod" : "dev";
+
+        let profile = await AnonymousProfile.findOne({ anonId, env });
         if (!profile) {
             console.log("Profile not found — creating new");
             profile = await AnonymousProfile.create({
@@ -38,6 +39,7 @@ export default async function identify(req: IdentifyRequest) {
                 quests: [],
                 createdAt: new Date(),
                 lastSeen: new Date(),
+                env,
             });
         } else {
             console.log("Profile found — updating lastSeen");

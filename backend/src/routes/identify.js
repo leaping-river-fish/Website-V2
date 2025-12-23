@@ -13,8 +13,10 @@ export async function identify(req, res) {
             path: "/",
         });
 
+        const env = process.env.NODE_ENV === "production" ? "prod" : "dev";
+
         const profile = await AnonymousProfile.findOneAndUpdate(
-            { anonId }, 
+            { anonId, env }, 
             {
                 $setOnInsert: { createdAt: new Date() },
                 $set: { lastSeen: new Date() },
