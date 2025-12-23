@@ -7,45 +7,49 @@ interface IdentifyRequest {
     headers?: Record<string, string>;
 }
 
-interface IdentifyResponse {
-    status: (code: number) => IdentifyResponse;
-    json: (data: any) => void;
-    setHeader: (name: string, value: string) => void;
-}
 
-export default async function identify(req: IdentifyRequest, res: IdentifyResponse) {
+export default async function identify(req: IdentifyRequest) {
     try {
         await connectMongo();
 
         const { anonId } = req.body || {};
-        if (!anonId) return res.status(400).json({ error: "Missing anonId" });
+        if (!anonId) {
+            return new Response(JSON.stringify({ error: "Missing anonId" }), { status: 400 });
+        }
 
-        const env = process.env.NODE_ENV === "production" ? "prod" : "dev";
-
-        res.setHeader("Set-Cookie", cookie.serialize("anon_id", String(anonId), {
+        const cookieHeader = cookie.serialize("anon_id", String(anonId), {
             httpOnly: true,
             sameSite: "lax",
             secure: process.env.NODE_ENV === "production",
             maxAge: 60 * 60 * 24 * 365,
             path: "/",
-        }));
+        });
 
         const profile = await AnonymousProfile.findOneAndUpdate(
-            { anonId, env },
+            { anonId },
             { $setOnInsert: { createdAt: new Date() }, $set: { lastSeen: new Date() } },
             { upsert: true, new: true }
         );
 
-        res.status(200).json({
-            ok: true,
-            profile: {
-                anonId: profile.anonId,
-                introGameCompleted: profile.introGameCompleted,
-                quests: profile.quests,
-            },
-        });
+        return new Response(
+            JSON.stringify({
+                ok: true,
+                profile: {
+                    anonId: profile.anonId,
+                    introGameCompleted: profile.introGameCompleted,
+                    quests: profile.quests,
+                },
+            }),
+            {
+                status: 200,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Set-Cookie": cookieHeader,
+                },
+            }
+        );
     } catch (err) {
         console.error("Identify error:", err);
-        res.status(500).json({ error: "Internal Server Error" });
+        return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
     }
 }
