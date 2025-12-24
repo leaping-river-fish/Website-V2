@@ -5,7 +5,7 @@ import { connectMongo } from "./models/mongodb";
 import AnonymousProfile from "./models/AnonymousProfile";
 
 interface RequestBody {
-    action?: "identify" | "introComplete";
+    action?: "identify" | "complete-intro";
     anonId?: string;
 }
 
@@ -90,7 +90,7 @@ export default async function handler(
 
         // INTRO COMPLETE
 
-        if (action === "introComplete") {
+        if (action === "complete-intro") {
         const profile = await AnonymousProfile.findOneAndUpdate(
             { anonId, env },
             {
