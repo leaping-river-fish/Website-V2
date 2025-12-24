@@ -18,7 +18,7 @@ export default function StartPage() {
     /* ----------------------- NAVIGATION & HOOKS ----------------------- */
     const navigate = useNavigate();
     const { dialogueText, isDialogueActive, isTyping, startDialogue, setIsDialogueActive, completeDialogue } = useDialogueEngine();
-    const [profile, setProfile] = useState<{introGameCompleted: boolean;} | null>(null);
+    const [profile, setProfile] = useState<{ anonId: string; introGameCompleted: boolean } | null>(null);
 
     /* ----------------------- BUTTON REFS & STATE ----------------------- */
     const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -149,11 +149,11 @@ export default function StartPage() {
             if (!cookieAnonId) return;
 
             try {
-                const res = await fetch(`${API_BASE}/identify`, {
+                const res = await fetch(`${API_BASE}/anon-profile`, {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ anonId: cookieAnonId }),
+                    body: JSON.stringify({ action: "identify", anonId: cookieAnonId }),
                 });
                 const data = await res.json();
                 if (data.profile) setProfile(data.profile);

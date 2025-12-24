@@ -280,9 +280,11 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export async function handleClickPhase4(state: StateRefs) {
     try {
-        const res = await fetch(`${API_BASE}/intro-complete`, {
+        const res = await fetch(`${API_BASE}/anon-profile`, {
             method: "POST",
             credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "complete-intro" }),
         });
         if (!res.ok && import.meta.env.DEV) {
             console.warn("Intro completion request failed:", res.status, res.statusText);

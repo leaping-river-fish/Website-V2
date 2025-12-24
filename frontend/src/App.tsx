@@ -56,11 +56,11 @@ export default function App() {
             localStorage.setItem("anon_id", anonId);
         }
 
-        fetch(`${API_BASE}/identify`, {
+        fetch(`${API_BASE}/anon-profile`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
-            body: JSON.stringify({ anonId }),
+            body: JSON.stringify({ action: "identify", anonId }),
         }).catch(() => {
             // silent fail in dev
         });
