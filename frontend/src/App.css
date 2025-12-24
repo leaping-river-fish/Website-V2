@@ -89,6 +89,37 @@ html, body {
   }
 }
 
+/* Surprised Button */
+@keyframes scared-jump {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+
+  12% {
+    transform: translateY(-14px) scale(1.06);
+  }
+
+  25% {
+    transform: translateY(-18px) scale(1.08);
+  }
+
+  40% {
+    transform: translateY(-10px) scale(1.03);
+  }
+
+  65% {
+    transform: translateY(0) scale(0.97);
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.anim-scared-jump {
+  animation: scared-jump 450ms ease-out;
+}
+
 /* ------------------------------------------------ Navbar hover animation --------------------------------------------------- */
 
 .nav-link {

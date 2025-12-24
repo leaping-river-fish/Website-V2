@@ -1,9 +1,8 @@
-
-
 export type AnimationName = 
     | "shake-y"
     | "shake-x"
     | "frustrated-wobble"
+    | "scared-jump"
     | "none"
 
 
@@ -17,7 +16,8 @@ export function triggerAnimation(
     element.classList.remove(
         "anim-shake-y",
         "anim-shake-x",
-        "anim-frustrated-wobble"
+        "anim-frustrated-wobble",
+        "scared-jump",
     );
 
     void element.offsetWidth;
@@ -38,7 +38,8 @@ export function triggerNodeAnimation(
     buttonEl.classList.remove(
         "anim-shake-x",
         "anim-shake-y",
-        "anim-frustrated-wobble"
+        "anim-frustrated-wobble",
+        "scared-jump",
     );
 
     void buttonEl.offsetWidth;

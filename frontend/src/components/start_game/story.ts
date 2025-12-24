@@ -4,11 +4,16 @@ export const story: StoryType = {
     phase0: {
         nodes: {
             start_returning: {
-                text: "Oh, it's you again...",
+                text: "AAAAH!",
+                next: "return",
+                animation: "scared-jump"
+            },
+            return: {
+                text: "Oh it's you again... what do you want?",
                 choices: [
                     { text: "Just let me through. (skips intro game)", next: "__SKIP__" },
-                    { text: "Run it back!", next: "finale" }
-                ]
+                    { text: "I'm challenging you again!", next: "finale" }
+                ],
             },
             start: {
                 text: "What do you think you're doing?",
