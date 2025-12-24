@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { OpenAI } from 'openai';
-import AboutMe from './AboutMe.js';
+import AboutMe from '../schema/AboutMe.js';
 
 dotenv.config()
 

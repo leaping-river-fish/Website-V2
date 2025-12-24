@@ -1,4 +1,4 @@
-import AnonymousProfile from "../AnonymousProfile.js";
+import AnonymousProfile from "../schema/AnonymousProfile.js";
 
 export async function anonUser(req, _res, next) {
     const anonId = req.cookies?.anon_id;

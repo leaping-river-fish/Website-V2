@@ -18,6 +18,7 @@ export default function StartPage() {
     /* ----------------------- NAVIGATION & HOOKS ----------------------- */
     const navigate = useNavigate();
     const { dialogueText, isDialogueActive, isTyping, startDialogue, setIsDialogueActive, completeDialogue } = useDialogueEngine();
+    const [profile, setProfile] = useState<{introGameCompleted: boolean;} | null>(null);
 
     /* ----------------------- BUTTON REFS & STATE ----------------------- */
     const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -133,24 +134,64 @@ export default function StartPage() {
         }
     }, []);
 
+    /* Anon_id setting */
+
+    function getCookie(name: string): string | null {
+        const cookies = Object.fromEntries(document.cookie.split("; ").map(c => c.split("=")));
+        return cookies[name] ? decodeURIComponent(cookies[name]) : null;
+    }
+
+    const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            const cookieAnonId = getCookie("anon_id");
+            if (!cookieAnonId) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/identify`, {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ anonId: cookieAnonId }),
+                });
+                const data = await res.json();
+                if (data.profile) setProfile(data.profile);
+            } catch (err) {
+                console.error("Failed to fetch profile:", err);
+            }
+        };
+
+        fetchProfile();
+    }, []);
+
     /* Track previous node on currentNode change */
     useEffect(() => {
         const key = Object.entries(currentPhaseNodes).find(
             ([_k, node]) => node === currentNode
-        )?.[0] ?? null;
+        )?.[0] || null;
 
         prevNodeRef.current = key;
     }, [currentNode, currentPhaseNodes]);
 
     /* Initialize phase */
     useEffect(() => {
+        const nodes = story.phase0.nodes;
+        setCurrentPhaseNodes(nodes);
+
+        if (phase === 0 && profile) {
+            prevNodeRef.current = profile.introGameCompleted && isDesktop ? "start_returning" : "start";
+            setIsDialogueActive(false);
+            return;
+        }
+
         initPhase(phase, stateRefs);
 
         if (phase === 3) {
             motionX.set(stateRefs.position.left);
             motionY.set(stateRefs.position.top);
         }
-    }, [phase]);
+    }, [phase, profile, isDesktop]);
 
     /* Track cursor position */
     useEffect(() => {
@@ -365,6 +406,12 @@ export default function StartPage() {
                                     key={idx}
                                     className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                                     onClick={() => {
+                                        if (choice.next === "__SKIP__") {
+                                            setIsDialogueActive(false);
+                                            setCurrentNode(null);
+                                            navigate("/home");
+                                            return;
+                                        }
                                         if (choice.next) {
                                             advanceNode(stateRefs, choice.next, buttonRef.current, choice.animation);
                                         } else if (currentNode.done) {

@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { OpenAI } from "openai";
-import Profile from "./Profile.js";
-import AboutMe from "./AboutMe.js";
+import Profile from "../schema/Profile.js";
+import AboutMe from "../schema/AboutMe.js";
 
 dotenv.config();
 

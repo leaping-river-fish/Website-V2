@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import Profile from "./Profile.js";
+import Profile from "../schema/Profile.js";
 
 dotenv.config();
 

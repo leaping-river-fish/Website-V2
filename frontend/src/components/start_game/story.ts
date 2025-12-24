@@ -3,6 +3,13 @@ import type { StoryType } from "./story_type";
 export const story: StoryType = {
     phase0: {
         nodes: {
+            start_returning: {
+                text: "Oh, it's you again...",
+                choices: [
+                    { text: "Just let me through. (skips intro game)", next: "__SKIP__" },
+                    { text: "Run it back!", next: "finale" }
+                ]
+            },
             start: {
                 text: "What do you think you're doing?",
                 choices: [

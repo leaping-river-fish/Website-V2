@@ -11,6 +11,7 @@ import { router as chatbotRouter } from "./src/chatbot.js";
 import { anonUser } from "./src/middleware/anonUser.js";
 import { identify } from "./src/routes/identify.js";
 import { connectMongo } from "./src/db/mongodb.js";
+import AnonymousProfile from "./src/schema/AnonymousProfile.js";
 
 const app = express();
 
@@ -27,6 +28,25 @@ app.use(anonUser);
 connectMongo();
 app.post("/api/identify", identify);
 
+app.post("/api/intro-complete", async (req, res) => {
+    try {
+        const anonId = req.cookies.anon_id;
+        if (!anonId) return res.status(400).json({ error: "Missing anonId" });
+
+        const env = process.env.NODE_ENV === "production" ? "prod" : "dev";
+
+        const profile = await AnonymousProfile.findOneAndUpdate(
+            { anonId, env },
+            { introGameCompleted: true },
+            { new: true }
+        );
+
+        res.json({ ok: true, profile });
+    } catch (err) {
+        console.error("Error in /api/intro-complete:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
 
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,

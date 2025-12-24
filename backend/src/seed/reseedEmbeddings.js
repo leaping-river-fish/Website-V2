@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { OpenAI } from "openai";
-import AboutMe from "./AboutMe.js";
-import Chat from "./Chat.js";
+import AboutMe from "../schema/AboutMe.js";
+import Chat from "../schema/Chat.js";
 
 dotenv.config();
 

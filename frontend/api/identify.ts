@@ -21,7 +21,7 @@ export default async function identify(req: IdentifyRequest) {
         }
 
         const cookieHeader = cookie.serialize("anon_id", String(anonId), {
-            httpOnly: true,
+            httpOnly: false,
             sameSite: "lax",
             secure: process.env.NODE_ENV === "production",
             maxAge: 60 * 60 * 24 * 365,

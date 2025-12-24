@@ -1,11 +1,10 @@
 import express from "express";
-import mongoose from "mongoose";
 import { OpenAI } from "openai";
 import dotenv from "dotenv";
-import AboutMe from "./AboutMe.js";
-import Profile from "./Profile.js";
-import Chat from "./Chat.js";
-import { redisClient } from "./redis.js";
+import AboutMe from "./schema/AboutMe.js";
+import Profile from "./schema/Profile.js";
+import Chat from "./schema/Chat.js";
+import { redisClient } from "./db/redis.js";
 import { connectMongo } from "./db/mongodb.js";
 
 dotenv.config();

@@ -1,4 +1,4 @@
-import AnonymousProfile from "../AnonymousProfile.js";
+import AnonymousProfile from "../schema/AnonymousProfile.js";
 
 export async function identify(req, res) {
     try {
@@ -6,7 +6,7 @@ export async function identify(req, res) {
         if (!anonId) return res.status(400).json({ error: "Missing anonId" });
 
         res.cookie("anon_id", anonId, {
-            httpOnly: true,
+            httpOnly: false,
             sameSite: "lax",
             secure: false,
             maxAge: 1000 * 60 * 60 * 24 * 365,

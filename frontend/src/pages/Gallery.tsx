@@ -1,4 +1,4 @@
-// add empty slots for locked entries?
+// add empty slots for locked entries? preload images to reduce lag
 import React, { useState, useMemo } from "react";
 import { useImageContext } from "../contexts/ImageContext";
 import Lightbox from "yet-another-react-lightbox";

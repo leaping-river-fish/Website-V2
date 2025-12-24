@@ -136,14 +136,14 @@ export function completePhase(state: StateRefs) {
 {/* Phase 0 */}
 
 export function handleHoverPhase0(state: StateRefs, buttonEl?: HTMLElement | null) {
-    const startNodeKey = "start";
+    if (state.hasWokenUp) return;
+
+    const startNodeKey = state.prevNodeRef.current ?? "start";
     const startNode = state.currentPhaseNodes[startNodeKey];
     if (!startNode) return;
 
-    if (!state.hasWokenUp) {
-        state.setHasWokenUp(true);
-        advanceNode(state, startNodeKey, buttonEl);
-    }
+    state.setHasWokenUp(true);
+    advanceNode(state, startNodeKey, buttonEl);
 }
 
 export function handleClickPhase0(state: StateRefs) {
@@ -276,6 +276,20 @@ export function handlePhase3Caught(state: StateRefs, buttonEl?: HTMLElement | nu
 
 {/* Phase 4 */}
 
-export function handleClickPhase4(state: StateRefs) {
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+export async function handleClickPhase4(state: StateRefs) {
+    try {
+        const res = await fetch(`${API_BASE}/intro-complete`, {
+            method: "POST",
+            credentials: "include",
+        });
+        if (!res.ok && import.meta.env.DEV) {
+            console.warn("Intro completion request failed:", res.status, res.statusText);
+        }
+    } catch (err) {
+        if (import.meta.env.DEV) console.warn("Failed to mark intro as completed", err);
+    }
+
     state.navigate("/home");
 }
