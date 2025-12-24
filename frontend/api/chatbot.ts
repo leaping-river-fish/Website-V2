@@ -1,9 +1,9 @@
 import { OpenAI } from "openai";
-import AboutMe from "./models/AboutMe";
-import Chat from "./models/Chat";
-import Profile from "./models/Profile";
-import { connectMongo } from "./models/mongodb";
-import { redisClient } from "./models/redis";
+import AboutMe from "../models/AboutMe";
+import Chat from "../models/Chat";
+import Profile from "../models/Profile";
+import { connectMongo } from "../models/mongodb";
+import { redisClient } from "../models/redis";
 import type { IncomingMessage, ServerResponse } from "http";
 
 const openai = new OpenAI({

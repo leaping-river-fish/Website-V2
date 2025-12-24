@@ -1,6 +1,6 @@
 import * as cookie from "cookie";
-import { connectMongo } from "./models/mongodb";
-import AnonymousProfile from "./models/AnonymousProfile";
+import { connectMongo } from "../models/mongodb";
+import AnonymousProfile from "../models/AnonymousProfile";
 import mongoose from "mongoose";
 
 interface IdentifyRequest {
