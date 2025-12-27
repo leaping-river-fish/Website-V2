@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Toast from "../components/Toast";
+import { NavbarSpacer } from "../components/reusable_misc/navbarspacer";
 
 function Contact() {
     const [formData, setFormData] = useState({
@@ -83,6 +84,9 @@ function Contact() {
 
     return (
         <div className="bg-[#1A1410] min-h-screen py-16 px-4 ">
+
+            <NavbarSpacer />
+            
             <div className="max-w-[1000px] mx-auto flex flex-wrap md:flex-nowrap justify-between gap-6 md:gap-8 items-start px-4">
                 
                 {/* Status toast message */}

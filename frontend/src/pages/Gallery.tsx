@@ -1,6 +1,7 @@
 // add empty slots for locked entries? preload images to reduce lag
 import React, { useState, useMemo } from "react";
 import { useImageContext } from "../contexts/ImageContext";
+import { NavbarSpacer } from "../components/reusable_misc/navbarspacer";
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Captions from "yet-another-react-lightbox/plugins/captions";
@@ -59,20 +60,24 @@ const Gallery: React.FC = () => {
     );
 
     return (
-        <div className="bg-[#1A1410] w-full max-w-6xl mx-auto pt-10 pb-20 px-4">
-            <Section title="Art" images={artImages} />
-            <Section title="Fundraising" images={fundraisingImages} />
-            <Section title="Event Advertising" images={eventImages} />
+        <div className="w-full bg-[#1A1410]">
+            <div className="max-w-6xl mx-auto pt-10 pb-20 px-4">
+                <NavbarSpacer />
 
-            {isLightboxOpen && currentIndex !== null && (
-                <Lightbox
-                    open={isLightboxOpen}
-                    close={() => setIsLightboxOpen(false)}
-                    index={currentIndex}
-                    slides={slides}
-                    plugins={[Zoom, Captions, Download, Share]}
-                />
-            )}
+                <Section title="Art" images={artImages} />
+                <Section title="Fundraising" images={fundraisingImages} />
+                <Section title="Event Advertising" images={eventImages} />
+
+                {isLightboxOpen && currentIndex !== null && (
+                    <Lightbox
+                        open={isLightboxOpen}
+                        close={() => setIsLightboxOpen(false)}
+                        index={currentIndex}
+                        slides={slides}
+                        plugins={[Zoom, Captions, Download, Share]}
+                    />
+                )}
+            </div>
         </div>
     );
 }

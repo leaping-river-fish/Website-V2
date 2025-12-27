@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
+import { NavbarSpacer } from "../components/reusable_misc/navbarspacer";
 import "swiper/css";
 import "swiper/css/pagination";
 
@@ -32,6 +33,8 @@ function About() {
 
     return (
         <div className="bg-[#1A1410] min-h-screen text-white overflow-hidden">
+            
+            <NavbarSpacer />
 
             <Chatbot />
             
