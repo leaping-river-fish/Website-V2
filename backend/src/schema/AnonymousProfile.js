@@ -23,6 +23,12 @@ const AnonymousProfileSchema = new mongoose.Schema({
         index: true,
     },
 
+    wallet: {
+        embers: { type: Number, default: 0 },
+        totalEarned: { type: Number, default: 0 },
+        totalSpent: { type: Number, default: 0 },
+    },
+
     introGameCompleted: {
         type: Boolean,
         default: false,

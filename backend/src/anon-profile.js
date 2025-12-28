@@ -62,6 +62,48 @@ export default async function anonProfileHandler(req, res) {
             return res.json({ ok: true, profile });
         }
 
+        if (action === "get-wallet") {
+            const profile = await AnonymousProfile.findOne(
+                { anonId, env },
+                { wallet: 1, _id: 0 }
+            );
+
+            return res.json({
+                ok: true,
+                wallet: profile?.wallet ?? {
+                    embers: 0,
+                    totalEarned: 0,
+                    totalSpent: 0,
+                },
+            });
+        }
+
+        if (action === "earn-embers") {
+            const amount = Number(req.body.amount) || 1;
+
+            if (amount <= 0 || amount > 5) {
+                return res.status(400).json({ error: "Invalid amount" });
+            }
+
+            const profile = await AnonymousProfile.findOneAndUpdate(
+                { anonId, env },
+                {
+                    $inc: {
+                        "wallet.embers": amount,
+                        "wallet.totalEarned": amount,
+                    },
+                    $set: { lastSeen: new Date() },
+                },
+                { new: true }
+            );
+
+            return res.json({
+                ok: true,
+                embers: profile.wallet.embers,
+                totalEarned: profile.wallet.totalEarned,
+            });
+        }
+
         return res.status(400).json({ error: "Invalid action" });
     } catch (err) {
         console.error("Error in /api/anon-profile:", err);

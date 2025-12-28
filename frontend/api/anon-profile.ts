@@ -5,8 +5,9 @@ import { connectMongo } from "./models/mongodb";
 import AnonymousProfile from "./models/AnonymousProfile";
 
 interface RequestBody {
-    action?: "identify" | "complete-intro";
+    action?: "identify" | "complete-intro"| "earn-embers";
     anonId?: string;
+    amount?: number;
 }
 
 function sendJSON(res: ServerResponse, status: number, data: any) {
@@ -44,7 +45,7 @@ export default async function handler(
         await connectMongo();
 
         const body = await parseBody(req);
-        const { action } = body;
+        const { action, amount = 0 } = body;
 
         const cookies = cookie.parse(req.headers.cookie || "");
         const anonId = body.anonId || cookies["anon_id"];
@@ -55,7 +56,8 @@ export default async function handler(
 
         const env = process.env.NODE_ENV === "production" ? "prod" : "dev";
 
-        // IDENTIFY
+
+        // ---------------- IDENTIFY ----------------
 
         if (action === "identify") {
             const profile = await AnonymousProfile.findOneAndUpdate(
@@ -88,22 +90,45 @@ export default async function handler(
             });
         }
 
-        // INTRO COMPLETE
+        // ---------------- COMPLETE INTRO ----------------
 
         if (action === "complete-intro") {
-        const profile = await AnonymousProfile.findOneAndUpdate(
-            { anonId, env },
-            {
-                $set: {
-                    introGameCompleted: true,
-                    lastSeen: new Date(),
+            const profile = await AnonymousProfile.findOneAndUpdate(
+                { anonId, env },
+                {
+                    $set: {
+                        introGameCompleted: true,
+                        lastSeen: new Date(),
+                    },
                 },
-            },
-            { new: true }
-        );
+                { new: true }
+            );
 
-        return sendJSON(res, 200, { ok: true, profile });
+            return sendJSON(res, 200, { ok: true, profile });
         }
+
+        // ---------------- EARN EMBERS ----------------
+
+        if (action === "earn-embers") {
+            const profile = await AnonymousProfile.findOneAndUpdate(
+                { anonId, env },
+                {
+                    $inc: {
+                        "wallet.embers": amount,
+                        "wallet.totalEarned": amount,
+                    },
+                    $set: { lastSeen: new Date() },
+                },
+                { new: true }
+            );
+
+            if (!profile) {
+                return sendJSON(res, 404, { error: "Profile not found" });
+            }
+
+            return sendJSON(res, 200, { ok: true, profile });
+        }
+
 
         return sendJSON(res, 400, { error: "Invalid action" });
     } catch (err: any) {

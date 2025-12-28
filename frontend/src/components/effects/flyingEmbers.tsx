@@ -62,7 +62,7 @@ const generateEmber = (id: number, spawn = 0): Ember => {
 
 /* ---------------- component ---------------- */
 
-export const FlyingEmbers = () => {
+export const FlyingEmbers = ({ onEarn }: { onEarn: (amount?: number) => void }) => {
     const [embers, setEmbers] = useState<Ember[]>(() =>
         Array.from({ length: EMBER_COUNT }).map((_, i) => generateEmber(i, 0))
     );
@@ -85,6 +85,7 @@ export const FlyingEmbers = () => {
                 respawnEmber(ember.id);
             }, 500);
         } else if (ember.type === "ember") {
+            onEarn(1);
             setEmbers(prev =>
                 prev.map(e =>
                     e.id === ember.id ? { ...e, collected: true } : e
@@ -99,6 +100,7 @@ export const FlyingEmbers = () => {
                 );
             }, 500);
         } else if (ember.type === "flare") {
+            onEarn(100);
             setEmbers(prev =>
                 prev.map(e =>
                     e.id === ember.id
@@ -107,7 +109,7 @@ export const FlyingEmbers = () => {
                 )
             );
         }
-    }, [])
+    }, [onEarn])
 
     return (
         <div className="absolute inset-0 overflow-hidden z-0">
