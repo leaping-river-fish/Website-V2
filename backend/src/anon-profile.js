@@ -81,7 +81,7 @@ export default async function anonProfileHandler(req, res) {
         if (action === "earn-embers") {
             const amount = Number(req.body.amount) || 1;
 
-            if (amount <= 0 || amount > 5) {
+            if (amount <= 0 || amount > 101) {
                 return res.status(400).json({ error: "Invalid amount" });
             }
 

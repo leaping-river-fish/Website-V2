@@ -5,7 +5,7 @@ import { connectMongo } from "./models/mongodb";
 import AnonymousProfile from "./models/AnonymousProfile";
 
 interface RequestBody {
-    action?: "identify" | "complete-intro"| "earn-embers";
+    action?: "identify" | "complete-intro"| "earn-embers" | "get-wallet";
     anonId?: string;
     amount?: number;
 }
@@ -105,6 +105,24 @@ export default async function handler(
             );
 
             return sendJSON(res, 200, { ok: true, profile });
+        }
+
+        // ---------------- GET WALLET ----------------
+        
+        if (action === "get-wallet") {
+            const profile = await AnonymousProfile.findOne(
+                { anonId, env },
+                { wallet: 1, _id: 0 }
+            );
+
+            return sendJSON(res, 200, {
+                ok: true,
+                wallet: profile?.wallet ?? {
+                    embers: 0,
+                    totalEarned: 0,
+                    totalSpent: 0,
+                },
+            });
         }
 
         // ---------------- EARN EMBERS ----------------
