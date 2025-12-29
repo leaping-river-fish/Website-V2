@@ -9,6 +9,7 @@ import Projects from "./pages/Projects"
 import Gallery from "./pages/Gallery"
 import Contact from "./pages/Contact"
 
+import LoadingScreen from "./components/reusable_misc/LoadingScreen";
 import GridTransition from "./components/transitions/GridTransition"
 import VerticalWipeTransition from "./components/transitions/VerticalWipeTransition";
 
@@ -72,6 +73,43 @@ export default function App() {
             });
     }, []);
 
+    // ----------------------------------- Cookie Logic --------------------------------------
+
+    const [profile, setProfile] = useState(null);
+    const [profileReady, setProfileReady] = useState(false);
+
+    useEffect(() => {
+        async function identify() {
+            let anonId = document.cookie.includes("anon_id")
+                ? document.cookie.split("anon_id=")[1].split(";")[0]
+                : localStorage.getItem("anon_id");
+
+            if (!anonId) {
+                anonId = crypto.randomUUID();
+                localStorage.setItem("anon_id", anonId);
+            }
+
+            const apiPromise = fetch(`${API_BASE}/anon-profile`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ action: "identify", anonId }),
+            }).then(res => res.json());
+
+            const delay = new Promise(resolve => setTimeout(resolve, 2000));
+
+            const [data] = await Promise.all([apiPromise, delay]);
+
+            setProfile(data.profile);
+            setProfileReady(true);
+        }
+
+        identify();
+    }, []);
+
+
+    // ----------------------------------- Other --------------------------------------
+
     useEffect(() => {
         if (location.pathname != displayedPath) {
             setTriggerTransition(true);
@@ -128,7 +166,16 @@ export default function App() {
                 />
             )}
             <Routes location={{ pathname: displayedPath }}>
-                <Route path="/" element={<StartPage />} />
+                <Route
+                    path="/"
+                    element={
+                        profileReady ? (
+                            <StartPage profile={profile} />
+                        ) : (
+                            <LoadingScreen />
+                        )
+                    }
+                />
 
                 <Route
                     path="/home"

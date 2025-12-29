@@ -11,14 +11,17 @@ import * as gameEngine from "../components/start_game/game_engine";
 import { initPhase } from "../components/start_game/phase_inits";
 import { advanceNode } from "../components/start_game/game_engine";
 
-export default function StartPage() {
+interface StartPageProps {
+    profile?: { anonId: string; introGameCompleted: boolean } | null;
+}
+
+export default function StartPage({ profile }: StartPageProps) {
     /* --------------------------- DEVELOPMENT -------------------------- */
     const isDev = import.meta.env.DEV;
 
     /* ----------------------- NAVIGATION & HOOKS ----------------------- */
     const navigate = useNavigate();
     const { dialogueText, isDialogueActive, isTyping, startDialogue, setIsDialogueActive, completeDialogue } = useDialogueEngine();
-    const [profile, setProfile] = useState<{ anonId: string; introGameCompleted: boolean } | null>(null);
 
     /* ----------------------- BUTTON REFS & STATE ----------------------- */
     const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -105,12 +108,8 @@ export default function StartPage() {
         motionY,
     };
 
-    /* ----------------------- Mobile Check ----------------------- */
+    /* ---------------- MOBILE CHECK ---------------- */
     const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
-
-
-    /* ----------------------- EFFECTS ----------------------- */
-    /* Check screen size, redirect if mobile */
     useEffect(() => {
         const mq = window.matchMedia("(min-width: 1024px)");
         setIsDesktop(mq.matches);
@@ -126,7 +125,7 @@ export default function StartPage() {
         }
     }, [isDesktop, navigate]);
 
-    /* Set initial button size */
+    /* ---------------- INITIALIZE BUTTON SIZE ---------------- */
     useEffect(() => {
         if (buttonRef.current) {
             const rect = buttonRef.current.getBoundingClientRect();
@@ -134,38 +133,7 @@ export default function StartPage() {
         }
     }, []);
 
-    /* Anon_id setting */
-
-    function getCookie(name: string): string | null {
-        const cookies = Object.fromEntries(document.cookie.split("; ").map(c => c.split("=")));
-        return cookies[name] ? decodeURIComponent(cookies[name]) : null;
-    }
-
-    const API_BASE = import.meta.env.VITE_API_BASE_URL;
-
-    useEffect(() => {
-        const fetchProfile = async () => {
-            const cookieAnonId = getCookie("anon_id");
-            if (!cookieAnonId) return;
-
-            try {
-                const res = await fetch(`${API_BASE}/anon-profile`, {
-                    method: "POST",
-                    credentials: "include",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "identify", anonId: cookieAnonId }),
-                });
-                const data = await res.json();
-                if (data.profile) setProfile(data.profile);
-            } catch (err) {
-                console.error("Failed to fetch profile:", err);
-            }
-        };
-
-        fetchProfile();
-    }, []);
-
-    /* Track previous node on currentNode change */
+    /* ---------------- TRACK PREVIOUS NODE ---------------- */
     useEffect(() => {
         const key = Object.entries(currentPhaseNodes).find(
             ([_k, node]) => node === currentNode
@@ -174,13 +142,20 @@ export default function StartPage() {
         prevNodeRef.current = key;
     }, [currentNode, currentPhaseNodes]);
 
-    /* Initialize phase */
+    /* ---------------- INITIALIZE PHASE ---------------- */
     useEffect(() => {
         const nodes = story.phase0.nodes;
         setCurrentPhaseNodes(nodes);
 
-        if (phase === 0 && profile) {
-            prevNodeRef.current = profile.introGameCompleted && isDesktop ? "start_returning" : "start";
+        if (phase === 0) {
+            // Only initialize start node if profile is available
+            if (!profile) return;
+
+            prevNodeRef.current =
+                profile.introGameCompleted && isDesktop
+                    ? "start_returning"
+                    : "start";
+
             setIsDialogueActive(false);
             return;
         }
