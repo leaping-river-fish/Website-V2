@@ -1,4 +1,4 @@
-// add timeline animation on scroll, sections slide into place animation on scroll
+// add timeline animation on scroll, sections slide into place animation on scroll using framer motion
 import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
