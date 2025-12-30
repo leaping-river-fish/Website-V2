@@ -1,6 +1,6 @@
 // fix tags?, unlock project animation(gamify), cache the loaded projects so they are not constantly reloading
 import AllProjects from "../components/projects/AllProjects";
-import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
+import { NavbarSpacer } from "../components/reusable_misc/tempname";
 
 const Projects = () => {
     return (
