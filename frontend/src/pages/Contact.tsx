@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Toast from "../components/Toast";
-import { NavbarSpacer } from "../components/reusable_misc/tempname";
+import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
 
 function Contact() {
     const [formData, setFormData] = useState({

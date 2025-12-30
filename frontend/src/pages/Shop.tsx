@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import EmberIcon from "../components/navbar/EmberIcon";
 import ShopCard from "../components/shop/ShopCard";
 import ShopSection from "../components/shop/ShopSection";
-import { NavbarSpacer } from "../components/reusable_misc/tempname";
+import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
 
 export default function Shop() {
     return (
