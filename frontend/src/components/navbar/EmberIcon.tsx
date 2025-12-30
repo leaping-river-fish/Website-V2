@@ -13,15 +13,16 @@ export default function EmberIcon({ size = 20 }: EmberIconProps) {
             animate={{ scale: [1, 1.1, 1] }}
             transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
         >
-        {/* GLOW LAYER — does not affect layout */}
+        {/* GLOW LAYER */}
             <div
                 className="absolute -inset-1.5 z-0"
                 style={{
                     filter: "blur(8px)",
+                    color: "var(--flame-icon-glow)",
                 }}
             >
                 <Flame
-                    className="text-orange-500 opacity-70"
+                    className="opacity-70"
                     style={{ width: size, height: size }}
                     fill="currentColor"
                 />
@@ -29,12 +30,13 @@ export default function EmberIcon({ size = 20 }: EmberIconProps) {
 
             {/* MAIN FLAME */}
             <Flame
-                className="relative z-10 text-orange-500"
+                className="relative z-10"
                 fill="currentColor"
                 style={{
                     width: size,
                     height: size,
-                    filter: "drop-shadow(0 0 6px rgba(249,115,22,0.7))",
+                    color: "var(--flame-icon-primary)",
+                    filter: "drop-shadow(0 0 6px var(--flame-icon-glow))",
                 }}
             />
 
@@ -47,12 +49,12 @@ export default function EmberIcon({ size = 20 }: EmberIconProps) {
                 }}
             >
                 <Flame
-                    className="text-yellow-400"
                     fill="currentColor"
                     style={{
                         width: size * 0.65,
                         height: size * 0.65,
-                        filter: "drop-shadow(0 0 4px rgba(250,204,21,0.7))",
+                        color: "var(--flame-icon-accent)",
+                        filter: "drop-shadow(0 0 4px var(--flame-icon-glow))",
                     }}
                 />
             </div>

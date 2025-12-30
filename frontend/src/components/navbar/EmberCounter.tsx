@@ -25,15 +25,17 @@ export default function EmberCounter({ embers, onClick }: EmberCounterProps) {
         >
             <EmberIcon size={18} />
             
-            <div className="relative h-5 min-w-6 overflow-hidden">
+            <div className="relative h-5 flex items-center">
                 <AnimatePresence mode="popLayout">
                     <motion.span
                         key={embers}
+                        layout
                         initial={{ y: 12, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: -12, opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute inset-0 text-center text-sm font-semibold text-orange-400"
+                        style={{ color: "var(--flame-icon-primary)" }}
+                        className="text-center text-sm font-semibold whitespace-nowrap"
                     >
                         {embers}
                     </motion.span>

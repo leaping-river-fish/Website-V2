@@ -160,7 +160,7 @@ html, body {
 }
 
 .gradient-text-animate {
-  background: linear-gradient(45deg, #333333, #dd1818);
+  background: linear-gradient(45deg, var(--flame-text-base, #333333), var(--flame-primary));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -168,3 +168,5 @@ html, body {
   background-repeat: no-repeat;
   animation: gradientReveal 3s infinite alternate;
 }
+
+/* ADD CONTEXT DYNAMIC CSS VARIABLES and COMBINE CSS FILES (?) */

@@ -93,7 +93,7 @@ export const Navbar = ({ embers, gainTick }: NavbarProps) => {
                             src={Logo}
                             alt="Logo"
                             className={`h-10 w-auto transition-all duration-300 ease-out ${
-                            currentRoute === "/home" ? "drop-shadow-[0_0_8px_rgba(255,69,0,0.8)]" : ""
+                                currentRoute === "/home" ? "flame-glow" : ""
                             }`}
                             animate={{ scale: [1, 1.15, 1] }}
                             transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 2, ease: "easeInOut" }}
@@ -112,10 +112,10 @@ export const Navbar = ({ embers, gainTick }: NavbarProps) => {
                                 : "max-w-[520px] ml-6 opacity-100"}
                         `}
                     >
-                        <Link to="/about" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/about" ? "text-transparent bg-clip-text bg-linear-to-r from-[#333333] to-[#dd1818]" : "text-white hover:bg-gray-600"}`}>About</Link>
-                        <Link to="/projects" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/projects" ? "text-transparent bg-clip-text bg-linear-to-r from-[#333333] to-[#dd1818]" : "text-white hover:bg-gray-600"}`}>Projects</Link>
-                        <Link to="/gallery" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/gallery" ? "text-transparent bg-clip-text bg-linear-to-r from-[#333333] to-[#dd1818]" : "text-white hover:bg-gray-600"}`}>Gallery</Link>
-                        <Link to="/contact" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/contact" ? "text-transparent bg-clip-text bg-linear-to-r from-[#333333] to-[#dd1818]" : "text-white hover:bg-gray-600"}`}>Contact</Link>
+                        <Link to="/about" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/about" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}>About</Link>
+                        <Link to="/projects" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/projects" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}>Projects</Link>
+                        <Link to="/gallery" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/gallery" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}>Gallery</Link>
+                        <Link to="/contact" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/contact" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}>Contact</Link>
                     </div>
 
                     {/* EMBER COUNTER */}
@@ -124,7 +124,9 @@ export const Navbar = ({ embers, gainTick }: NavbarProps) => {
                             animate={controls}
                             className="relative flex items-center"
                         >
-                            <EmberCounter embers={embers} />
+                            <Link to="/shop" className="rounded-full">
+                                <EmberCounter embers={embers} />
+                            </Link>
 
                             <motion.div
                                 key={gainTick}
@@ -140,7 +142,7 @@ export const Navbar = ({ embers, gainTick }: NavbarProps) => {
                     {!isCollapsed ? (
                         <button
                             onClick={() => setIsCollapsed(true)}
-                            className="ml-4 text-lg font-bold hover:text-slate-300 relative z-10"
+                            className="ml-4 text-lg font-bold hover:text-slate-300 relative z-10 cursor-pointer"
                             aria-label="Collapse navbar"
                         >
                             &lt;
@@ -148,7 +150,7 @@ export const Navbar = ({ embers, gainTick }: NavbarProps) => {
                     ) : (
                         <button
                             onClick={() => setIsCollapsed(false)}
-                            className="ml-3 text-lg font-bold hover:text-slate-300 relative z-10"
+                            className="ml-3 text-lg font-bold hover:text-slate-300 relative z-10 cursor-pointer"
                             aria-label="Expand navbar"
                         >
                             &gt;

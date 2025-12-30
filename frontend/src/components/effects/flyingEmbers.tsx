@@ -124,15 +124,15 @@ export const FlyingEmbers = ({ onEarn }: { onEarn: (amount?: number) => void }) 
                     },
                     ember: {
                         background:
-                            "radial-gradient(circle, #ff6a00 0%, #dd1818 60%, transparent 70%)",
-                        boxShadow: "0 0 10px rgba(221,24,24,0.8)",
+                            "radial-gradient(circle, var(--flame-accent) 0%, var(--flame-primary) 60%, transparent 70%)",
+                        boxShadow: "0 0 10px var(--flame-glow)",
                         opacity: 0.9,
                     },
                     flare: {
                         background:
-                            "radial-gradient(circle, #fff3b0 0%, #ffd700 35%, #ffae00 60%, transparent 72%)",
+                            "radial-gradient(circle, var(--flare-color-0) 0%, var(--flare-color-35) 35%, var(--flare-color-60) 60%, transparent 72%)",
                         boxShadow:
-                            "0 0 18px rgba(255, 200, 60, 0.9), 0 0 32px rgba(255, 160, 0, 0.6)",
+                            "0 0 18px var(--flare-glow-1), 0 0 32px var(--flare-glow-2)",
                         opacity: 1,
                     },
                 };
@@ -183,13 +183,14 @@ export const FlyingEmbers = ({ onEarn }: { onEarn: (amount?: number) => void }) 
                         {/* FLARE ANIMATION */}
                         {ember.type === "flare" && ember.collected && (
                             <motion.div
-                                className="absolute rounded-full bg-yellow-400"
+                                className="absolute rounded-full"
                                 style={{
                                     width: ember.size * 2,
                                     height: ember.size * 2,
                                     top: -ember.size / 2,
                                     left: -ember.size / 2,
-                                    boxShadow: "0 0 20px 10px rgba(255,200,60,0.7)",
+                                    background: "var(--flare-shockwave)",
+                                    boxShadow: "0 0 20px 10px var(--flare-anim-glow)",
                                 }}
                                 initial={{ scale: 1, opacity: 0.8 }}
                                 animate={{ scale: 8, opacity: 0 }}
@@ -201,12 +202,13 @@ export const FlyingEmbers = ({ onEarn }: { onEarn: (amount?: number) => void }) 
                             Array.from({ length: 10 }).map((_, i) => (
                                 <motion.div
                                     key={i}
-                                    className="absolute rounded-full bg-yellow-300"
+                                    className="absolute rounded-full"
                                     style={{
                                         width: 4,
                                         height: 4,
                                         top: ember.size,
                                         left: ember.size,
+                                        background: "var(--flare-particles)",
                                     }}
                                     initial={{ opacity: 1 }}
                                     animate={{
@@ -222,13 +224,21 @@ export const FlyingEmbers = ({ onEarn }: { onEarn: (amount?: number) => void }) 
                         {ember.type === "ember" && ember.collected && (
                             <>
                                 <motion.div
-                                    className="absolute rounded-full bg-[#dd1818]"
+                                    className="absolute rounded-full"
                                     style={{
                                         width: ember.size,
                                         height: ember.size,
                                         top: -ember.size / 2,
                                         left: -ember.size / 2,
-                                        boxShadow: "0 10px 8px rgba(221,24,24,0.8)",
+                                        boxShadow: "0 10px 8px var(--flame-glow)",
+                                        background: `
+                                            radial-gradient(
+                                                circle,
+                                                var(--flame-accent) 0%,
+                                                var(--flame-primary) 60%,
+                                                transparent 70%
+                                            )
+                                        `,
                                         transformOrigin: "50% 50%",
                                     }}
                                     initial={{ scale: 1, opacity: 1 }}
@@ -239,13 +249,15 @@ export const FlyingEmbers = ({ onEarn }: { onEarn: (amount?: number) => void }) 
                                 {Array.from({ length: 4 }).map((_, i) => (
                                     <motion.div
                                         key={i}
-                                        className="absolute rounded-full bg-[#dd1818]"
+                                        className="absolute rounded-full"
                                         style={{
                                             width: 4,
                                             height: 4,
                                             top: ember.size,
                                             left: ember.size,
                                             transformOrigin: "50% 50%",
+                                            background: "var(--flame-primary)",
+                                            boxShadow: "0 0 6px var(--flame-glow)",
                                         }}
                                         initial={{ opacity: 1 }}
                                         animate={{

@@ -1,7 +1,7 @@
 // add empty slots for locked entries? preload images to reduce lag
 import React, { useState, useMemo } from "react";
 import { useImageContext } from "../contexts/ImageContext";
-import { NavbarSpacer } from "../components/reusable_misc/navbarspacer";
+import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Captions from "yet-another-react-lightbox/plugins/captions";

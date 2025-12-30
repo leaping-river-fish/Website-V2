@@ -65,3 +65,40 @@ html {
     animation: progress linear forwards;
     transform-origin: left;
 }
+
+/* ----------------------------------------------------- Theme Colors ----------------------------------------------------- */
+
+:root {
+    --flame-text-base: #333333;
+    --flame-primary: #dd1818;
+    --flame-accent: #ff6a00;
+    --flame-glow: rgba(255,69,0,0.8);
+
+    --flame-icon-primary: #f97316;
+    --flame-icon-accent: #facc15;
+    --flame-icon-glow: rgba(249,115,22,0.7);
+    
+    --flare-color-0: #fff3b0;
+    --flare-color-35: #ffd700;
+    --flare-color-60: #ffae00;
+    --flare-glow-1: rgba(255, 200, 60, 0.9);
+    --flare-glow-2: rgba(255, 160, 0, 0.6);
+    --flare-shockwave: #facc15;
+    --flare-particles: #fde68a;
+    --flare-anim-glow: rgba(255,200,60,0.7);
+}
+
+.flame-glow {
+  filter: drop-shadow(0 0 8px var(--flame-glow));
+}
+
+.flame-gradient-text {
+  background: linear-gradient(
+    45deg,
+    var(--flame-text-base, #333333),
+    var(--flame-primary)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

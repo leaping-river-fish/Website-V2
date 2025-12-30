@@ -8,6 +8,7 @@ import About from "./pages/About"
 import Projects from "./pages/Projects"
 import Gallery from "./pages/Gallery"
 import Contact from "./pages/Contact"
+import Shop from "./pages/Shop";
 
 import LoadingScreen from "./components/reusable_misc/LoadingScreen";
 import GridTransition from "./components/transitions/GridTransition"
@@ -225,6 +226,16 @@ export default function App() {
                             <Contact />
                         </>
                     }
+                />
+
+                <Route 
+                    path="/shop" 
+                    element={
+                        <>
+                            <Navbar embers={embers} gainTick={emberGainTick} />
+                            <Shop />
+                        </>
+                    } 
                 />
             </Routes>
         </div>
