@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom"
 import { ImageProvider } from "./contexts/ImageContext";
 import { FlameThemeProvider } from "./contexts/FlameThemeContext";
 import { EmberProvider } from "./contexts/EmberContext";
+import { DynamicFavicon } from "./components/reusable_misc/DynamicFavicon";
 import FlameThemeDevSwitcher from "./components/reusable_misc/FlameThemeDevSwitcher";
 import "./main.css"
 import "./App.css"
@@ -16,6 +17,7 @@ createRoot(document.getElementById("root")!).render(
             <EmberProvider>
                 <FlameThemeProvider>
                     <ImageProvider>
+                        <DynamicFavicon />
                         <App />
                         {process.env.NODE_ENV === "development" && <FlameThemeDevSwitcher />}
                     </ImageProvider>

@@ -5,6 +5,7 @@ import { Link, useLocation } from "react-router-dom"
 import Logo from "/images/weblogo.png"
 import EmberCounter from "./EmberCounter";
 import { useEmbers } from "../../contexts/EmberContext";
+import { LogoSVG } from "../reusable_misc/LogoSvg";
 
 export const Navbar = () => {
     const { gainTick } = useEmbers();
@@ -86,15 +87,15 @@ export const Navbar = () => {
                 >
                     {/* LOGO */}
                     <Link to="/home" className="shrink-0">
-                        <motion.img
-                            src={Logo}
-                            alt="Logo"
-                            className={`h-10 w-auto transition-all duration-300 ease-out ${
+                        <motion.div
+                            className={`h-10 w-10 transition-all duration-300 ease-out ${
                                 currentRoute === "/home" ? "flame-glow" : ""
                             }`}
                             animate={{ scale: [1, 1.15, 1] }}
                             transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 2, ease: "easeInOut" }}
-                        />
+                        >
+                            <LogoSVG />
+                        </motion.div>
                     </Link>
 
                     {/* PAGE LINKS: collapse properly */}
