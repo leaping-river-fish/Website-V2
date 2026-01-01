@@ -2,7 +2,7 @@ import type { FlameThemeTypes } from "./flameThemeTypes";
 
 export const FLAME_THEMES: FlameThemeTypes[] = [
     {
-        id: "crimson",
+        id: "flame:crimson",
         name: "Crimson Flame",
         primary: "#dd1818",
         accent: "#f87171",
@@ -22,7 +22,7 @@ export const FLAME_THEMES: FlameThemeTypes[] = [
         flareAnimGlow: "rgba(255,200,60,0.7)",
     },
     {
-        id: "gold",
+        id: "flame:gold",
         name: "Gold Flame",
         primary: "#f59e0b",
         accent: "#fde68a",
@@ -42,7 +42,7 @@ export const FLAME_THEMES: FlameThemeTypes[] = [
         flareAnimGlow: "rgba(34,197,94,0.7)",
     },
     {
-        id: "emerald",
+        id: "flame:emerald",
         name: "Emerald Flame",
         primary: "#10b981",
         accent: "#6ee7b7",
@@ -62,7 +62,7 @@ export const FLAME_THEMES: FlameThemeTypes[] = [
         flareAnimGlow: "rgba(56,189,248,0.7)",
     },
     {
-        id: "azure",
+        id: "flame:azure",
         name: "Azure Flame",
         primary: "#3b82f6",
         accent: "#93c5fd",
@@ -82,7 +82,7 @@ export const FLAME_THEMES: FlameThemeTypes[] = [
         flareAnimGlow: "rgba(124,58,237,0.7)",
     },
     {
-        id: "violet",
+        id: "flame:violet",
         name: "Violet Flame",
         primary: "#8b5cf6",
         accent: "#c4b5fd",
@@ -102,7 +102,7 @@ export const FLAME_THEMES: FlameThemeTypes[] = [
         flareAnimGlow: "rgba(255,255,255,0.85)",
     },
     {
-        id: "pure",
+        id: "flame:pure",
         name: "Pure Flame",
         primary: "#ffffff",
         accent: "#f5f5f5",
@@ -112,9 +112,9 @@ export const FLAME_THEMES: FlameThemeTypes[] = [
         iconAccent: "#ffffff",
         iconGlow: "rgba(255,255,255,0.85)",
 
-        flareColor0: "##3b82f6",
+        flareColor0: "#3b82f6",
         flareColor35: "#ffff00",
-        flareColor60: "ff0000",
+        flareColor60: "#ff0000",
         flareGlow1: "rgba(255,255,255,0.9)",
         flareGlow2: "rgba(255,255,255,0.6)",
         flareShockwave: "#ffffff",

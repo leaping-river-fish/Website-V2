@@ -13,12 +13,18 @@ export interface Wallet {
     totalSpent: number;
 }
 
+export interface Equipped {
+    flameTheme: string;
+}
+
 export interface AnonymousProfileDoc extends Document {
     anonId: string;
     env: "dev" | "prod";
     introGameCompleted: boolean;
     quests: Quest[];
     wallet: Wallet;
+    ownedCosmetics: string[];
+    equipped: Equipped;
     createdAt: Date;
     lastSeen: Date;
 }
@@ -39,10 +45,19 @@ const WalletSchema: Schema<Wallet> = new mongoose.Schema(
     { _id: false }
 );
 
+const EquippedSchema: Schema<Equipped> = new mongoose.Schema(
+    {
+        flameTheme: { type: String, default: "flame:crimson" },
+    },
+    { _id: false }
+);
+
 const AnonymousProfileSchema: Schema<AnonymousProfileDoc> = new mongoose.Schema({
     anonId: { type: String, required: true },
     env: { type: String, enum: ["dev", "prod"], required: true, index: true },
     wallet: { type: WalletSchema, default: () => ({}) },
+    ownedCosmetics: { type: [String], default: ["flame:crimson"], index: true },
+    equipped: { type: EquippedSchema, default: () => ({}) },
     introGameCompleted: { type: Boolean, default: false },
     quests: { type: [QuestSchema], default: [] },
     createdAt: { type: Date, default: Date.now },

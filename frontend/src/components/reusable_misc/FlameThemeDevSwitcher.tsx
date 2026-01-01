@@ -2,12 +2,12 @@ import { useFlameTheme } from "../../contexts/FlameThemeContext";
 import { useEffect } from "react";
 
 const THEMES = [
-    { id: "crimson", label: "Crimson" },
-    { id: "gold", label: "Gold" },
-    { id: "emerald", label: "Emerald" },
-    { id: "azure", label: "Azure" },
-    { id: "violet", label: "Violet" },
-    { id: "pure", label: "Pure" },
+    { id: "flame:crimson", label: "Crimson" },
+    { id: "flame:gold", label: "Gold" },
+    { id: "flame:emerald", label: "Emerald" },
+    { id: "flame:azure", label: "Azure" },
+    { id: "flame:violet", label: "Violet" },
+    { id: "flame:pure", label: "Pure" },
 ];
 
 export default function FlameThemeDevSwitcher() {

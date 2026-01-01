@@ -1,10 +1,123 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import EmberIcon from "../components/navbar/EmberIcon";
 import ShopCard from "../components/shop/ShopCard";
 import ShopSection from "../components/shop/ShopSection";
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
 
+import { FLAME_ITEMS } from "../components/shop/shopItems";
+import { useFlameTheme } from "../contexts/FlameThemeContext";
+
 export default function Shop() {
+    const API_BASE = import.meta.env.VITE_API_BASE_URL;
+    const DEFAULT_THEME_ID = "flame:crimson";
+    const [loading, setLoading] = useState(true);
+
+    const [embers, setEmbers] = useState(0);
+    const [ownedCosmetics, setOwnedCosmetics] = useState<string[]>([]);
+    const [equippedThemeId, setEquippedThemeId] = useState(DEFAULT_THEME_ID);
+    const { themeId, setThemeId } = useFlameTheme();
+
+    const effectiveOwned = new Set([
+        DEFAULT_THEME_ID,
+        ...ownedCosmetics,
+    ]);
+
+    useEffect(() => {
+        console.log("ownedCosmetics updated:", ownedCosmetics);
+    }, [ownedCosmetics]);
+
+    /* -------------------- SYNC THEME STATE -------------------- */
+    useEffect(() => {
+        if (!themeId) {
+            setThemeId(DEFAULT_THEME_ID);
+            setEquippedThemeId(DEFAULT_THEME_ID);
+        }
+        
+        if (themeId) {
+            setEquippedThemeId(themeId);
+        }
+    }, [themeId]);
+
+    /* -------------------- LOAD PROFILE -------------------- */
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                // Wallet
+                const walletRes = await fetch(`${API_BASE}/anon-profile`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ action: "get-wallet" }),
+                });
+                const walletData = await walletRes.json();
+                setEmbers(walletData.wallet?.embers ?? 0);
+
+                // Owned cosmetics
+                const profileRes = await fetch(`${API_BASE}/anon-profile`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ action: "identify" }),
+                });
+                const profileData = await profileRes.json();
+                setOwnedCosmetics(profileData.profile?.ownedCosmetics ?? []);
+            } catch (err) {
+                console.error("Error fetching profile:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProfile();
+    }, []);
+
+    /* -------------------- PURCHASE -------------------- */
+    function purchase(item: { id: string; price?: number }) {
+        if (!item.price) return;
+
+        fetch(`${API_BASE}/anon-profile`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+                action: "purchase",
+                itemId: item.id,
+                price: item.price,
+            }),
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.ok) return;
+                setEmbers(data.wallet.embers);
+                setOwnedCosmetics(data.ownedCosmetics);
+            });
+    }
+
+    /* -------------------- EQUIP -------------------- */
+    function equip(themeId: string) {
+        fetch(`${API_BASE}/anon-profile`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ action: "equip", itemId: themeId }),
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.ok) return;
+            setThemeId(themeId);
+            setEquippedThemeId(themeId);
+        });
+    }
+
+    if (loading) {
+        return (
+            <motion.div className="min-h-screen bg-[#1A1410] flex items-center justify-center text-white text-xl">
+                Loading Shop...
+            </motion.div>
+        );
+    }
+
     return (
         <motion.div
             className="min-h-screen px-6 py-24 bg-black text-white"
@@ -31,19 +144,32 @@ export default function Shop() {
                     title="Flame Color Themes"
                     description="Change the color of your embers and flame effects."
                 >
-                    <ShopCard title="Crimson Flame" description="A deep red flame that burns hot and steady. Reliable, powerful, and everburning" comingSoon />
-                    <ShopCard title="Gold Flame" description="A radiant golden flame that burns hotter than crimson, concentrating intense heat into a refined, searing core." comingSoon />
-                    <ShopCard title="Emerald Flame" description="A vivid emerald flame that burns with unstable intensity, radiating searing heat that strains the limits of combustion." comingSoon />
-                    <ShopCard title="Azure Flame" description="A piercing azure flame that burns with relentless intensity, emitting heat so severe it feels almost unnatural." comingSoon />
-                    <ShopCard title="Violet Flame" description="A luminous violet flame infused with arcane energy, radiating heat so powerful it bends the fabric of reality." comingSoon />
-                    <ShopCard title="Pure Flame" description="A blinding white flame of absolute purity, burning at the highest possible temperature. Nothing burns hotter." comingSoon />
+                    {FLAME_ITEMS.map(item => {
+                        const owned = effectiveOwned.has(item.id);
+                        const equipped = item.id === equippedThemeId;
+                        const canAfford = item.price !== undefined && embers >= item.price;
+                        return (
+                            <ShopCard
+                                key={item.id}
+                                title={item.title}
+                                description={item.description}
+                                price={owned ? undefined : item.price}
+                                owned={owned}
+                                equipped={equipped}
+                                canAfford={canAfford}
+                                onBuy={() => purchase(item)}
+                                onEquip={() => equip(item.id)}
+                            />
+                        );
+                        
+                    })}
                 </ShopSection>
 
                 <ShopSection
                     title="Custom Cursors"
                     description="Animated cursors forged from embers."
                 >
-                    <ShopCard title="Ember Cursor" description="A glowing ember follows your pointer." comingSoon />
+                    <ShopCard title="Dragon Cursor" description="Have a cute dragon pet as your cursor." comingSoon />
                 </ShopSection>
 
                 <ShopSection

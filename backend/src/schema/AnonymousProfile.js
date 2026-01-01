@@ -29,6 +29,19 @@ const AnonymousProfileSchema = new mongoose.Schema({
         totalSpent: { type: Number, default: 0 },
     },
 
+    ownedCosmetics: {
+        type: [String],
+        default: ["crimson"],
+        index: true,
+    },
+
+    equipped: {
+        flameTheme: {
+            type: String,
+            default: "crimson",
+        },
+    },
+
     introGameCompleted: {
         type: Boolean,
         default: false,

@@ -12,6 +12,7 @@ export type FlameThemeTypes = {
     iconAccent: string;
     iconGlow: string;
 
+    // Flare colors
     flareColor0: string,
     flareColor35: string,
     flareColor60: string,

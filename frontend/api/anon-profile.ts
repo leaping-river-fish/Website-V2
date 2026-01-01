@@ -5,9 +5,11 @@ import { connectMongo } from "./models/mongodb";
 import AnonymousProfile from "./models/AnonymousProfile";
 
 interface RequestBody {
-    action?: "identify" | "complete-intro"| "earn-embers" | "get-wallet";
+    action?: "identify" | "complete-intro"| "earn-embers" | "get-wallet"| "purchase" | "equip";
     anonId?: string;
     amount?: number;
+    itemId?: string;
+    price?: number;
 }
 
 function sendJSON(res: ServerResponse, status: number, data: any) {
@@ -45,7 +47,7 @@ export default async function handler(
         await connectMongo();
 
         const body = await parseBody(req);
-        const { action, amount = 0 } = body;
+        const { action, amount = 0, itemId, price } = body;
 
         const cookies = cookie.parse(req.headers.cookie || "");
         const anonId = body.anonId || cookies["anon_id"];
@@ -69,6 +71,17 @@ export default async function handler(
                 { upsert: true, new: true }
             );
 
+            let needsSave = false;
+            if (!profile.ownedCosmetics?.includes("flame:crimson")) {
+                profile.ownedCosmetics.push("flame:crimson");
+                needsSave = true;
+            }
+            if (!profile.equipped?.flameTheme) {
+                profile.equipped = { flameTheme: "flame:crimson" };
+                needsSave = true;
+            }
+            if (needsSave) await profile.save();
+
             res.setHeader(
                 "Set-Cookie",
                 cookie.serialize("anon_id", anonId, {
@@ -86,6 +99,9 @@ export default async function handler(
                     anonId: profile.anonId,
                     introGameCompleted: profile.introGameCompleted,
                     quests: profile.quests,
+                    wallet: profile.wallet ?? { embers: 0, totalEarned: 0, totalSpent: 0 },
+                    ownedCosmetics: profile.ownedCosmetics,
+                    equipped: profile.equipped,
                 },
             });
         }
@@ -145,6 +161,40 @@ export default async function handler(
             }
 
             return sendJSON(res, 200, { ok: true, profile });
+        }
+
+        // ---------------- PURCHASE ----------------
+        if (action === "purchase") {
+            if (!itemId || typeof itemId !== "string") return sendJSON(res, 400, { error: "Missing itemId" });
+
+            const cost = Number(price);
+            
+            if (!Number.isFinite(cost) || cost <= 0) return sendJSON(res, 400, { error: "Invalid price" });
+
+            const profile = await AnonymousProfile.findOneAndUpdate(
+                { anonId, env, "wallet.embers": { $gte: cost }, ownedCosmetics: { $ne: itemId } },
+                { $inc: { "wallet.embers": -cost, "wallet.totalSpent": cost }, $addToSet: { ownedCosmetics: itemId }, $set: { lastSeen: new Date() } },
+                { new: true }
+            );
+
+            if (!profile) return sendJSON(res, 400, { error: "Not enough embers or item already owned" });
+
+            return sendJSON(res, 200, { ok: true, wallet: profile.wallet, ownedCosmetics: profile.ownedCosmetics });
+        }
+
+        // ---------------- EQUIP ----------------
+        if (action === "equip") {
+            if (!itemId) return sendJSON(res, 400, { error: "Missing itemId" });
+
+            const profile = await AnonymousProfile.findOneAndUpdate(
+                { anonId, env, ownedCosmetics: itemId },
+                { "equipped.flameTheme": itemId },
+                { new: true }
+            );
+
+            if (!profile) return sendJSON(res, 400, { error: "Item not owned" });
+
+            return sendJSON(res, 200, { ok: true, equipped: profile.equipped });
         }
 
 

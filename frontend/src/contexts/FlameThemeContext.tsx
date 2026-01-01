@@ -18,6 +18,8 @@ export function FlameThemeProvider({ children }: { children: React.ReactNode }) 
     useEffect(() => {
         const root = document.documentElement;
 
+        if (!theme) return;
+
         root.style.setProperty("--flame-text-base", "#333333");
         root.style.setProperty("--flame-primary", theme.primary);
         root.style.setProperty("--flame-accent", theme.accent);

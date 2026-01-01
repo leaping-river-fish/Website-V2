@@ -130,7 +130,8 @@ export const Navbar = ({ embers, gainTick }: NavbarProps) => {
 
                             <motion.div
                                 key={gainTick}
-                                className="absolute inset-0 -z-10 rounded-full bg-orange-500/40 pointer-events-none"
+                                className="absolute inset-0 -z-10 rounded-full pointer-events-none"
+                                style={{ background: "var(--flame-primary)" }}
                                 initial={{ scale: 1, opacity: 0.6 }}
                                 animate={{ scale: 1.5, opacity: 0 }}
                                 transition={{ duration: 0.6, ease: "easeOut" }}
