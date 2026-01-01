@@ -163,7 +163,10 @@ function Contact() {
                         Email:{" "}
                         <a
                             href={`mailto:${email}`}
-                            className="text-white hover:text-red-500 hover:underline transition-colors"
+                            style={{ color: "inherit" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--flame-primary)")}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = "")}
+                            className="text-white hover:underline transition-colors"
                         >
                             {email}
                         </a>
@@ -172,7 +175,10 @@ function Contact() {
                         Phone:{" "}
                         <a
                             href={`tel:+${phone}`}
-                            className="text-white hover:text-red-500 hover:underline transition-colors"
+                            style={{ color: "inherit" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--flame-primary)")}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = "")}
+                            className="text-white hover:underline transition-colors"
                         >
                             {phone}
                         </a>
@@ -180,8 +186,11 @@ function Contact() {
                     <div className="flex gap-4 mt-4">
                         {/* Instagram */}
                         <a
+                            style={{ color: "inherit" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--flame-primary)")}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = "")}
                             href="https://www.instagram.com/leaping_river_fish/"
-                            className="social-link text-white hover:text-red-500 transition-colors"
+                            className="social-link text-white transition-colors"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Instagram"
@@ -193,8 +202,11 @@ function Contact() {
 
                         {/* Discord */}
                         <a
+                            style={{ color: "inherit" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--flame-primary)")}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = "")}
                             href="https://discord.com/users/567075024897572870"
-                            className="social-link text-white hover:text-red-500 transition-colors"
+                            className="social-link text-white transition-colors"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Discord"
@@ -206,8 +218,11 @@ function Contact() {
 
                         {/* LinkedIn */}
                         <a
+                            style={{ color: "inherit" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--flame-primary)")}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = "")}
                             href="https://www.linkedin.com/in/zheng-nick1/"
-                            className="social-link text-white hover:text-red-500 transition-colors"
+                            className="social-link text-white transition-colors"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="LinkedIn"
@@ -219,8 +234,11 @@ function Contact() {
 
                         {/* GitHub */}
                         <a
+                            style={{ color: "inherit" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--flame-primary)")}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = "")}
                             href="https://github.com/leaping-river-fish"
-                            className="social-link text-white hover:text-red-500 transition-colors"
+                            className="social-link text-white transition-colors"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="GitHub"

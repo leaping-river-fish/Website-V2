@@ -258,20 +258,6 @@ export default function StartPage({ profile }: StartPageProps) {
         if (now - lastClickTime < CLICK_COOLDOWN) return;
         setLastClickTime(now);
 
-        console.log(
-            "%cCLICK",
-            "background: #222; color: #bada55; font-size: 14px; padding: 2px 6px;",
-            {
-                phase,
-                isDialogueActive,
-                isTyping,
-                currentNode,
-                prevNodeRef: prevNodeRef.current,
-                blackout: isBlackout
-            }
-        );
-
-
         if (isDialogueActive && isTyping) {
             completeDialogue();
             return;

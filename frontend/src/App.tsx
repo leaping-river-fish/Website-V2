@@ -1,5 +1,5 @@
 import { Routes, Route, useLocation } from "react-router-dom"
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 
 import StartPage from "./pages/Start"
 import { Navbar } from "./components/navbar/Navbar"
@@ -10,6 +10,7 @@ import Gallery from "./pages/Gallery"
 import Contact from "./pages/Contact"
 import Shop from "./pages/Shop";
 
+import { useFlameTheme } from "./contexts/FlameThemeContext";
 import LoadingScreen from "./components/reusable_misc/LoadingScreen";
 import GridTransition from "./components/transitions/GridTransition"
 import VerticalWipeTransition from "./components/transitions/VerticalWipeTransition";
@@ -28,83 +29,50 @@ export default function App() {
 
     const [transitionKey, setTransitionKey] = useState(0);
 
-    // ----------------------------------- Ember Logic --------------------------------------
-
-    const [embers, setEmbers] = useState(0);
-    const [emberGainTick, setEmberGainTick] = useState(0);
-
-    // Load wallet
-    useEffect(() => {
-        fetch(`${API_BASE}/anon-profile`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ action: "get-wallet" }),
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data?.wallet) {
-                    setEmbers(data.wallet.embers);
-                }
-            })
-            .catch(() => {});
-    }, []);
-
-    const earnEmber = useCallback((amount = 1) => {
-        setEmbers(e => e + amount);
-        setEmberGainTick(t => t + amount);
-
-        fetch(`${API_BASE}/anon-profile`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-                action: "earn-embers",
-                amount,
-            }),
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (typeof data?.embers === "number") {
-                    setEmbers(data.embers); 
-                }
-            })
-            .catch(() => {
-                setEmbers(e => Math.max(0, e - amount));
-            });
-    }, []);
-
-    // ----------------------------------- Cookie Logic --------------------------------------
-
+    const { hydrateTheme } = useFlameTheme();
     const [profile, setProfile] = useState(null);
     const [profileReady, setProfileReady] = useState(false);
 
-    useEffect(() => {
-        async function identify() {
-            let anonId = document.cookie.includes("anon_id")
-                ? document.cookie.split("anon_id=")[1].split(";")[0]
-                : localStorage.getItem("anon_id");
+    async function identify() {
+        let anonId = document.cookie.includes("anon_id")
+            ? document.cookie.split("anon_id=")[1].split(";")[0]
+            : localStorage.getItem("anon_id");
 
-            if (!anonId) {
-                anonId = crypto.randomUUID();
-                localStorage.setItem("anon_id", anonId);
-            }
-
-            const apiPromise = fetch(`${API_BASE}/anon-profile`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({ action: "identify", anonId }),
-            }).then(res => res.json());
-
-            const delay = new Promise(resolve => setTimeout(resolve, 2000));
-
-            const [data] = await Promise.all([apiPromise, delay]);
-
-            setProfile(data.profile);
-            setProfileReady(true);
+        if (!anonId) {
+            anonId = crypto.randomUUID();
+            localStorage.setItem("anon_id", anonId);
         }
 
+        const apiPromise = fetch(`${API_BASE}/anon-profile`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ action: "identify", anonId }),
+        }).then(res => res.json());
+
+        const delay = new Promise(resolve => setTimeout(resolve, 2000));
+
+        const [data] = await Promise.all([apiPromise, delay]);
+
+        setProfile(data.profile);
+        setProfileReady(true);
+
+        return data.profile;
+    }
+
+    // ----------------------------------- Theme hydration --------------------------------------
+
+    useEffect(() => {
+        identify().then(profile => {
+            if (profile?.equipped?.flameTheme) {
+                hydrateTheme(profile.equipped.flameTheme);
+            }
+        });
+    }, [hydrateTheme]);
+
+    // ----------------------------------- Initial profile fetch --------------------------------------
+
+    useEffect(() => {
         identify();
     }, []);
 
@@ -182,8 +150,8 @@ export default function App() {
                     path="/home"
                     element={
                         <>
-                            <Navbar embers={embers} gainTick={emberGainTick} />
-                            <Home earnEmber={earnEmber} />
+                            <Navbar />
+                            <Home />
                         </>
                     }
                 />
@@ -192,7 +160,7 @@ export default function App() {
                     path="/about"
                     element={
                         <>
-                            <Navbar embers={embers} gainTick={emberGainTick} />
+                            <Navbar />
                             <About />
                         </>
                     }
@@ -202,7 +170,7 @@ export default function App() {
                     path="/projects"
                     element={
                         <>
-                            <Navbar embers={embers} gainTick={emberGainTick} />
+                            <Navbar />
                             <Projects />
                         </>
                     }
@@ -212,7 +180,7 @@ export default function App() {
                     path="/gallery"
                     element={
                         <>
-                            <Navbar embers={embers} gainTick={emberGainTick} />
+                            <Navbar />
                             <Gallery />
                         </>
                     }
@@ -222,7 +190,7 @@ export default function App() {
                     path="/contact"
                     element={
                         <>
-                            <Navbar embers={embers} gainTick={emberGainTick} />
+                            <Navbar />
                             <Contact />
                         </>
                     }
@@ -232,7 +200,7 @@ export default function App() {
                     path="/shop" 
                     element={
                         <>
-                            <Navbar embers={embers} gainTick={emberGainTick} />
+                            <Navbar />
                             <Shop />
                         </>
                     } 

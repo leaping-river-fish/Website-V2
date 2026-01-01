@@ -1,12 +1,13 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { useEmbers } from "../../contexts/EmberContext";
 import EmberIcon from "./EmberIcon";
 
 type EmberCounterProps = {
-    embers: number;
     onClick?: () => void;
 };
 
-export default function EmberCounter({ embers, onClick }: EmberCounterProps) {
+export default function EmberCounter({ onClick }: EmberCounterProps) {
+    const { embers } = useEmbers();
     return (
         <motion.div
             onClick={onClick}

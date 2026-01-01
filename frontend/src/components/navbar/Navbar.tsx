@@ -4,13 +4,10 @@ import { motion, useAnimation } from "framer-motion";
 import { Link, useLocation } from "react-router-dom"
 import Logo from "/images/weblogo.png"
 import EmberCounter from "./EmberCounter";
+import { useEmbers } from "../../contexts/EmberContext";
 
-type NavbarProps = {
-    embers: number;
-    gainTick: number;
-};
-
-export const Navbar = ({ embers, gainTick }: NavbarProps) => {
+export const Navbar = () => {
+    const { gainTick } = useEmbers();
     const [isOpen, setIsOpen] = useState(false)
     const [isCondensed, setIsCondensed] = useState(false)
     const [isCollapsed, setIsCollapsed] = useState(false)
@@ -125,7 +122,7 @@ export const Navbar = ({ embers, gainTick }: NavbarProps) => {
                             className="relative flex items-center"
                         >
                             <Link to="/shop" className="rounded-full">
-                                <EmberCounter embers={embers} />
+                                <EmberCounter />
                             </Link>
 
                             <motion.div
@@ -169,7 +166,7 @@ export const Navbar = ({ embers, gainTick }: NavbarProps) => {
 
                     <div className="flex items-center gap-3">
                         {/* EMBER COUNTER */}
-                        <EmberCounter embers={embers} />
+                        <EmberCounter />
 
                         <div className="relative">
                             <button

@@ -176,7 +176,12 @@ export default async function anonProfileHandler(req, res) {
 
             const profile = await AnonymousProfile.findOneAndUpdate(
                 { anonId, env, ownedCosmetics: itemId },
-                { "equipped.flameTheme": itemId },
+                {
+                    $set: {
+                        "equipped.flameTheme": itemId,
+                        lastSeen: new Date(),
+                    },
+                },
                 { new: true }
             );
 

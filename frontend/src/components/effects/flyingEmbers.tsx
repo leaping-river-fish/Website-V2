@@ -62,7 +62,7 @@ const generateEmber = (id: number, spawn = 0): Ember => {
 
 /* ---------------- component ---------------- */
 
-export const FlyingEmbers = ({ onEarn }: { onEarn: (amount?: number) => void }) => {
+export const FlyingEmbers = ({ onEarn }: { onEarn: (amount: number) => void }) => {
     const [embers, setEmbers] = useState<Ember[]>(() =>
         Array.from({ length: EMBER_COUNT }).map((_, i) => generateEmber(i, 0))
     );

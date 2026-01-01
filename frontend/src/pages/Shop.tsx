@@ -1,3 +1,4 @@
+// after purchase, ember amount is not immediately updated, and equip does not persist...
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import EmberIcon from "../components/navbar/EmberIcon";
@@ -7,13 +8,14 @@ import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
 
 import { FLAME_ITEMS } from "../components/shop/shopItems";
 import { useFlameTheme } from "../contexts/FlameThemeContext";
+import { useEmbers } from "../contexts/EmberContext";
 
 export default function Shop() {
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
     const DEFAULT_THEME_ID = "flame:crimson";
     const [loading, setLoading] = useState(true);
 
-    const [embers, setEmbers] = useState(0);
+    const { embers, setEmbers } = useEmbers();
     const [ownedCosmetics, setOwnedCosmetics] = useState<string[]>([]);
     const [equippedThemeId, setEquippedThemeId] = useState(DEFAULT_THEME_ID);
     const { themeId, setThemeId } = useFlameTheme();
@@ -23,20 +25,10 @@ export default function Shop() {
         ...ownedCosmetics,
     ]);
 
-    useEffect(() => {
-        console.log("ownedCosmetics updated:", ownedCosmetics);
-    }, [ownedCosmetics]);
-
     /* -------------------- SYNC THEME STATE -------------------- */
     useEffect(() => {
-        if (!themeId) {
-            setThemeId(DEFAULT_THEME_ID);
-            setEquippedThemeId(DEFAULT_THEME_ID);
-        }
-        
-        if (themeId) {
-            setEquippedThemeId(themeId);
-        }
+        if (!themeId) return;
+        setEquippedThemeId(themeId);
     }, [themeId]);
 
     /* -------------------- LOAD PROFILE -------------------- */
@@ -61,7 +53,14 @@ export default function Shop() {
                     body: JSON.stringify({ action: "identify" }),
                 });
                 const profileData = await profileRes.json();
-                setOwnedCosmetics(profileData.profile?.ownedCosmetics ?? []);
+                const profile = profileData.profile;
+
+                setOwnedCosmetics(profile?.ownedCosmetics ?? []);
+
+                if (profile?.equipped?.flameTheme) {
+                    setThemeId(profile.equipped.flameTheme); 
+                    setEquippedThemeId(profile.equipped.flameTheme); 
+                }
             } catch (err) {
                 console.error("Error fetching profile:", err);
             } finally {

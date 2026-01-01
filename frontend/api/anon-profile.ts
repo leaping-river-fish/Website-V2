@@ -188,7 +188,12 @@ export default async function handler(
 
             const profile = await AnonymousProfile.findOneAndUpdate(
                 { anonId, env, ownedCosmetics: itemId },
-                { "equipped.flameTheme": itemId },
+                {
+                    $set: {
+                        "equipped.flameTheme": itemId,
+                        lastSeen: new Date(),
+                    },
+                },
                 { new: true }
             );
 

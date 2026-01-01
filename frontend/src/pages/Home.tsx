@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion";
 import { FlyingEmbers } from "../components/effects/flyingEmbers";
+import { useEmbers } from "../contexts/EmberContext";
 
-type HomeProps = {
-    earnEmber: (amount?: number) => void;
-};
+export const Home = () => {
+    const { earnEmbers } = useEmbers();
 
-export const Home = ({ earnEmber }: HomeProps) => {
     // Quote and Description Logic -------------------------------------------------------------------------------------------
     const descriptions = [
         "Nick Zheng",
@@ -57,7 +56,7 @@ const [currentQuote, setCurrentQuote] = useState<string>(quotes[0]);
 
     return (
         <div className="relative bg-[#1A1410] min-h-screen overflow-hidden w-screen flex items-start justify-start pointer-events-none">
-            <FlyingEmbers onEarn={earnEmber} />
+            <FlyingEmbers onEarn={earnEmbers} />
             <div className="flex flex-col items-start justify-start w-full h-[70%] mt-[5%] px-16">
                 <div className="relative pt-[140px] text-white space-y-6 z-10">
                     <p className="">Hello,</p>

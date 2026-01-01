@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import type { FlameThemeTypes } from "../components/themes/flameThemeTypes";
 import { FLAME_THEMES } from "../components/themes/flameThemes";
 
@@ -6,14 +6,33 @@ type FlameThemeContextValue = {
     theme: FlameThemeTypes;
     themeId: string;
     setThemeId: (id: string) => void;
+    hydrateTheme: (id: string) => void;
 };
+
+const DEFAULT_THEME_ID = FLAME_THEMES[0].id;
 
 const FlameThemeContext = createContext<FlameThemeContextValue | null>(null);
 
 export function FlameThemeProvider({ children }: { children: React.ReactNode }) {
-    const [themeId, setThemeId] = useState(FLAME_THEMES[0].id);
+    const [themeId, setThemeIdState] = useState<string>(() => {
+        return localStorage.getItem("flameThemeId") || DEFAULT_THEME_ID;
+    });
 
-    const theme = FLAME_THEMES.find(t => t.id === themeId)!;
+    const setThemeId = useCallback((id: string) => {
+        const valid = FLAME_THEMES.some(t => t.id === id);
+        const next = valid ? id : DEFAULT_THEME_ID;
+
+        setThemeIdState(next);
+        localStorage.setItem("flameThemeId", next);
+    }, []);
+
+    const hydrateTheme = useCallback((id: string) => {
+        setThemeId(id);
+    }, [setThemeId]);
+
+    const theme =
+        FLAME_THEMES.find(t => t.id === themeId) ??
+        FLAME_THEMES[0];
 
     useEffect(() => {
         const root = document.documentElement;
@@ -40,7 +59,14 @@ export function FlameThemeProvider({ children }: { children: React.ReactNode }) 
     }, [theme]);
 
     return (
-        <FlameThemeContext.Provider value={{ theme, themeId, setThemeId }}>
+        <FlameThemeContext.Provider 
+            value={{
+                theme,
+                themeId,
+                setThemeId,
+                hydrateTheme,
+            }}
+        >
             {children}
         </FlameThemeContext.Provider>
     );
