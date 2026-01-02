@@ -5,7 +5,7 @@ import "./projectCard.css"
 export default function GitProjects() {
     const { projects, loading } = useGitProjects();
 
-    if (loading)
+    if (loading && projects.length === 0)
         return <div className="text-center py-10 text-white">Loading GitHub Projects...</div>;
 
     return (

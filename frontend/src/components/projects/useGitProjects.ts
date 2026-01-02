@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export interface GitProject {
     id: number;
@@ -8,26 +8,30 @@ export interface GitProject {
     topics: string[];
 }
 
+async function fetchGitProjects(): Promise<GitProject[]> {
+    const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+    const res = await fetch(`${API_BASE}/github-projects`);
+    if (!res.ok) {
+        throw new Error("Failed to fetch GitHub projects");
+    }
+
+    return res.json();
+}
+
 export function useGitProjects() {
-    const [projects, setProjects] = useState<GitProject[]>([]);
-    const [loading, setLoading] = useState(true);
+    const {
+        data = [],
+        isLoading,
+    } = useQuery({
+        queryKey: ["github-projects"],
+        queryFn: fetchGitProjects,
+        staleTime: 1000 * 60 * 10,
+        gcTime: 1000 * 60 * 30,
+    });
 
-    useEffect(() => {
-        async function load() {
-            try {
-                const API_BASE = import.meta.env.VITE_API_BASE_URL;
-
-                const res = await fetch(`${API_BASE}/github-projects`);
-                const data: GitProject[] = await res.json();
-                setProjects(data);
-            } catch (err) {
-                console.error("Error fetching GitHub projects:", err);
-            } finally {
-                setLoading(false);
-            }
-        }
-        load();
-    }, []);
-
-    return { projects, loading };
+    return {
+        projects: data,
+        loading: isLoading,
+    };
 }

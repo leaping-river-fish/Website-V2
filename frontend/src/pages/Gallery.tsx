@@ -1,7 +1,8 @@
 // add empty slots for locked entries? preload images to reduce lag
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useImageContext } from "../contexts/ImageContext";
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
+import GalleryImage from "../components/gallery/GalleryImage";
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Captions from "yet-another-react-lightbox/plugins/captions";
@@ -14,17 +15,28 @@ const Gallery: React.FC = () => {
     const { fundraisingImages, eventImages, artImages, isLoading } = useImageContext();
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState<number | null>(null);
+    const [hasEntered, setHasEntered] = useState(false);
 
-    const slides = useMemo(() => {
-        return [...artImages, ...fundraisingImages, ...eventImages].map((img) => ({
-            src: img.src,
-            title: img.alt,
-            description: img.alt,
-        }));
-    }, [artImages, fundraisingImages, eventImages]);
+    useEffect(() => {
+        setHasEntered(true);
+    }, []);
+
+    const allImages = useMemo(
+        () => [...artImages, ...fundraisingImages, ...eventImages],
+        [artImages, fundraisingImages, eventImages]
+    );
+
+    const slides = useMemo(
+        () =>
+            allImages.map((img) => ({
+                src: img.src,
+                title: img.alt,
+                description: img.alt,
+            })),
+        [allImages]
+    );
 
     const openLightbox = (src: string) => {
-        const allImages = [...artImages, ...fundraisingImages, ...eventImages];
         const index = allImages.findIndex((img) => img.src === src);
         if (index !== -1) {
             setCurrentIndex(index);
@@ -45,13 +57,11 @@ const Gallery: React.FC = () => {
             ) : (
                 <div className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">
                     {props.images.map((img) => (
-                        <img
+                        <GalleryImage
                             key={img.src}
-                            src={img.src}
-                            alt={img.alt}
-                            className="w-full rounded-xl shadow-md cursor-pointer hover:scale-107 duration-300 ease-out opacity-80 transition"
+                            img={img}
+                            animateIn={!hasEntered}
                             onClick={() => openLightbox(img.src)}
-                            loading="lazy"
                         />
                     ))}
                 </div>

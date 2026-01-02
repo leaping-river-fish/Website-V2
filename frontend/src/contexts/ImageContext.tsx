@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 interface ImageData {
     src: string;
@@ -25,38 +26,44 @@ export const useImageContext = () => {
     return ctx;
 };
 
+async function fetchImages(category: string): Promise<ImageData[]> {
+    const API_BASE = import.meta.env.VITE_API_BASE_URL;
+    const res = await fetch(`${API_BASE}/getImages?category=${category}`);
+    if (!res.ok) throw new Error("Failed to fetch images");
+    return res.json();
+}
+
 export const ImageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [fundraisingImages, setFundraisingImages] = useState<ImageData[]>([]);
-    const [eventImages, setEventImages] = useState<ImageData[]>([]);
-    const [artImages, setArtImages] = useState<ImageData[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const fundraising = useQuery({
+        queryKey: ["images", "fundraising"],
+        queryFn: () => fetchImages("Fundraising"),
+        staleTime: 1000 * 60 * 30,
+        gcTime: 1000 * 60 * 60,
+    });
 
-    useEffect(() => {
-        const loadImages = async () => {
-            try {
-                const API_BASE = import.meta.env.VITE_API_BASE_URL;
+    const event = useQuery({
+        queryKey: ["images", "event"],
+        queryFn: () => fetchImages("Event-Advertising"),
+        staleTime: 1000 * 60 * 30,
+        gcTime: 1000 * 60 * 60,
+    });
 
-                const [fundraising, event, art] = await Promise.all([
-                    fetch(`${API_BASE}/getImages?category=Fundraising`).then(res => res.json()),
-                    fetch(`${API_BASE}/getImages?category=Event-Advertising`).then(res => res.json()),
-                    fetch(`${API_BASE}/getImages?category=Art`).then(res => res.json()),
-                ]);
-
-                setFundraisingImages(fundraising);
-                setEventImages(event);
-                setArtImages(art);
-            } catch (error) {
-                console.log("Error fetching images:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        loadImages();
-    }, []);
+    const art = useQuery({
+        queryKey: ["images", "art"],
+        queryFn: () => fetchImages("Art"),
+        staleTime: 1000 * 60 * 30,
+        gcTime: 1000 * 60 * 60,
+    });
 
     return (
-        <ImageContext.Provider value={{ fundraisingImages, eventImages, artImages, isLoading }}>
+        <ImageContext.Provider 
+            value={{
+                fundraisingImages: fundraising.data ?? [],
+                eventImages: event.data ?? [],
+                artImages: art.data ?? [],
+                isLoading: fundraising.isLoading || event.isLoading || art.isLoading,
+            }}
+        >
             {children}
         </ImageContext.Provider>
     );
