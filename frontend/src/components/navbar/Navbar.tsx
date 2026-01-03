@@ -2,10 +2,11 @@
 import { useState, useRef, useEffect } from "react"
 import { motion, useAnimation } from "framer-motion";
 import { Link, useLocation } from "react-router-dom"
-import Logo from "/images/weblogo.png"
 import EmberCounter from "./EmberCounter";
 import { useEmbers } from "../../contexts/EmberContext";
 import { LogoSVG } from "../reusable_misc/LogoSvg";
+
+import { Trophy } from "lucide-react";
 
 export const Navbar = () => {
     const { gainTick } = useEmbers();
@@ -114,6 +115,7 @@ export const Navbar = () => {
                         <Link to="/projects" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/projects" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}>Projects</Link>
                         <Link to="/gallery" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/gallery" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}>Gallery</Link>
                         <Link to="/contact" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/contact" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}>Contact</Link>
+                        <Link to="/achievements" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/achievements" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}><Trophy size={24} /></Link>
                     </div>
 
                     {/* EMBER COUNTER */}
@@ -157,17 +159,45 @@ export const Navbar = () => {
                     )}
                 </div>
             </nav>
+
+            {/* Quest and Achievements can sit as icons between ember counter and nav dropdown */}
             
             {/* Mobile */}
             <nav className="md:hidden bg-[#1A1410] text-white shadow-md relative">
                 <div className="flex h-16 items-center px-4 justify-between">
-                    <Link to="/home">
-                        <img src={Logo} alt="Logo" className="h-16 w-auto" />
+                    <Link to="/home" className="shrink-0">
+                        <motion.div
+                            className={`h-10 w-10 transition-all duration-300 ease-out ${
+                                currentRoute === "/home" ? "flame-glow" : ""
+                            }`}
+                            animate={{ scale: [1, 1.15, 1] }}
+                            transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 2, ease: "easeInOut" }}
+                        >
+                            <LogoSVG />
+                        </motion.div>
                     </Link>
 
                     <div className="flex items-center gap-3">
                         {/* EMBER COUNTER */}
-                        <EmberCounter />
+                        <div className="ml-4 relative flex items-center z-0 overflow-visible">
+                            <motion.div
+                                animate={controls}
+                                className="relative flex items-center"
+                            >
+                                <Link to="/shop" className="rounded-full">
+                                    <EmberCounter />
+                                </Link>
+
+                                <motion.div
+                                    key={gainTick}
+                                    className="absolute inset-0 -z-10 rounded-full pointer-events-none"
+                                    style={{ background: "var(--flame-primary)" }}
+                                    initial={{ scale: 1, opacity: 0.6 }}
+                                    animate={{ scale: 1.5, opacity: 0 }}
+                                    transition={{ duration: 0.6, ease: "easeOut" }}
+                                />
+                            </motion.div>
+                        </div>
 
                         <div className="relative">
                             <button

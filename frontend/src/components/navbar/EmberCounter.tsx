@@ -1,3 +1,4 @@
+// Not clickable on mobile to enter shop
 import { motion, AnimatePresence } from "framer-motion";
 import { useEmbers } from "../../contexts/EmberContext";
 import EmberIcon from "./EmberIcon";

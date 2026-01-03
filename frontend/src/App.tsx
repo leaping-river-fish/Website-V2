@@ -9,6 +9,7 @@ import Projects from "./pages/Projects"
 import Gallery from "./pages/Gallery"
 import Contact from "./pages/Contact"
 import Shop from "./pages/Shop";
+import Achievements from "./pages/Achievements";
 
 import { useFlameTheme } from "./contexts/FlameThemeContext";
 import LoadingScreen from "./components/reusable_misc/LoadingScreen";
@@ -192,6 +193,16 @@ export default function App() {
                         <>
                             <Navbar />
                             <Contact />
+                        </>
+                    }
+                />
+
+                <Route
+                    path="/achievements"
+                    element={
+                        <>
+                            <Navbar />
+                            <Achievements />
                         </>
                     }
                 />
