@@ -219,7 +219,7 @@ export default async function handler(
                 return sendJSON(res, 400, { error: "Invalid amount" });
             }
 
-            const profile = await AnonymousProfile.findOneAndUpdate(
+            let profile = await AnonymousProfile.findOneAndUpdate(
                 { anonId, env },
                 {
                     $inc: {
@@ -259,6 +259,10 @@ export default async function handler(
                         completedQuests.push(...result.metaAchievements);
                     }
                 }
+            }
+
+            if (completedQuests.length > 0) {
+                profile = await AnonymousProfile.findOne({ anonId, env });
             }
 
             return sendJSON(res, 200, {
