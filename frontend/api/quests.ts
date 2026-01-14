@@ -263,11 +263,11 @@ const questDefinitions: QuestDefinition[] = [
 
 const META_QUEST_IDS = ["achievement_25", "achievement_50", "achievement_75", "achievement_100"];
 
-function getQuestById(questId: string): QuestDefinition | undefined {
+export function getQuestById(questId: string): QuestDefinition | undefined {
     return questDefinitions.find(q => q.id === questId);
 }
 
-function getAllQuests(): QuestDefinition[] {
+export function getAllQuests(): QuestDefinition[] {
     return questDefinitions;
 }
 
@@ -291,7 +291,7 @@ function buildQuestCompletion(questId: string, questDef: QuestDefinition | undef
     };
 }
 
-async function initializeQuests(profile: any) {
+export async function initializeQuests(profile: any) {
     const allQuests = getAllQuests();
     const existingQuestIds = new Set(profile.quests.map((q: any) => q.questId));
     
@@ -315,7 +315,7 @@ async function initializeQuests(profile: any) {
     return profile;
 }
 
-async function updateQuestProgress(anonId: string, env: string, questId: string, incrementBy: number = 1) {
+export async function updateQuestProgress(anonId: string, env: string, questId: string, incrementBy: number = 1) {
     const questDef = getQuestById(questId);
     
     if (!questDef) {
@@ -347,7 +347,9 @@ async function updateQuestProgress(anonId: string, env: string, questId: string,
         quest.progress = profile.wallet.embers || 0;
     } else if (questId === "ember_tycoon") {
         quest.progress = profile.wallet.totalEarned || 0;
-    } else {
+    } else if (questId === "collector" || questId === "completionist") {
+        quest.progress = profile.ownedCosmetics?.length || 0;
+    }else {
         quest.progress += incrementBy;
     }
 
@@ -372,7 +374,7 @@ async function updateQuestProgress(anonId: string, env: string, questId: string,
     return { profile, questCompleted, reward, metaAchievements };
 }
 
-async function setQuestProgress(anonId: string, env: string, questId: string, value: number): Promise<QuestResult> {
+export async function setQuestProgress(anonId: string, env: string, questId: string, value: number): Promise<QuestResult> {
     const questDef = getQuestById(questId);
     
     if (!questDef) {
@@ -423,11 +425,11 @@ async function setQuestProgress(anonId: string, env: string, questId: string, va
     return { profile, questCompleted, reward, metaAchievements };
 }
 
-async function completeQuest(anonId: string, env: string, questId: string) {
+export async function completeQuest(anonId: string, env: string, questId: string) {
     return await setQuestProgress(anonId, env, questId, 999999);
 }
 
-async function getUserQuestsWithDefinitions(anonId: string, env: string) {
+export async function getUserQuestsWithDefinitions(anonId: string, env: string) {
     const profile = await AnonymousProfile.findOne({ anonId, env });
     
     if (!profile) {
@@ -526,7 +528,7 @@ async function checkMetaAchievements(anonId: string, env: string) {
     return completedMetaQuests;
 }
 
-async function trackPageVisit(anonId: string, env: string, pageName: string) {
+export async function trackPageVisit(anonId: string, env: string, pageName: string) {
     const questMap: Record<string, string> = {
         home: "visit_home",
         about: "visit_about",

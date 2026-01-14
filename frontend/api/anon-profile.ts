@@ -3,6 +3,7 @@ import * as cookie from "cookie";
 
 import { connectMongo } from "./models/mongodb";
 import AnonymousProfile from "./models/AnonymousProfile";
+import { completeQuest, updateQuestProgress, getQuestById, initializeQuests } from "./quests";
 
 interface RequestBody {
     action?: "identify" | "complete-intro"| "earn-embers" | "get-wallet"| "purchase" | "equip";
@@ -42,52 +43,6 @@ async function parseBody(req: IncomingMessage): Promise<RequestBody> {
     });
 }
 
-// Helper to call quest endpoint internally (use base URL?)
-async function callQuestEndpoint(method: string, path: string, cookies: string, body?: any): Promise<any> {
-    const baseUrl = process.env.NODE_ENV === "production" 
-        ? process.env.VERCEL_URL 
-            ? `https://${process.env.VERCEL_URL}`
-            : "https://nickzheng.vercel.app" // fallback to your prod domain
-        : "http://localhost:5000";
-    
-    const url = `${baseUrl}/api/quests${path}`;
-    
-    const options: RequestInit = {
-        method,
-        headers: {
-            "Content-Type": "application/json",
-            "Cookie": cookies,
-        },
-    };
-
-    if (body) {
-        options.body = JSON.stringify(body);
-    }
-
-    const response = await fetch(url, options);
-    return response.json();
-}
-
-async function handleQuestCompletion(cookies: string, questId: string): Promise<CompletedQuest[]> {
-    try {
-        const result = await callQuestEndpoint("POST", "", cookies, { action: "complete", questId });
-        
-        if (result.ok && result.questCompleted) {
-            return [{
-                questId,
-                questName: result.questName,
-                category: result.category,
-                reward: result.reward,
-            }];
-        }
-        
-        return [];
-    } catch (error) {
-        console.error(`Error completing quest ${questId}:`, error);
-        return [];
-    }
-}
-
 export default async function handler(
     req: IncomingMessage & { cookies?: Record<string, string> },
     res: ServerResponse
@@ -104,7 +59,6 @@ export default async function handler(
 
         const cookies = cookie.parse(req.headers.cookie || "");
         const anonId = body.anonId || cookies["anon_id"];
-        const cookieHeader = req.headers.cookie || "";
 
         const env = process.env.NODE_ENV === "production" ? "prod" : "dev";
 
@@ -166,8 +120,25 @@ export default async function handler(
             }
 
             if (needsSave) await profile.save();
+
+            await initializeQuests(profile);
             
-            const completedQuests = await handleQuestCompletion(cookieHeader, "first_visit");
+            const completedQuests: CompletedQuest[] = [];
+            const firstVisitResult = await completeQuest(anonId, env, "first_visit");
+
+            if (firstVisitResult.questCompleted) {
+                const questDef = getQuestById("first_visit");
+                completedQuests.push({
+                    questId: "first_visit",
+                    questName: questDef?.name,
+                    category: questDef?.category,
+                    reward: firstVisitResult.reward,
+                });
+            }
+
+            if (firstVisitResult.metaAchievements && firstVisitResult.metaAchievements.length > 0) {
+                completedQuests.push(...firstVisitResult.metaAchievements);
+            }
 
             return sendJSON(res, 200, {
                 ok: true,
@@ -197,7 +168,22 @@ export default async function handler(
                 { new: true }
             );
 
-            const completedQuests = await handleQuestCompletion(cookieHeader, "complete_intro");
+            const completedQuests: CompletedQuest[] = [];
+            
+            const result = await completeQuest(anonId, env, "complete_intro");
+            if (result.questCompleted) {
+                const questDef = getQuestById("complete_intro");
+                completedQuests.push({
+                    questId: "complete_intro",
+                    questName: questDef?.name,
+                    category: questDef?.category,
+                    reward: result.reward,
+                });
+            }
+
+            if (result.metaAchievements && result.metaAchievements.length > 0) {
+                completedQuests.push(...result.metaAchievements);
+            }
 
             return sendJSON(res, 200, { 
                 ok: true, 
@@ -258,8 +244,20 @@ export default async function handler(
 
             for (const { id, check } of emberQuests) {
                 if (check) {
-                    const quests = await handleQuestCompletion(cookieHeader, id);
-                    completedQuests.push(...quests);
+                    const result = await updateQuestProgress(anonId, env, id, 0);
+                    if (result.questCompleted) {
+                        const questDef = getQuestById(id);
+                        completedQuests.push({
+                            questId: id,
+                            questName: questDef?.name,
+                            category: questDef?.category,
+                            reward: result.reward,
+                        });
+                    }
+                    
+                    if (result.metaAchievements && result.metaAchievements.length > 0) {
+                        completedQuests.push(...result.metaAchievements);
+                    }
                 }
             }
 
@@ -287,18 +285,29 @@ export default async function handler(
 
             if (!profile) return sendJSON(res, 400, { error: "Not enough embers or item already owned" });
 
-            const completedQuests = await handleQuestCompletion(cookieHeader, "first_purchase");
+            const completedQuests: CompletedQuest[] = [];
 
-            const ownedCount = profile.ownedCosmetics.length;
-            const collectorQuests = [
-                { id: "collector", threshold: 3 },
-                { id: "completionist", threshold: 6 }
-            ];
+            const firstPurchaseResult = await completeQuest(anonId, env, "first_purchase");
+            if (firstPurchaseResult.questCompleted) {
+                const questDef = getQuestById("first_purchase");
+                completedQuests.push({
+                    questId: "first_purchase",
+                    questName: questDef?.name,
+                    category: questDef?.category,
+                    reward: firstPurchaseResult.reward,
+                });
+            }
 
-            for (const { id, threshold } of collectorQuests) {
-                if (ownedCount >= threshold) {
-                    const quests = await handleQuestCompletion(cookieHeader, id);
-                    completedQuests.push(...quests);
+            for (const questId of ["collector", "completionist"]) {
+                const result = await updateQuestProgress(anonId, env, questId, 0);
+                if (result.questCompleted) {
+                    const questDef = getQuestById(questId);
+                    completedQuests.push({
+                        questId,
+                        questName: questDef?.name,
+                        category: questDef?.category,
+                        reward: result.reward,
+                    });
                 }
             }
 
@@ -329,23 +338,19 @@ export default async function handler(
 
             const completedQuests: CompletedQuest[] = [];
             
-            try {
-                const result = await callQuestEndpoint("POST", "", cookieHeader, { 
-                    action: "track",
-                    questId: "style_switcher", 
-                    increment: 1 
+            const result = await updateQuestProgress(anonId, env, "style_switcher", 1);
+            if (result.questCompleted) {
+                const questDef = getQuestById("style_switcher");
+                completedQuests.push({
+                    questId: "style_switcher",
+                    questName: questDef?.name,
+                    category: questDef?.category,
+                    reward: result.reward,
                 });
-                
-                if (result.ok && result.questCompleted) {
-                    completedQuests.push({
-                        questId: "style_switcher",
-                        questName: result.questName,
-                        category: result.category,
-                        reward: result.reward,
-                    });
-                }
-            } catch (error) {
-                console.error("Error tracking style_switcher quest:", error);
+            }
+
+            if (result.metaAchievements && result.metaAchievements.length > 0) {
+                completedQuests.push(...result.metaAchievements);
             }
 
             return sendJSON(res, 200, { 
