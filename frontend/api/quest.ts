@@ -633,13 +633,10 @@ export default async function handler(
         // POST endpoints
         if (req.method === "POST") {
             const body = await parseBody(req);
-            const { questId, increment = 1, pageName } = body;
+            const { action, questId, increment = 1, pageName } = body;
 
-            // Determine which action based on URL path
-            const url = req.url || "";
-
-            // POST /api/quests/track - Track quest progress
-            if (url.includes("/track-page")) {
+            // POST with action: "track-page"
+            if (action === "track-page") {
                 if (!pageName) {
                     return sendJSON(res, 400, { error: "pageName required" });
                 }
@@ -652,8 +649,8 @@ export default async function handler(
                 });
             }
 
-            // POST /api/quests/complete - Mark quest as completed
-            if (url.includes("/complete")) {
+            // POST with action: "complete"
+            if (action === "complete") {
                 if (!questId) {
                     return sendJSON(res, 400, { error: "questId required" });
                 }
@@ -670,8 +667,8 @@ export default async function handler(
                 });
             }
 
-            // POST /api/quests/track - Track quest progress (default)
-            if (url.includes("/track")) {
+            // POST with action: "track"
+            if (action === "track") {
                 if (!questId) {
                     return sendJSON(res, 400, { error: "questId required" });
                 }
@@ -688,7 +685,7 @@ export default async function handler(
                 });
             }
 
-            return sendJSON(res, 400, { error: "Invalid endpoint" });
+            return sendJSON(res, 400, { error: "Invalid action" });
         }
 
         return sendJSON(res, 405, { error: "Method not allowed" });

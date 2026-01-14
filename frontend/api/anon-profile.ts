@@ -70,7 +70,7 @@ async function callQuestEndpoint(method: string, path: string, cookies: string, 
 
 async function handleQuestCompletion(cookies: string, questId: string): Promise<CompletedQuest[]> {
     try {
-        const result = await callQuestEndpoint("POST", "/complete", cookies, { questId });
+        const result = await callQuestEndpoint("POST", "", cookies, { action: "complete", questId });
         
         if (result.ok && result.questCompleted) {
             return [{
@@ -330,7 +330,8 @@ export default async function handler(
             const completedQuests: CompletedQuest[] = [];
             
             try {
-                const result = await callQuestEndpoint("POST", "/track", cookieHeader, { 
+                const result = await callQuestEndpoint("POST", "", cookieHeader, { 
+                    action: "track",
                     questId: "style_switcher", 
                     increment: 1 
                 });

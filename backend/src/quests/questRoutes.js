@@ -33,6 +33,76 @@ router.get("/", async (req, res) => {
 });
 
 /**
+ * POST /api/quests (action-based, for compatibility)
+ * Handles action-based requests (Vercel style)
+ */
+router.post("/", async (req, res) => {
+    try {
+        const anonId = req.cookies?.anon_id;
+        
+        if (!anonId) {
+            return res.status(401).json({ error: "Not authenticated" });
+        }
+
+        const { action, questId, increment = 1, pageName } = req.body;
+        const env = process.env.NODE_ENV === "production" ? "prod" : "dev";
+
+        // Handle different actions
+        if (action === "track-page") {
+            if (!pageName) {
+                return res.status(400).json({ error: "pageName required" });
+            }
+
+            const result = await trackPageVisit(anonId, env, pageName);
+            
+            return res.json({ 
+                ok: true,
+                completedQuests: result.completedQuests || [],
+            });
+        }
+
+        if (action === "complete") {
+            if (!questId) {
+                return res.status(400).json({ error: "questId required" });
+            }
+
+            const result = await completeQuest(anonId, env, questId);
+            const questDef = getQuestById(questId);
+            
+            return res.json({
+                ok: true,
+                questCompleted: result.questCompleted,
+                reward: result.reward,
+                questName: questDef?.name,
+                category: questDef?.category
+            });
+        }
+
+        if (action === "track") {
+            if (!questId) {
+                return res.status(400).json({ error: "questId required" });
+            }
+
+            const result = await updateQuestProgress(anonId, env, questId, increment);
+            const questDef = getQuestById(questId);
+            
+            return res.json({
+                ok: true,
+                questCompleted: result.questCompleted,
+                reward: result.reward,
+                questName: questDef?.name,
+                category: questDef?.category,
+            });
+        }
+
+        return res.status(400).json({ error: "Invalid action" });
+    } catch (err) {
+        console.error("Error in action-based quest handler:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/**
  * POST /api/quests/track
  * Track quest progress
  */

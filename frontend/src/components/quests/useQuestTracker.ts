@@ -48,11 +48,11 @@ export function useQuestTracker() {
 
     const trackQuest = useCallback(async (questId: string, increment: number = 1) => {
         try {
-            const response = await fetch(`${API_BASE}/quests/track`, {
+            const response = await fetch(`${API_BASE}/quests`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
-                body: JSON.stringify({ questId, increment }),
+                body: JSON.stringify({ action: "track", questId, increment }),
             });
 
             const data = await response.json();
@@ -75,11 +75,11 @@ export function useQuestTracker() {
 
     const completeQuest = useCallback(async (questId: string) => {
         try {
-            const response = await fetch(`${API_BASE}/quests/complete`, {
+            const response = await fetch(`${API_BASE}/quests`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
-                body: JSON.stringify({ questId }),
+                body: JSON.stringify({ action: "complete", questId }),
             });
 
             const data = await response.json();

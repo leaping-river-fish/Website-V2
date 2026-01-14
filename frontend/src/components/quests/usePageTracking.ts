@@ -17,11 +17,11 @@ export function usePageTracking(pageName: string) {
         
         const trackVisit = async () => {
             try {
-                const response = await fetch(`${API_BASE}/quests/track-page`, {
+                const response = await fetch(`${API_BASE}/quests`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
-                    body: JSON.stringify({ pageName }),
+                    body: JSON.stringify({ action: "track-page", pageName }),
                 });
                 
                 if (!response.ok) return;
