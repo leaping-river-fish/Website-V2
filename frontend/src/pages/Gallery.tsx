@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useImageContext } from "../contexts/ImageContext";
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
+import { usePageTracking } from "../components/quests/usePageTracking";
 import GalleryImage from "../components/gallery/GalleryImage";
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
@@ -12,6 +13,7 @@ import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/captions.css";
 
 const Gallery: React.FC = () => {
+    usePageTracking("gallery");
     const { fundraisingImages, eventImages, artImages, isLoading } = useImageContext();
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState<number | null>(null);

@@ -1,5 +1,28 @@
 import { connectMongo } from "./db/mongodb.js";
 import AnonymousProfile from "./schema/AnonymousProfile.js";
+import { initializeQuests, completeQuest, updateQuestProgress } from "./quests/questService.js";
+import { getQuestById } from "./quests/questDefinitions.js";
+
+async function handleQuestCompletion(anonId, env, questId) {
+    const result = await completeQuest(anonId, env, questId);
+    const completedQuests = [];
+    
+    if (result.questCompleted) {
+        const questDef = getQuestById(questId);
+        completedQuests.push({
+            questId,
+            questName: questDef?.name,
+            category: questDef?.category,
+            reward: result.reward,
+        });
+    }
+    
+    if (result.metaAchievements?.length > 0) {
+        completedQuests.push(...result.metaAchievements);
+    }
+    
+    return completedQuests;
+}
 
 export default async function anonProfileHandler(req, res) {
     if (req.method !== "POST") {
@@ -15,12 +38,22 @@ export default async function anonProfileHandler(req, res) {
     const cookieAnonId = req.cookies?.anon_id;
     const bodyAnonId = req.body?.anonId;
     const anonId = bodyAnonId || cookieAnonId;
+    
+    if (!anonId && action === "get-wallet") {
+        return res.json({
+            ok: true,
+            wallet: {
+                embers: 0,
+                totalEarned: 0,
+                totalSpent: 0,
+            },
+        });
+    }
 
     if (!anonId) {
         console.warn("Missing anonId", { bodyAnonId, cookieAnonId });
         return res.status(400).json({ error: "Missing anonId" });
     }
-
 
     try {
         if (action === "identify") {
@@ -36,7 +69,11 @@ export default async function anonProfileHandler(req, res) {
             const profile = await AnonymousProfile.findOneAndUpdate(
                 { anonId, env },
                 {
-                    $setOnInsert: { createdAt: new Date() },
+                    $setOnInsert: { 
+                        createdAt: new Date(),
+                        ownedCosmetics: ["flame:crimson"],
+                        equipped: { flameTheme: "flame:crimson" }
+                    },
                     $set: { lastSeen: new Date() },
                 },
                 { upsert: true, new: true }
@@ -44,18 +81,38 @@ export default async function anonProfileHandler(req, res) {
 
             let needsSave = false;
 
-            if (!profile.ownedCosmetics?.includes("flame:crimson")) {
-                profile.ownedCosmetics.push("flame:crimson");
+            const uniqueCosmetics = [...new Set(profile.ownedCosmetics)];
+            if (uniqueCosmetics.length !== profile.ownedCosmetics.length) {
+                profile.ownedCosmetics = uniqueCosmetics;
                 needsSave = true;
             }
-
-            if (!profile.equipped?.flameTheme) {
-                profile.equipped = { flameTheme: "flame:crimson" };
+            
+            if (profile.equipped?.flameTheme === "crimson") {
+                profile.equipped.flameTheme = "flame:crimson";
                 needsSave = true;
             }
 
             if (needsSave) {
                 await profile.save();
+            }
+            
+            await initializeQuests(profile);
+            
+            const firstVisitResult = await completeQuest(anonId, env, "first_visit");
+            const completedQuests = [];
+            
+            if (firstVisitResult.questCompleted) {
+                const questDef = getQuestById("first_visit");
+                completedQuests.push({
+                    questId: "first_visit",
+                    questName: questDef?.name,
+                    category: questDef?.category,
+                    reward: firstVisitResult.reward,
+                });
+            }
+            
+            if (firstVisitResult.metaAchievements && firstVisitResult.metaAchievements.length > 0) {
+                completedQuests.push(...firstVisitResult.metaAchievements);
             }
 
             return res.json({
@@ -68,6 +125,7 @@ export default async function anonProfileHandler(req, res) {
                     ownedCosmetics: profile.ownedCosmetics,
                     equipped: profile.equipped,
                 },
+                completedQuests,
             });
         }
 
@@ -77,8 +135,29 @@ export default async function anonProfileHandler(req, res) {
                 { introGameCompleted: true },
                 { new: true }
             );
+            
+            const result = await completeQuest(anonId, env, "complete_intro");
+            const completedQuests = [];
+                        
+            if (result.questCompleted) {
+                const questDef = getQuestById("complete_intro");
+                completedQuests.push({
+                    questId: "complete_intro",
+                    questName: questDef?.name,
+                    category: questDef?.category,
+                    reward: result.reward,
+                });
+            }
+            
+            if (result.metaAchievements && result.metaAchievements.length > 0) {
+                completedQuests.push(...result.metaAchievements);
+            }
 
-            return res.json({ ok: true, profile });
+            return res.json({ 
+                ok: true, 
+                profile,
+                completedQuests,
+            });
         }
 
         if (action === "get-wallet") {
@@ -115,11 +194,25 @@ export default async function anonProfileHandler(req, res) {
                 },
                 { new: true }
             );
+            
+            const completedQuests = [];
+            
+            const emberQuests = [
+                { id: "ember_hoarder", check: profile.wallet.embers >= 10000 },
+                { id: "ember_tycoon", check: profile.wallet.totalEarned >= 30000 }
+            ];
+
+            for (const { id, check } of emberQuests) {
+                if (check) {
+                    completedQuests.push(...await handleQuestCompletion(anonId, env, id));
+                }
+            }
 
             return res.json({
                 ok: true,
                 embers: profile.wallet.embers,
                 totalEarned: profile.wallet.totalEarned,
+                completedQuests,
             });
         }
 
@@ -163,11 +256,27 @@ export default async function anonProfileHandler(req, res) {
                     error: "Not enough embers or item already owned",
                 });
             }
+            
+            const completedQuests = [];
+            completedQuests.push(...await handleQuestCompletion(anonId, env, "first_purchase"));
+            
+            const ownedCount = profile.ownedCosmetics.length;
+            const collectorQuests = [
+                { id: "collector", threshold: 3 },
+                { id: "completionist", threshold: 6 }
+            ];
 
+            for (const { id, threshold } of collectorQuests) {
+                if (ownedCount >= threshold) {
+                    completedQuests.push(...await handleQuestCompletion(anonId, env, id));
+                }
+            }
+            
             return res.json({
                 ok: true,
                 wallet: profile.wallet,
                 ownedCosmetics: profile.ownedCosmetics,
+                completedQuests,
             });
         }
 
@@ -188,10 +297,28 @@ export default async function anonProfileHandler(req, res) {
             if (!profile) {
                 return res.status(400).json({ error: "Item not owned" });
             }
-
+            
+            const completedQuests = [];
+            
+            const result = await updateQuestProgress(anonId, env, "style_switcher", 1);
+            if (result.questCompleted) {
+                const questDef = getQuestById("style_switcher");
+                completedQuests.push({
+                    questId: "style_switcher",
+                    questName: questDef?.name,
+                    category: questDef?.category,
+                    reward: result.reward,
+                });
+            }
+            
+            if (result.metaAchievements && result.metaAchievements.length > 0) {
+                completedQuests.push(...result.metaAchievements);
+            }
+            
             return res.json({
                 ok: true,
                 equipped: profile.equipped,
+                completedQuests,
             });
         }
 

@@ -11,7 +11,7 @@ export interface GitProject {
 async function fetchGitProjects(): Promise<GitProject[]> {
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-    const res = await fetch(`${API_BASE}/github-projects`);
+    const res = await fetch(`${API_BASE}/fetch?action=github`);
     if (!res.ok) {
         throw new Error("Failed to fetch GitHub projects");
     }

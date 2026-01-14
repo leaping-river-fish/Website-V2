@@ -24,5 +24,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "api", "dynamic_models"]
+  "include": ["src", "api", "dynamic_models", "unused/github-projects.ts", "unused/getImages.ts", "unused/Profile.ts", "unused/Chat.ts", "unused/AboutMe.ts"]
 }

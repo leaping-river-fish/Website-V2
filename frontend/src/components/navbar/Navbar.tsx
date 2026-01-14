@@ -199,6 +199,16 @@ export const Navbar = () => {
                             </motion.div>
                         </div>
 
+                        {/* TROPHY BUTTON */}
+                        <Link 
+                            to="/achievements" 
+                            className={`px-3 py-2 rounded-full ${
+                                currentRoute === "/achievements" ? "flame-gradient-text" : "text-white hover:bg-gray-600"
+                            }`}
+                        >
+                            <Trophy size={22} />
+                        </Link>
+
                         <div className="relative">
                             <button
                                 onClick={(e) => {

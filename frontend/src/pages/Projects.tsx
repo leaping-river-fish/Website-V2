@@ -1,8 +1,11 @@
 // fix tags?, unlock project animation(gamify), cache the loaded projects so they are not constantly reloading
 import AllProjects from "../components/projects/AllProjects";
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
+import { usePageTracking } from "../components/quests/usePageTracking";
 
 const Projects = () => {
+    usePageTracking("projects");
+  
     return (
         <div className="bg-[#1A1410] min-h-screen px-4 py-6">
             <NavbarSpacer />

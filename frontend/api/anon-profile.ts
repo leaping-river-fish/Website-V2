@@ -12,6 +12,13 @@ interface RequestBody {
     price?: number;
 }
 
+interface CompletedQuest {
+    questId: string;
+    questName?: string;
+    category?: string;
+    reward: number;
+}
+
 function sendJSON(res: ServerResponse, status: number, data: any) {
     res.statusCode = status;
     res.setHeader("Content-Type", "application/json");
@@ -35,6 +42,52 @@ async function parseBody(req: IncomingMessage): Promise<RequestBody> {
     });
 }
 
+// Helper to call quest endpoint internally (use base URL?)
+async function callQuestEndpoint(method: string, path: string, cookies: string, body?: any): Promise<any> {
+    const baseUrl = process.env.NODE_ENV === "production" 
+        ? process.env.VERCEL_URL 
+            ? `https://${process.env.VERCEL_URL}`
+            : "https://nickzheng.vercel.app" // fallback to your prod domain
+        : "http://localhost:5000";
+    
+    const url = `${baseUrl}/api/quests${path}`;
+    
+    const options: RequestInit = {
+        method,
+        headers: {
+            "Content-Type": "application/json",
+            "Cookie": cookies,
+        },
+    };
+
+    if (body) {
+        options.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(url, options);
+    return response.json();
+}
+
+async function handleQuestCompletion(cookies: string, questId: string): Promise<CompletedQuest[]> {
+    try {
+        const result = await callQuestEndpoint("POST", "/complete", cookies, { questId });
+        
+        if (result.ok && result.questCompleted) {
+            return [{
+                questId,
+                questName: result.questName,
+                category: result.category,
+                reward: result.reward,
+            }];
+        }
+        
+        return [];
+    } catch (error) {
+        console.error(`Error completing quest ${questId}:`, error);
+        return [];
+    }
+}
+
 export default async function handler(
     req: IncomingMessage & { cookies?: Record<string, string> },
     res: ServerResponse
@@ -51,37 +104,30 @@ export default async function handler(
 
         const cookies = cookie.parse(req.headers.cookie || "");
         const anonId = body.anonId || cookies["anon_id"];
-
-        if (!anonId) {
-            return sendJSON(res, 400, { error: "Missing anonId" });
-        }
+        const cookieHeader = req.headers.cookie || "";
 
         const env = process.env.NODE_ENV === "production" ? "prod" : "dev";
 
+        // Special case: allow get-wallet without anonId
+        if (!anonId && action === "get-wallet") {
+            return sendJSON(res, 200, {
+                ok: true,
+                wallet: {
+                    embers: 0,
+                    totalEarned: 0,
+                    totalSpent: 0,
+                },
+            });
+        }
+
+        if (!anonId) {
+            console.warn("Missing anonId");
+            return sendJSON(res, 400, { error: "Missing anonId" });
+        }
 
         // ---------------- IDENTIFY ----------------
 
         if (action === "identify") {
-            const profile = await AnonymousProfile.findOneAndUpdate(
-                { anonId, env },
-                {
-                    $setOnInsert: { createdAt: new Date() },
-                    $set: { lastSeen: new Date() },
-                },
-                { upsert: true, new: true }
-            );
-
-            let needsSave = false;
-            if (!profile.ownedCosmetics?.includes("flame:crimson")) {
-                profile.ownedCosmetics.push("flame:crimson");
-                needsSave = true;
-            }
-            if (!profile.equipped?.flameTheme) {
-                profile.equipped = { flameTheme: "flame:crimson" };
-                needsSave = true;
-            }
-            if (needsSave) await profile.save();
-
             res.setHeader(
                 "Set-Cookie",
                 cookie.serialize("anon_id", anonId, {
@@ -93,6 +139,36 @@ export default async function handler(
                 })
             );
 
+            const profile = await AnonymousProfile.findOneAndUpdate(
+                { anonId, env },
+                {
+                    $setOnInsert: {
+                        createdAt: new Date(),
+                        ownedCosmetics: ["flame:crimson"],
+                        equipped: { flameTheme: "flame:crimson" }
+                    },
+                    $set: { lastSeen: new Date() },
+                },
+                { upsert: true, new: true }
+            );
+
+            let needsSave = false;
+
+            const uniqueCosmetics = [...new Set(profile.ownedCosmetics)];
+            if (uniqueCosmetics.length !== profile.ownedCosmetics.length) {
+                profile.ownedCosmetics = uniqueCosmetics;
+                needsSave = true;
+            }
+            
+            if (profile.equipped?.flameTheme === "crimson") {
+                profile.equipped.flameTheme = "flame:crimson";
+                needsSave = true;
+            }
+
+            if (needsSave) await profile.save();
+            
+            const completedQuests = await handleQuestCompletion(cookieHeader, "first_visit");
+
             return sendJSON(res, 200, {
                 ok: true,
                 profile: {
@@ -103,6 +179,7 @@ export default async function handler(
                     ownedCosmetics: profile.ownedCosmetics,
                     equipped: profile.equipped,
                 },
+                completedQuests,
             });
         }
 
@@ -120,7 +197,13 @@ export default async function handler(
                 { new: true }
             );
 
-            return sendJSON(res, 200, { ok: true, profile });
+            const completedQuests = await handleQuestCompletion(cookieHeader, "complete_intro");
+
+            return sendJSON(res, 200, { 
+                ok: true, 
+                profile,
+                completedQuests,
+            });
         }
 
         // ---------------- GET WALLET ----------------
@@ -144,12 +227,18 @@ export default async function handler(
         // ---------------- EARN EMBERS ----------------
 
         if (action === "earn-embers") {
+            const earnAmount = Number(amount) || 1;
+
+            if (earnAmount <= 0 || earnAmount > 101) {
+                return sendJSON(res, 400, { error: "Invalid amount" });
+            }
+
             const profile = await AnonymousProfile.findOneAndUpdate(
                 { anonId, env },
                 {
                     $inc: {
-                        "wallet.embers": amount,
-                        "wallet.totalEarned": amount,
+                        "wallet.embers": earnAmount,
+                        "wallet.totalEarned": earnAmount,
                     },
                     $set: { lastSeen: new Date() },
                 },
@@ -160,7 +249,26 @@ export default async function handler(
                 return sendJSON(res, 404, { error: "Profile not found" });
             }
 
-            return sendJSON(res, 200, { ok: true, profile });
+            const completedQuests: CompletedQuest[] = [];
+
+            const emberQuests = [
+                { id: "ember_hoarder", check: profile.wallet.embers >= 10000 },
+                { id: "ember_tycoon", check: profile.wallet.totalEarned >= 30000 }
+            ];
+
+            for (const { id, check } of emberQuests) {
+                if (check) {
+                    const quests = await handleQuestCompletion(cookieHeader, id);
+                    completedQuests.push(...quests);
+                }
+            }
+
+            return sendJSON(res, 200, {
+                ok: true,
+                embers: profile.wallet.embers,
+                totalEarned: profile.wallet.totalEarned,
+                completedQuests,
+            });
         }
 
         // ---------------- PURCHASE ----------------
@@ -179,7 +287,27 @@ export default async function handler(
 
             if (!profile) return sendJSON(res, 400, { error: "Not enough embers or item already owned" });
 
-            return sendJSON(res, 200, { ok: true, wallet: profile.wallet, ownedCosmetics: profile.ownedCosmetics });
+            const completedQuests = await handleQuestCompletion(cookieHeader, "first_purchase");
+
+            const ownedCount = profile.ownedCosmetics.length;
+            const collectorQuests = [
+                { id: "collector", threshold: 3 },
+                { id: "completionist", threshold: 6 }
+            ];
+
+            for (const { id, threshold } of collectorQuests) {
+                if (ownedCount >= threshold) {
+                    const quests = await handleQuestCompletion(cookieHeader, id);
+                    completedQuests.push(...quests);
+                }
+            }
+
+            return sendJSON(res, 200, { 
+                ok: true, 
+                wallet: profile.wallet, 
+                ownedCosmetics: profile.ownedCosmetics, 
+                completedQuests 
+            });
         }
 
         // ---------------- EQUIP ----------------
@@ -199,7 +327,31 @@ export default async function handler(
 
             if (!profile) return sendJSON(res, 400, { error: "Item not owned" });
 
-            return sendJSON(res, 200, { ok: true, equipped: profile.equipped });
+            const completedQuests: CompletedQuest[] = [];
+            
+            try {
+                const result = await callQuestEndpoint("POST", "/track", cookieHeader, { 
+                    questId: "style_switcher", 
+                    increment: 1 
+                });
+                
+                if (result.ok && result.questCompleted) {
+                    completedQuests.push({
+                        questId: "style_switcher",
+                        questName: result.questName,
+                        category: result.category,
+                        reward: result.reward,
+                    });
+                }
+            } catch (error) {
+                console.error("Error tracking style_switcher quest:", error);
+            }
+
+            return sendJSON(res, 200, { 
+                ok: true, 
+                equipped: profile.equipped, 
+                completedQuests 
+            });
         }
 
 

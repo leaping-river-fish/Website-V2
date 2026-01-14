@@ -21,4 +21,10 @@ export type FlameThemeTypes = {
     flareShockwave: string,
     flareParticles: string,
     flareAnimGlow: string,
+    
+    // Achievement colors
+    achievementPrimary: string;
+    achievementSecondary: string;
+    achievementBorder: string;
+    achievementHover: string;
 };

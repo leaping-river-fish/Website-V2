@@ -8,6 +8,7 @@ dotenv.config();
 import nodemailer from "nodemailer";
 import { v2 as cloudinary } from 'cloudinary';
 import { router as chatbotRouter } from "./src/chatbot.js";
+import { router as questRouter } from "./src/quests/questRoutes.js";
 import { anonUser } from "./src/middleware/anonUser.js";
 import anonProfileHandler from "./src/anon-profile.js";
 import { connectMongo } from "./src/db/mongodb.js";
@@ -36,49 +37,79 @@ cloudinary.config({
 {/* chatbot */}
 app.use("/api/chatbot", chatbotRouter);
 
+app.use("/api/quests", questRouter);
+
 const PORT = 5000;
 
-{/* Image get for gallery */}
-app.get("/api/getImages", async (req, res) => {
-    try {
-        const category = req.query.category;
+{/* Unified fetch endpoint for github and images */}
+app.get("/api/fetch", async (req, res) => {
+    const { action, category } = req.query;
 
+    if (action === "github") {
+        try {
+            const username = "leaping-river-fish";
+            const response = await fetch(`https://api.github.com/users/${username}/repos`);
+            const repos = await response.json();
+
+            if (!Array.isArray(repos)) {
+                return res.status(500).json({ error: "Unexpected GitHub API response" });
+            }
+
+            const projects = await Promise.all(
+                repos
+                    .filter(repo => repo.name)
+                    .map(async (repo) => {
+                        const topicRes = await fetch(`https://api.github.com/repos/${username}/${repo.name}/topics`, {
+                            headers: {
+                                Accept: "application/vnd.github.mercy-preview+json",
+                            },
+                        });
+                        const topicsData = await topicRes.json();
+                        const topics = topicsData.names || [];
+
+                        return {
+                            id: repo.id,
+                            name: repo.name,
+                            description: repo.description || "",
+                            html_url: repo.html_url,
+                            topics,
+                        };
+                    })
+            );
+
+            return res.json(projects);
+        } catch (error) {
+            console.error("Backend GitHub fetch error:", error);
+            return res.status(500).json({ error: "Failed to fetch GitHub repos" });
+        }
+    }
+
+    if (action === "images") {
         if (!category) {
             return res.status(400).json({ error: "Category is required" });
         }
 
-        const result = await cloudinary.search
-            .expression(`tags=${category}`)
-            .sort_by("created_at", "desc")
-            .max_results(40)
-            .execute();
+        try {
+            const result = await cloudinary.search
+                .expression(`tags=${category}`)
+                .sort_by("created_at", "desc")
+                .max_results(40)
+                .execute();
 
-        const images = result.resources.map(img => ({
-            src: img.secure_url,
-            alt: img.public_id,
-            category
-        }));
+            const images = result.resources.map(img => ({
+                src: img.secure_url,
+                alt: img.public_id,
+                category
+            }));
 
-        res.json(images);
-    } catch (error) {
-        console.error("Error fetching images:", error);
-        res.status(500).json({ error: "Error fetching images" });
+            return res.json(images);
+        } catch (error) {
+            console.error("Error fetching images:", error);
+            return res.status(500).json({ error: "Error fetching images" });
+        }
     }
-});
 
-{/* Project get for projects */}
-app.get("/api/github-projects", async (req, res) => {
-    try {
-        const username = "leaping-river-fish";
-
-        const response = await fetch(`https://api.github.com/users/${username}/repos`);
-        const repos = await response.json();
-
-        res.json(repos);
-    } catch (error) {
-        console.error("Backend GitHub fetch error:", error);
-        res.status(500).json({ error: "Failed to fetch GitHub repos" });
-    }
+    return res.status(400).json({ error: "Invalid action. Use ?action=github or ?action=images&category=..." });
 });
 
 {/* Email post for contact */}

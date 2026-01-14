@@ -14,6 +14,7 @@ html, body, #root {
 /* ------------------------------------------------ Scroll Bar --------------------------------------------------- */
 
 html {
+  scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: #3a2f2b #1A1410;
 }
@@ -86,6 +87,11 @@ html {
     --flare-shockwave: #facc15;
     --flare-particles: #fde68a;
     --flare-anim-glow: rgba(255,200,60,0.7);
+    
+    --achievement-primary: #ea580c;
+    --achievement-secondary: #fb923c;
+    --achievement-border: rgba(234, 88, 12, 0.2);
+    --achievement-hover: rgba(234, 88, 12, 0.4);
 }
 
 .flame-glow {

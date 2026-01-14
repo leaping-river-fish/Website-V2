@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion";
 import { FlyingEmbers } from "../components/effects/flyingEmbers";
+import { usePageTracking } from "../components/quests/usePageTracking";
 import { useEmbers } from "../contexts/EmberContext";
 
 export const Home = () => {
+    usePageTracking("home");
+  
     const { earnEmbers } = useEmbers();
 
     // Quote and Description Logic -------------------------------------------------------------------------------------------
@@ -21,10 +24,11 @@ export const Home = () => {
         "'If we keep holding onto yesterday, what will we be tomorrow?'",
         "'Even the best would fail if they kept doing the same thing'",
         "'The only difference between courage and fear is the direction that you run'",
+        "'Being average at everything is above average'",
     ];
 
     const [currentDescription, setCurrentDescription] = useState<string>(descriptions[0]);
-const [currentQuote, setCurrentQuote] = useState<string>(quotes[0]);
+    const [currentQuote, setCurrentQuote] = useState<string>(quotes[0]);
     const [indexD, setIndexD] = useState(0);
     const [indexQ, setIndexQ] = useState(0);
     const DESCTIMER = 6000;

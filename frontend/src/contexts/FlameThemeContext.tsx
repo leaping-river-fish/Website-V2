@@ -56,6 +56,11 @@ export function FlameThemeProvider({ children }: { children: React.ReactNode }) 
         root.style.setProperty("--flare-shockwave", theme.flareShockwave);
         root.style.setProperty("--flare-particles", theme.flareParticles);
         root.style.setProperty("--flare-anim-glow", theme.flareAnimGlow);
+        
+        root.style.setProperty("--achievement-primary", theme.achievementPrimary);
+        root.style.setProperty("--achievement-secondary", theme.achievementSecondary);
+        root.style.setProperty("--achievement-border", theme.achievementBorder);
+        root.style.setProperty("--achievement-hover", theme.achievementHover);
     }, [theme]);
 
     return (

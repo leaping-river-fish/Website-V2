@@ -28,7 +28,7 @@ export const useImageContext = () => {
 
 async function fetchImages(category: string): Promise<ImageData[]> {
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
-    const res = await fetch(`${API_BASE}/getImages?category=${category}`);
+    const res = await fetch(`${API_BASE}/fetch?action=images&category=${category}`);
     if (!res.ok) throw new Error("Failed to fetch images");
     return res.json();
 }

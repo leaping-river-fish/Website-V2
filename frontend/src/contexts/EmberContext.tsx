@@ -8,6 +8,7 @@ type EmberContextType = {
     earnEmbers: (amount: number) => void;
     spendEmbers: (amount: number) => void;
     setEmbers: React.Dispatch<React.SetStateAction<number>>;
+    refreshEmbers: () => Promise<void>;
 };
 
 const EmberContext = createContext<EmberContextType | null>(null);
@@ -17,23 +18,31 @@ export function EmberProvider({ children }: { children: React.ReactNode }) {
     const [gainTick, setGainTick] = useState(0);
 
     // 🔥 Load wallet
-    useEffect(() => {
-        fetch(`${API_BASE}/anon-profile`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ action: "get-wallet" }),
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (typeof data?.wallet?.embers === "number") {
-                    setEmbers(data.wallet.embers);
-                }
-            })
-            .catch(() => {
-                
+    const refreshEmbers = useCallback(async () => {
+        try {
+            const response = await fetch(`${API_BASE}/anon-profile`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ action: "get-wallet" }),
             });
+            const data = await response.json();
+            if (typeof data?.wallet?.embers === "number") {
+                setEmbers(data.wallet.embers);
+                setGainTick(t => t + 1); // Trigger animation
+            }
+        } catch (error) {
+            console.error("Error refreshing embers:", error);
+        }
     }, []);
+    
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            refreshEmbers();
+        }, 500);
+              
+        return () => clearTimeout(timer);
+    }, [refreshEmbers]);
 
     const earnEmbers = useCallback((amount: number) => {
         setEmbers(e => e + amount);
@@ -55,7 +64,6 @@ export function EmberProvider({ children }: { children: React.ReactNode }) {
     const spendEmbers = useCallback((amount: number) => {
         setEmbers(e => Math.max(0, e - amount));
         setGainTick(t => t + 1);
-
     }, []);
 
     return (
@@ -66,6 +74,7 @@ export function EmberProvider({ children }: { children: React.ReactNode }) {
                 earnEmbers,
                 spendEmbers,
                 setEmbers,
+                refreshEmbers,
             }}
         >
             {children}

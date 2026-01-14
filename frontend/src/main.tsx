@@ -4,6 +4,8 @@ import { BrowserRouter } from "react-router-dom"
 import { ImageProvider } from "./contexts/ImageContext";
 import { FlameThemeProvider } from "./contexts/FlameThemeContext";
 import { EmberProvider } from "./contexts/EmberContext";
+import { QuestToastProvider } from "./contexts/QuestToastContext";
+import { QuestProvider } from "./contexts/QuestContext";
 import { DynamicFavicon } from "./components/reusable_misc/DynamicFavicon";
 import FlameThemeDevSwitcher from "./components/reusable_misc/FlameThemeDevSwitcher";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -27,11 +29,15 @@ createRoot(document.getElementById("root")!).render(
             <BrowserRouter>
                 <EmberProvider>
                     <FlameThemeProvider>
-                        <ImageProvider>
-                            <DynamicFavicon />
-                            <App />
-                            {process.env.NODE_ENV === "development" && <FlameThemeDevSwitcher />}
-                        </ImageProvider>
+                        <QuestToastProvider>
+                            <QuestProvider>
+                                <ImageProvider>
+                                    <DynamicFavicon />
+                                    <App />
+                                    {process.env.NODE_ENV === "development" && <FlameThemeDevSwitcher />}
+                                </ImageProvider>
+                            </QuestProvider>
+                        </QuestToastProvider>
                     </FlameThemeProvider>
                 </EmberProvider>
             </BrowserRouter>

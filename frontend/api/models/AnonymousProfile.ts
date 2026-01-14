@@ -31,7 +31,7 @@ export interface AnonymousProfileDoc extends Document {
 
 const QuestSchema: Schema<Quest> = new mongoose.Schema({
     questId: { type: String, required: true },
-    progress: { type: Number, default: 0 },
+    progress: { type: Number, default: 0, min: 0 },
     completed: { type: Boolean, default: false },
     completedAt: Date,
 });

@@ -31,14 +31,14 @@ const AnonymousProfileSchema = new mongoose.Schema({
 
     ownedCosmetics: {
         type: [String],
-        default: ["crimson"],
+        default: [],
         index: true,
     },
 
     equipped: {
         flameTheme: {
             type: String,
-            default: "crimson",
+            default: null,
         },
     },
 
@@ -62,7 +62,7 @@ const AnonymousProfileSchema = new mongoose.Schema({
 
 AnonymousProfileSchema.index({ anonId: 1, env: 1 }, { unique: true });
 
-export default mongoose.model(
+export default mongoose.models.AnonymousProfile || mongoose.model(
     "AnonymousProfile",
     AnonymousProfileSchema
 );

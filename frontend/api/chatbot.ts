@@ -1,7 +1,6 @@
 import { OpenAI } from "openai";
-import AboutMe from "./models/AboutMe";
-import Chat from "./models/Chat";
-import Profile from "./models/Profile";
+import { AboutMe, Chat, Profile } from "./models/chatbot-schemas";
+import type { ProfileType } from "./models/chatbot-schemas";
 import { connectMongo } from "./models/mongodb";
 import { redisClient } from "./models/redis";
 import type { IncomingMessage, ServerResponse } from "http";
@@ -88,22 +87,6 @@ interface ChatMessage {
 
 interface ChatRequestBody {
     chats?: ChatMessage[];
-}
-
-interface ProfileType {
-    name: string;
-    location?: {
-        city?: string;
-        province?: string;
-        country?: string;
-    };
-    goals?: {
-        fiveYear?: {
-            role?: string;
-            industries?: string[];
-        };
-    };
-    // Add other fields as needed if you plan to use them
 }
 
 export default async function handler(req: IncomingMessage & { body?: ChatRequestBody }, res: ServerResponse) {

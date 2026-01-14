@@ -5,20 +5,24 @@ import EmberIcon from "../components/navbar/EmberIcon";
 import ShopCard from "../components/shop/ShopCard";
 import ShopSection from "../components/shop/ShopSection";
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
+import { usePageTracking } from "../components/quests/usePageTracking";
 
 import { FLAME_ITEMS } from "../components/shop/shopItems";
 import { useFlameTheme } from "../contexts/FlameThemeContext";
 import { useEmbers } from "../contexts/EmberContext";
+import { useQuestTracker } from "../components/quests/useQuestTracker";
 
 export default function Shop() {
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
     const DEFAULT_THEME_ID = "flame:crimson";
     const [loading, setLoading] = useState(true);
-
+    
+    usePageTracking("shop");
     const { embers, setEmbers } = useEmbers();
     const [ownedCosmetics, setOwnedCosmetics] = useState<string[]>([]);
     const [equippedThemeId, setEquippedThemeId] = useState(DEFAULT_THEME_ID);
     const { themeId, setThemeId } = useFlameTheme();
+    const { processCompletedQuests } = useQuestTracker();
 
     const effectiveOwned = new Set([
         DEFAULT_THEME_ID,
@@ -61,6 +65,10 @@ export default function Shop() {
                     setThemeId(profile.equipped.flameTheme); 
                     setEquippedThemeId(profile.equipped.flameTheme); 
                 }
+                
+                if (profileData.completedQuests) {
+                    await processCompletedQuests(profileData.completedQuests);
+                }
             } catch (err) {
                 console.error("Error fetching profile:", err);
             } finally {
@@ -72,41 +80,57 @@ export default function Shop() {
     }, []);
 
     /* -------------------- PURCHASE -------------------- */
-    function purchase(item: { id: string; price?: number }) {
+    async function purchase(item: { id: string; price?: number }) {
         if (!item.price) return;
 
-        fetch(`${API_BASE}/anon-profile`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-                action: "purchase",
-                itemId: item.id,
-                price: item.price,
-            }),
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (!data.ok) return;
-                setEmbers(data.wallet.embers);
-                setOwnedCosmetics(data.ownedCosmetics);
+        try {
+            const response = await fetch(`${API_BASE}/anon-profile`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({
+                    action: "purchase",
+                    itemId: item.id,
+                    price: item.price,
+                }),
             });
+            const data = await response.json();
+            
+            if (!data.ok) return;
+            
+            setEmbers(data.wallet.embers);
+            setOwnedCosmetics(data.ownedCosmetics);
+            
+            if (data.completedQuests) {
+                await processCompletedQuests(data.completedQuests);
+            }
+        } catch (error) {
+            console.error("Error purchasing item:", error);
+        }
     }
 
     /* -------------------- EQUIP -------------------- */
-    function equip(themeId: string) {
-        fetch(`${API_BASE}/anon-profile`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ action: "equip", itemId: themeId }),
-        })
-        .then(res => res.json())
-        .then(data => {
+    async function equip(themeId: string) {
+        try {
+            const response = await fetch(`${API_BASE}/anon-profile`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ action: "equip", itemId: themeId }),
+            });
+            const data = await response.json();
+            
             if (!data.ok) return;
+            
             setThemeId(themeId);
             setEquippedThemeId(themeId);
-        });
+            
+            if (data.completedQuests) {
+                await processCompletedQuests(data.completedQuests);
+            }
+        } catch (error) {
+            console.error("Error equipping item:", error);
+        }
     }
 
     if (loading) {
@@ -119,7 +143,7 @@ export default function Shop() {
 
     return (
         <motion.div
-            className="min-h-screen px-6 py-24 bg-black text-white"
+            className="min-h-screen px-6 py-24 bg-[#1A1410] text-white"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
@@ -162,6 +186,25 @@ export default function Shop() {
                         );
                         
                     })}
+                </ShopSection>
+                
+                <ShopSection
+                    title="Dragons"
+                    description="Tame Dragons to help you collect embers."
+                >
+                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
                 </ShopSection>
 
                 <ShopSection

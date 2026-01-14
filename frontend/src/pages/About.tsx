@@ -1,5 +1,6 @@
 // Add clouds for fog of war effect
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
+import { usePageTracking } from "../components/quests/usePageTracking";
 
 import Chatbot from "../components/Chatbot";
 import CareerTimeline from "../components/about/CareerTimeline";
@@ -8,7 +9,8 @@ import MobileSwiper from "../components/about/MobileSwiper";
 import StaticFogOfWar from "../components/effects/StaticFogOfWar";
 
 function About() {
-
+    usePageTracking("about");
+    
     return (
         <div className="bg-[#1A1410] min-h-screen text-white overflow-hidden">
             

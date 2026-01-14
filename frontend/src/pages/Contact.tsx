@@ -1,8 +1,11 @@
 import { useState } from "react";
 import Toast from "../components/Toast";
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
+import { usePageTracking } from "../components/quests/usePageTracking";
 
 function Contact() {
+    usePageTracking("contact");
+    
     const [formData, setFormData] = useState({
         name: "",
         email: "",
