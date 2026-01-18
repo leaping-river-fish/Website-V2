@@ -27,4 +27,8 @@ export type FlameThemeTypes = {
     achievementSecondary: string;
     achievementBorder: string;
     achievementHover: string;
+
+    // Help button colors
+    helpButtonColor: string;
+    helpButtonGlow: string;
 };

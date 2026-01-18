@@ -5,12 +5,14 @@ import EmberCounter from "./EmberCounter";
 import { useEmbers } from "../../contexts/EmberContext";
 import { LogoSVG } from "../reusable_misc/LogoSvg";
 import { useDialogue } from "../../contexts/DialogueContext";
+import { useFlameTheme } from "../../contexts/FlameThemeContext";
 
 import { Trophy } from "lucide-react";
 import { CircleHelp } from "lucide-react";
 
 export const Navbar = () => {
     const { showDialogue, tutorialNodes } = useDialogue();
+    const { theme } = useFlameTheme();
     
     const { gainTick } = useEmbers();
     const [isOpen, setIsOpen] = useState(false)
@@ -151,14 +153,15 @@ export const Navbar = () => {
                     {tutorialNodes ? (
                         <motion.button 
                             onClick={startTutorial}
-                            className="px-4 py-2 rounded-full cursor-pointer relative text-orange-500 hover:bg-gray-600"
+                            className="px-4 py-2 rounded-full cursor-pointer relative hover:bg-gray-600"
+                            style={{ color: theme.helpButtonColor }}
                             aria-label="Start tutorial"
                             animate={{
                                 scale: [1, 1.15, 1],
                                 filter: [
-                                    "drop-shadow(0 0 8px rgba(249,115,22,0.6))",
-                                    "drop-shadow(0 0 20px rgba(249,115,22,1)) drop-shadow(0 0 30px rgba(249,115,22,0.8))",
-                                    "drop-shadow(0 0 8px rgba(249,115,22,0.6))"
+                                    `drop-shadow(0 0 8px ${theme.helpButtonGlow})`,
+                                    `drop-shadow(0 0 20px ${theme.helpButtonGlow}) drop-shadow(0 0 30px ${theme.helpButtonGlow})`,
+                                    `drop-shadow(0 0 8px ${theme.helpButtonGlow})`
                                 ]
                             }}
                             transition={{
@@ -243,14 +246,15 @@ export const Navbar = () => {
                         {tutorialNodes ? (
                             <motion.button 
                                 onClick={startTutorial}
-                                className="py-2 rounded-full relative text-orange-500 hover:bg-gray-600"
+                                className="py-2 rounded-full relative hover:bg-gray-600"
+                                style={{ color: theme.helpButtonColor }}
                                 aria-label="Start tutorial"
                                 animate={{
                                     scale: [1, 1.15, 1],
                                     filter: [
-                                        "drop-shadow(0 0 8px rgba(249,115,22,0.6))",
-                                        "drop-shadow(0 0 20px rgba(249,115,22,1)) drop-shadow(0 0 30px rgba(249,115,22,0.8))",
-                                        "drop-shadow(0 0 8px rgba(249,115,22,0.6))"
+                                        `drop-shadow(0 0 8px ${theme.helpButtonGlow})`,
+                                        `drop-shadow(0 0 20px ${theme.helpButtonGlow}) drop-shadow(0 0 30px ${theme.helpButtonGlow})`,
+                                        `drop-shadow(0 0 8px ${theme.helpButtonGlow})`
                                     ]
                                 }}
                                 transition={{

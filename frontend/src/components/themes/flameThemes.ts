@@ -25,6 +25,9 @@ export const FLAME_THEMES: FlameThemeTypes[] = [
         achievementSecondary: "#fb923c",
         achievementBorder: "rgba(234, 88, 12, 0.2)",
         achievementHover: "rgba(234, 88, 12, 0.4)",
+
+        helpButtonColor: "#f97316",
+        helpButtonGlow: "rgba(249,115,22,0.8)",
     },
     {
         id: "flame:gold",
@@ -50,6 +53,9 @@ export const FLAME_THEMES: FlameThemeTypes[] = [
         achievementSecondary: "#fde047",
         achievementBorder: "rgba(234, 179, 8, 0.2)",
         achievementHover: "rgba(234, 179, 8, 0.4)",
+
+        helpButtonColor: "#fbbf24",
+        helpButtonGlow: "rgba(251,191,36,0.8)",
     },
     {
         id: "flame:emerald",
@@ -75,6 +81,9 @@ export const FLAME_THEMES: FlameThemeTypes[] = [
         achievementSecondary: "#34d399",
         achievementBorder: "rgba(16, 185, 129, 0.2)",
         achievementHover: "rgba(16, 185, 129, 0.4)",
+
+        helpButtonColor: "#22c55e",
+        helpButtonGlow: "rgba(34,197,94,0.8)",
     },
     {
         id: "flame:azure",
@@ -100,6 +109,9 @@ export const FLAME_THEMES: FlameThemeTypes[] = [
         achievementSecondary: "#60a5fa",
         achievementBorder: "rgba(59, 130, 246, 0.2)",
         achievementHover: "rgba(59, 130, 246, 0.4)",
+
+        helpButtonColor: "#38bdf8",
+        helpButtonGlow: "rgba(56,189,248,0.8)",
     },
     {
         id: "flame:violet",
@@ -125,6 +137,9 @@ export const FLAME_THEMES: FlameThemeTypes[] = [
         achievementSecondary: "#a78bfa",
         achievementBorder: "rgba(139, 92, 246, 0.2)",
         achievementHover: "rgba(139, 92, 246, 0.4)",
+
+        helpButtonColor: "#a78bfa",
+        helpButtonGlow: "rgba(167,139,250,0.8)",
     },
     {
         id: "flame:pure",
@@ -150,5 +165,8 @@ export const FLAME_THEMES: FlameThemeTypes[] = [
         achievementSecondary: "#ffffff",
         achievementBorder: "rgba(229, 229, 229, 0.2)",
         achievementHover: "rgba(229, 229, 229, 0.4)",
+
+        helpButtonColor: "#ffffff",
+        helpButtonGlow: "rgba(255,255,255,0.9)",
     },
 ];
