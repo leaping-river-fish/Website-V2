@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FlyingEmbers } from "../components/effects/flyingEmbers";
 import { usePageTracking } from "../components/quests/usePageTracking";
 import { useEmbers } from "../contexts/EmberContext";
+import { useQuestTracker } from "../components/quests/useQuestTracker";
 
 import { useDialogue } from '../contexts/DialogueContext';
 import { DialogueBox } from '../components/DialogueBox';
@@ -21,6 +22,18 @@ export const Home = () => {
     usePageTracking("home");
   
     const { earnEmbers } = useEmbers();
+    const { processCompletedQuests } = useQuestTracker();
+    const isDev = import.meta.env.DEV;
+
+    // Listen for quest completions from ember earning
+    useEffect(() => {
+        const handleQuestsCompleted = (event: any) => {
+            processCompletedQuests(event.detail.completedQuests);
+        };
+
+        window.addEventListener('questsCompleted', handleQuestsCompleted);
+        return () => window.removeEventListener('questsCompleted', handleQuestsCompleted);
+    }, [processCompletedQuests]);
 
     // Quote and Description Logic -------------------------------------------------------------------------------------------
     const descriptions = [
@@ -126,6 +139,16 @@ export const Home = () => {
                     </div>
                 </div>
             </div>
+
+            {isDev && (
+                <button
+                    onClick={() => earnEmbers(100)}
+                    className="fixed top-4 right-4 z-9999 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg shadow-lg transition-all hover:scale-105 active:scale-95 pointer-events-auto"
+                    title="Dev: +100 Embers"
+                >
+                    🔥 +100
+                </button>
+            )}
             
             <DialogueBox nodes={homeDialogue.nodes} />
         </div>

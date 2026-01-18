@@ -5,7 +5,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL;
 type EmberContextType = {
     embers: number;
     gainTick: number;
-    earnEmbers: (amount: number) => void;
+    earnEmbers: (amount: number) => Promise<void>;
     spendEmbers: (amount: number) => void;
     setEmbers: React.Dispatch<React.SetStateAction<number>>;
     refreshEmbers: () => Promise<void>;
@@ -44,21 +44,34 @@ export function EmberProvider({ children }: { children: React.ReactNode }) {
         return () => clearTimeout(timer);
     }, [refreshEmbers]);
 
-    const earnEmbers = useCallback((amount: number) => {
+    const earnEmbers = useCallback(async (amount: number) => {
         setEmbers(e => e + amount);
         setGainTick(t => t + amount);
 
-        fetch(`${API_BASE}/anon-profile`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-                action: "earn-embers",
-                amount,
-            }),
-        }).catch(() => {
+        try {
+            const response = await fetch(`${API_BASE}/anon-profile`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({
+                    action: "earn-embers",
+                    amount,
+                }),
+            });
+            
+            const data = await response.json();
+            
+            // Process completed quests
+            if (data.completedQuests && data.completedQuests.length > 0) {
+                // Dispatch a custom event that can be listened to
+                window.dispatchEvent(new CustomEvent('questsCompleted', { 
+                    detail: { completedQuests: data.completedQuests } 
+                }));
+            }
+        } catch (error) {
+            console.error("Error earning embers:", error);
             setEmbers(e => Math.max(0, e - amount));
-        });
+        }
     }, []);
 
     const spendEmbers = useCallback((amount: number) => {

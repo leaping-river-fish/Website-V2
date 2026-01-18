@@ -1,5 +1,4 @@
 // Add Trigger: Hello World!, Conversationalist, Visitor quests, Gallery views
-// Figure out solution to migrate to ts and prod without going over vercel limit
 import { Trophy, Lock, CheckCircle2, Award, TrendingUp } from "lucide-react";
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
 import { usePageTracking } from "../components/quests/usePageTracking";

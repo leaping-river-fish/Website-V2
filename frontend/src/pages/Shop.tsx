@@ -1,4 +1,4 @@
-// after purchase, ember amount is not immediately updated, and equip does not persist...
+// add dragons to shop section
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import EmberIcon from "../components/navbar/EmberIcon";

@@ -1,4 +1,4 @@
-// TO DO: fix phase 3
+// make game long again? 
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useMotionValue } from "framer-motion";

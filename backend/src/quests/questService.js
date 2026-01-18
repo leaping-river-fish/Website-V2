@@ -82,6 +82,8 @@ export async function updateQuestProgress(anonId, env, questId, incrementBy = 1)
         quest.progress = profile.wallet.embers || 0;
     } else if (questId === "ember_tycoon") {
         quest.progress = profile.wallet.totalEarned || 0;
+    } else if (questId === "collector" || questId === "completionist") {
+        quest.progress = profile.ownedCosmetics?.length || 0;
     } else {
         quest.progress += incrementBy;
     }

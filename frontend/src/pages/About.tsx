@@ -1,4 +1,6 @@
 // Add clouds for fog of war effect
+// timeline size on extremely large screens is not correct (may need refactor)
+// remove text box replace with lumie image
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
 import { usePageTracking } from "../components/quests/usePageTracking";
 

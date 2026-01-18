@@ -291,7 +291,7 @@ export default async function handler(
 
             const completedQuests: CompletedQuest[] = [];
 
-            const firstPurchaseResult = await completeQuest(anonId, env, "first_purchase");
+            const firstPurchaseResult = await updateQuestProgress(anonId, env, "first_purchase", 1);
             if (firstPurchaseResult.questCompleted) {
                 const questDef = getQuestById("first_purchase");
                 completedQuests.push({
@@ -300,6 +300,10 @@ export default async function handler(
                     category: questDef?.category,
                     reward: firstPurchaseResult.reward,
                 });
+            }
+            
+            if (firstPurchaseResult.metaAchievements && firstPurchaseResult.metaAchievements.length > 0) {
+                completedQuests.push(...firstPurchaseResult.metaAchievements);
             }
 
             for (const questId of ["collector", "completionist"]) {
@@ -312,6 +316,10 @@ export default async function handler(
                         category: questDef?.category,
                         reward: result.reward,
                     });
+                }
+                
+                if (result.metaAchievements && result.metaAchievements.length > 0) {
+                    completedQuests.push(...result.metaAchievements);
                 }
             }
 

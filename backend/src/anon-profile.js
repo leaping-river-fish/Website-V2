@@ -3,8 +3,8 @@ import AnonymousProfile from "./schema/AnonymousProfile.js";
 import { initializeQuests, completeQuest, updateQuestProgress } from "./quests/questService.js";
 import { getQuestById } from "./quests/questDefinitions.js";
 
-async function handleQuestCompletion(anonId, env, questId) {
-    const result = await completeQuest(anonId, env, questId);
+async function handleQuestCompletion(anonId, env, questId, increment = 0) {
+    const result = await updateQuestProgress(anonId, env, questId, increment);
     const completedQuests = [];
     
     if (result.questCompleted) {
@@ -258,7 +258,7 @@ export default async function anonProfileHandler(req, res) {
             }
             
             const completedQuests = [];
-            completedQuests.push(...await handleQuestCompletion(anonId, env, "first_purchase"));
+            completedQuests.push(...await handleQuestCompletion(anonId, env, "first_purchase", 1));
             
             const ownedCount = profile.ownedCosmetics.length;
             const collectorQuests = [
@@ -268,7 +268,7 @@ export default async function anonProfileHandler(req, res) {
 
             for (const { id, threshold } of collectorQuests) {
                 if (ownedCount >= threshold) {
-                    completedQuests.push(...await handleQuestCompletion(anonId, env, id));
+                    completedQuests.push(...await handleQuestCompletion(anonId, env, id, 0));
                 }
             }
             
