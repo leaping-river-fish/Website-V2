@@ -16,36 +16,36 @@ export const story: StoryType = {
                 ],
             },
             start: {
-                text: "What do you think you're doing?",
+                text: "Woah, what do you think you're doing?",
                 choices: [
-                    { text: "?", next: "buttonResponse1" },
-                    { text: "I'm just trying to click the button…", next: "buttonResponse2" }
+                    { text: "Who are you?", next: "lumieResponse1" },
+                    { text: "I just want to enter the website...", next: "lumieResponse2" }
                 ],
                 animation: "shake-x"
             },
 
-            buttonResponse1: {
-                text: "HELLO, I'M TALKING TO YOU! ME, THE BUTTON!",
+            lumieResponse1: {
+                text: "I'm Lumie! I'm the guardian of this website. You'll have to prove yourself to me before you can enter!",
                 next: "argue",
                 animation: "frustrated-wobble"
             },
 
-            buttonResponse2: {
-                text: "I AM THE BUTTON! I'M TALKING TO YOU!",
+            lumieResponse2: {
+                text: "Not so fast! Every visitor needs to pass through me, Lumie, first!",
                 next: "argue",
                 animation: "frustrated-wobble"
             },
 
             argue: {
-                text: "Are you gonna acknowledge my existence?",
+                text: "Think you can keep up with me?",
                 choices: [
-                    { text: "You're probably just a bunch of parameters...", next: "finale", animation: "shake-y" },
-                    { text: "I've never met a talking button before...", next: "finale" }
+                    { text: "Absolutely! Let's do this!", next: "finale" },
+                    { text: "How hard could it be?", next: "finale", animation: "shake-y" }
                 ],
             },
 
             finale: {
-                text: "That's it you're gonna have to work to get into this website! See if you can click me now!",
+                text: "Alright then! Let's see if you can catch me!",
                 choices: [
                     { text: "Bring it!", next: null }
                 ],
@@ -57,7 +57,7 @@ export const story: StoryType = {
     phase1: {
         nodes: {
             intro: {
-                text: "Let's see if you can keep up.",
+                text: "Let's see if you can keep up. Try to click me!",
                 next: null
             },
             finale: {
@@ -91,48 +91,35 @@ export const story: StoryType = {
     phase2: {
         nodes: {
             intro: {
-                text: "Now let's see if you can find me!",
+                text: "Now let's see if you can find me when I hide!",
                 next: null
             },
 
             found1: {
-                text: "Impossible! You must be cheating!",
+                text: "What?! You found me already?",
                 choices: [
-                    { text: "I found you!", next: null },
+                    { text: "Got you!", next: null },
                     { text: "Too easy!", next: null }
                 ]
             },
 
             found2: {
-                text: "How did you find me?! Are you using devtools?",
+                text: "How are you doing this?! Are you cheating?",
                 choices: [
-                    { text: "No cheats, just skill!", next: null },
-                    { text: "Maybe...", next: null }
+                    { text: "Just good eyesight!", next: null },
+                    { text: "Maybe I am...", next: null }
                 ]
             },  
 
             found3: {
-                text: "Are you actually tracking my CSS? That's illegal!",
-                next: null
-            },
-
-            found4: {
-                text: "STOP FINDING ME! I'M SUPPOSED TO BE INVISIBLE! That's it, you'll never find me now!",
-                choices: [
-                    { text: "I won't stop!", next: null },
-                    { text: "We'll see about that!", next: null }
-                ]
-            },
-
-            found5: {
-                text: "You're hacking! No NORMAL human can do this!",
+                text: "Okay okay, you win this round!",
                 next: "finale"
             },
 
             finale: {
-                text: "Ok, it's pretty clear you're cheating now.",
+                text: "You're better at this than I thought!",
                 choices: [
-                    { text: "Sore loser...", next: null }
+                    { text: "Thanks!", next: null }
                 ],
                 done: true
             }
@@ -142,48 +129,35 @@ export const story: StoryType = {
     phase3: {
         nodes: {
             intro: {
-                text: "If I can't hide I'll run!",
+                text: "Alright, let's see if you can catch me while I'm moving!",
                 next: null
             },
 
             caught1: {
-                text: "Ok, time to up the speed!",
+                text: "Hey! No fair!",
                 next: null
             },
 
             caught2: {
-                text: "Don't think you can catch up that easily!",
+                text: "You're faster than you look!",
                 choices: [
-                    { text: "I'll catch you!", next: null },
-                    { text: "Nowhere to run!", next: null }
+                    { text: "I'm just getting started!", next: null },
+                    { text: "Can't escape me!", next: null }
                 ]
             },
 
             caught3: {
-                text: "No you don't!",
-                next: null
-            },
-
-            caught4: {
-                text: "I'm really not built for cardio!",
+                text: "Okay okay! You got me! Stop clicking me already! I have Haphephobia!",
                 choices: [
-                    { text: "You should stop then...", next: null },
-                    { text: "Neither am I...", next: null }
-                ]
-            },
-
-            caught5: {
-                text: "Ow! Watch where you put that cursor!",
-                choices: [
-                    { text: "That was your fault!", next: "finale" },
-                    { text: "Shouldn't have been going 50 over the limit...", next: "finale" }
+                    { text: "That was fun!", next: "finale" },
+                    { text: "Good game!", next: "finale" }
                 ]
             },
 
             finale: {
-                text: "Okay! OKAY! You win! You can enter the website… Just promise to stop trying to click me, I have Haphephobia",
+                text: "You're pretty impressive! Alright, you've earned your way in. Welcome to the website!",
                 choices: [
-                    { text: "Ironic...", next: null }
+                    { text: "Thanks, Lumie!", next: null }
                 ],
                 done: true
             }
@@ -193,7 +167,7 @@ export const story: StoryType = {
     phase4: {
         nodes: {
             end: {
-                text: "You may enter the website now...",
+                text: "Alright, you need to click me to enter...",
                 next: null
             }
         }

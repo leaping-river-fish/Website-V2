@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import "./transition.css";
 
 interface GridTransitionProps {
@@ -7,69 +8,83 @@ interface GridTransitionProps {
 }
 
 const GridTransition: React.FC<GridTransitionProps> = ({ trigger, onComplete }) => {
-    const gridRef = useRef<HTMLDivElement | null>(null);
     const rows = 8;
     const cols = 12;
+    const [phase, setPhase] = useState<"hidden" | "bubbleUp" | "bubbleDown">("hidden");
 
+    // Generate tiles array once
+    const tiles = useMemo(() => {
+        return Array.from({ length: rows * cols }, (_, i) => ({
+            row: Math.floor(i / cols),
+            col: i % cols,
+            key: i
+        }));
+    }, [rows, cols]);
+
+    // Handle animation phases
     useEffect(() => {
-        const grid = gridRef.current;
-        if (!grid) return;
-
-        grid.innerHTML = "";
-
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                const tile = document.createElement("div");
-                tile.className = "tile";
-                tile.dataset.row = String(row);
-                tile.dataset.col = String(col);
-                grid.appendChild(tile);
-            }
+        if (!trigger) {
+            setPhase("hidden");
+            return;
         }
-    }, [])
 
-    useEffect(() => {
-        if(!trigger || !gridRef.current) return;
+        // Start bubble up
+        setPhase("bubbleUp");
 
-        const tiles = Array.from(
-            gridRef.current.querySelectorAll<HTMLDivElement>(".tile")
-        );
+        // Calculate when bubble up completes
+        const maxBubbleUpDelay = ((rows + cols) * 40) + 600;
 
-        tiles.forEach((tile) => {
-            const row = Number(tile.dataset.row);
-            const col = Number(tile.dataset.col);
-            const delay = ((rows - row) + (cols - col)) * 40;
+        // Call onComplete and start bubble down at the same time
+        // This changes the page while tiles are still covering, then reveals it
+        const bubbleDownTimer = setTimeout(() => {
+            onComplete?.(); // Change page first
+            setPhase("bubbleDown"); // Then reveal it
+        }, maxBubbleUpDelay + 100);
 
-            setTimeout(() => tile.classList.add("bubble-up"), delay);
-        });
+        // Reset to hidden
+        const resetTimer = setTimeout(() => {
+            setPhase("hidden");
+        }, maxBubbleUpDelay + 100 + ((rows + cols) * 40) + 600);
 
-        const maxDelay = ((rows + cols) * 40) + 600;
+        return () => {
+            clearTimeout(bubbleDownTimer);
+            clearTimeout(resetTimer);
+        };
+    }, [trigger, onComplete, rows, cols]);
 
-        setTimeout(() => {
-            onComplete?.();
-        }, maxDelay);
+    return (
+        <div className="transition-grid">
+            {tiles.map(({ row, col, key }) => {
+                const bubbleUpDelay = ((rows - row) + (cols - col)) * 0.04;
+                const bubbleDownDelay = (row + col) * 0.04;
 
-        const totalDuration = maxDelay + 100;
-
-        setTimeout(() => {
-            tiles.forEach((tile) => {
-                const row = Number(tile.dataset.row);
-                const col = Number(tile.dataset.col);
-                const delay = (row + col) * 40;
-
-                setTimeout(() => {
-                    tile.classList.remove("bubble-up");
-                    tile.classList.add("bubble-down");
-                }, delay);
-            });
-        }, totalDuration);
-
-        setTimeout(() => {
-            tiles.forEach((tile) => tile.classList.remove("bubble-down"));
-        }, totalDuration + 1000);
-    }, [trigger, onComplete]);
-
-    return <div ref={gridRef} className="transition-grid"></div>;
+                return (
+                    <motion.div
+                        key={key}
+                        className="tile"
+                        style={{ 
+                            willChange: "transform, opacity"
+                        }}
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={
+                            phase === "bubbleUp" 
+                                ? { scale: 1.5, opacity: 1 }
+                                : phase === "bubbleDown"
+                                ? { scale: 0, opacity: 0 }
+                                : { scale: 0, opacity: 0 }
+                        }
+                        transition={
+                            phase === "bubbleUp"
+                                ? { duration: 0.6, delay: bubbleUpDelay, ease: "easeOut" }
+                                : phase === "bubbleDown"
+                                ? { duration: 0.6, delay: bubbleDownDelay, ease: "easeIn" }
+                                : { duration: 0 }
+                        }
+                    />
+                );
+            })}
+        </div>
+    );
 };
 
 export default GridTransition;

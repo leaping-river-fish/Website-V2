@@ -12,6 +12,10 @@ import { useFlameTheme } from "../contexts/FlameThemeContext";
 import { useEmbers } from "../contexts/EmberContext";
 import { useQuestTracker } from "../components/quests/useQuestTracker";
 
+import { useDialogue } from '../contexts/DialogueContext';
+import { DialogueBox } from '../components/DialogueBox';
+import { shopDialogue } from '../dialogue/shop-dialogue';
+
 export default function Shop() {
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
     const DEFAULT_THEME_ID = "flame:crimson";
@@ -23,6 +27,14 @@ export default function Shop() {
     const [equippedThemeId, setEquippedThemeId] = useState(DEFAULT_THEME_ID);
     const { themeId, setThemeId } = useFlameTheme();
     const { processCompletedQuests } = useQuestTracker();
+
+    // load tutorial
+    const { registerTutorial, unregisterTutorial } = useDialogue();
+
+    useEffect(() => {
+        registerTutorial(shopDialogue.nodes);
+        return () => unregisterTutorial();
+    }, []);
 
     const effectiveOwned = new Set([
         DEFAULT_THEME_ID,
@@ -220,6 +232,8 @@ export default function Shop() {
                 >
                     <ShopCard title="Ember Trails" description="Leave fire in your wake." comingSoon />
                 </ShopSection>
+                
+                <DialogueBox nodes={shopDialogue.nodes} />
             </div>
         </motion.div>
     );

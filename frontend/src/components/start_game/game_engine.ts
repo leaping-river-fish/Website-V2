@@ -66,13 +66,16 @@ export interface StateRefs {
 
     /* ----------------------- NAVIGATION ----------------------- */
     navigate: (path: string) => void;
+    
+    /* ----------------------- QUEST TRACKING ----------------------- */
+    processCompletedQuests: (completedQuests: any[]) => Promise<void>;
 }
 
 const TELEPORT_PADDING = 100;
 
 export function teleportButton(state: StateRefs, cursor: { x: number; y: number }) {
-    const buttonWidth = 100;
-    const buttonHeight = 50;
+    const buttonWidth = 200;
+    const buttonHeight = 200;
     const padding = 20;
     let newLeft: number;
     let newTop: number;
@@ -165,8 +168,8 @@ export function handleClickPhase0(state: StateRefs) {
 
 {/* Phase 1 */}
 
-const PHASE1_HOVER_LIMIT = 8;
-export function handleHoverPhase1(state: StateRefs, _buttonEl?: HTMLElement | null) {
+const PHASE1_HOVER_LIMIT = 3;
+export function handleClickPhase1(state: StateRefs, _buttonEl?: HTMLElement | null) {
     if (state.isDialogueActive) return;
 
     const newHoverCount = state.phase1HoverCount + 1;
@@ -188,15 +191,15 @@ export function handleHoverPhase1(state: StateRefs, _buttonEl?: HTMLElement | nu
 
 {/* Phase 2 */}
 
-const PHASE2_FIND_LIMIT = 5;
+const PHASE2_FIND_LIMIT = 3;
 
-export function handleHoverPhase2(state: StateRefs, buttonEl?: HTMLElement | null) {
+export function handleClickPhase2(state: StateRefs, buttonEl?: HTMLElement | null) {
     if (state.isDialogueActive) return;  
 
     const newFoundCount = state.phase2FoundCount + 1;
     state.setPhase2FoundCount(newFoundCount);
 
-    const nodeOrder = ["found1", "found2", "found3", "found4", "found5"];
+    const nodeOrder = ["found1", "found2", "found3"];
     const nextKey = nodeOrder[newFoundCount - 1];
 
     if (!nextKey) return;
@@ -222,28 +225,15 @@ export function handleHoverPhase2(state: StateRefs, buttonEl?: HTMLElement | nul
 
 {/* Phase 3 */}
 
-export function handleHoverPhase3(_state: StateRefs) {
-    
-}
+export function handleClickPhase3(state: StateRefs, buttonEl?: HTMLElement | null) {  
+    if (state.isDialogueActive) return;
 
-export function updatePhase3Position(_state: StateRefs) {
-    
-}
-
-export function handlePhase3Caught(state: StateRefs, buttonEl?: HTMLElement | null) {  
-    if (state.phase !== 3) return; 
-
-    if (!state.currentPhaseNodes) return;
     const movement = state.movement.current;
-
-    if (movement.phase3RecentlyCaught) return;
-    movement.phase3RecentlyCaught = true;
-    setTimeout(() => { movement.phase3RecentlyCaught = false; }, 500);
 
     movement.phase3CaughtCount += 1;
     const newCount = movement.phase3CaughtCount;
 
-    const nodeOrder = ["caught1", "caught2", "caught3", "caught4", "caught5"];
+    const nodeOrder = ["caught1", "caught2", "caught3"];
     const nextKey = nodeOrder[newCount - 1];
     if (!nextKey) return;
 
@@ -253,8 +243,8 @@ export function handlePhase3Caught(state: StateRefs, buttonEl?: HTMLElement | nu
     movement.speed += 1;
 
     if (newCount === nodeOrder.length) {
-        const centerX = window.innerWidth / 2 - 50;
-        const centerY = window.innerHeight / 2 - 25;
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
         state.setPosition({ left: centerX, top: centerY });
         state.motionX.set(centerX);
         state.motionY.set(centerY);
@@ -286,7 +276,15 @@ export async function handleClickPhase4(state: StateRefs) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ action: "complete-intro" }),
         });
-        if (!res.ok && import.meta.env.DEV) {
+        
+        if (res.ok) {
+            const data = await res.json();
+            
+            // Process completed quests to show toast notifications
+            if (data.completedQuests && data.completedQuests.length > 0) {
+                await state.processCompletedQuests(data.completedQuests);
+            }
+        } else if (import.meta.env.DEV) {
             console.warn("Intro completion request failed:", res.status, res.statusText);
         }
     } catch (err) {

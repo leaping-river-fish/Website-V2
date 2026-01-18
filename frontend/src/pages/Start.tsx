@@ -1,6 +1,4 @@
-// TO DO: make phase 2 button only appear after choice is made,
-// top left corner issue(may require refactoring using motion), Add button reactions(fix phase 3 spin out)
-// Game still shows up for large Ipads
+// TO DO: fix phase 3
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useMotionValue } from "framer-motion";
@@ -10,6 +8,7 @@ import type { DialogueNode } from "../components/start_game/story_type";
 import * as gameEngine from "../components/start_game/game_engine";
 import { initPhase } from "../components/start_game/phase_inits";
 import { advanceNode } from "../components/start_game/game_engine";
+import { useQuestTracker } from "../components/quests/useQuestTracker";
 
 interface StartPageProps {
     profile?: { anonId: string; introGameCompleted: boolean } | null;
@@ -22,10 +21,11 @@ export default function StartPage({ profile }: StartPageProps) {
     /* ----------------------- NAVIGATION & HOOKS ----------------------- */
     const navigate = useNavigate();
     const { dialogueText, isDialogueActive, isTyping, startDialogue, setIsDialogueActive, completeDialogue } = useDialogueEngine();
+    const { processCompletedQuests } = useQuestTracker();
 
-    /* ----------------------- BUTTON REFS & STATE ----------------------- */
+    /* ----------------------- LUMIE REFS & STATE ----------------------- */
     const buttonRef = useRef<HTMLButtonElement | null>(null);
-    const [buttonSize, setButtonSize] = useState({ width: 120, height: 50 });
+    const [buttonSize, setButtonSize] = useState({ width: 200, height: 200 });
     const [buttonOpacity, setButtonOpacity] = useState(1);
     const CLICK_COOLDOWN = 500;
     const [lastClickTime, setLastClickTime] = useState(0);
@@ -42,8 +42,8 @@ export default function StartPage({ profile }: StartPageProps) {
 
     /* ----------------------- POSITION / MOVEMENT ----------------------- */
     const [position, setPosition] = useState<{ top: number; left: number }>({
-        top: Math.floor(window.innerHeight / 2),
-        left: Math.floor(window.innerWidth / 2),
+        top: Math.floor(window.innerHeight / 2) - 100,
+        left: Math.floor(window.innerWidth / 2) - 100,
     });
     const cursorPos = useRef({ x: 0, y: 0 });
 
@@ -106,6 +106,7 @@ export default function StartPage({ profile }: StartPageProps) {
         phaseRef,
         motionX,
         motionY,
+        processCompletedQuests,
     };
 
     /* ---------------- MOBILE CHECK ---------------- */
@@ -211,17 +212,6 @@ export default function StartPage({ profile }: StartPageProps) {
                 motionX.set(newX);
                 motionY.set(newY);
 
-                const c = cursorPos.current;
-                const overlap =
-                    c.x >= newX &&
-                    c.x <= newX + buttonWidth &&
-                    c.y >= newY &&
-                    c.y <= newY + buttonHeight;
-
-                if (overlap) {
-                    gameEngine.handlePhase3Caught(stateRefs);
-                }
-
                 const now = performance.now();
                 if (!(animate as any)._lastSync || now - (animate as any)._lastSync > 50) {
                     setPosition({ left: newX, top: newY });
@@ -240,15 +230,16 @@ export default function StartPage({ profile }: StartPageProps) {
         const buttonEl = buttonRef.current;
         switch (phase) {
             case 0: gameEngine.handleHoverPhase0(stateRefs, buttonEl); break;
-            case 1: gameEngine.handleHoverPhase1(stateRefs, buttonEl); break;
-            case 2: gameEngine.handleHoverPhase2(stateRefs, buttonEl); break;
-            case 3: gameEngine.handlePhase3Caught(stateRefs, buttonEl); break;
         }
     };
 
     const handleClick = () => {
+        const buttonEl = buttonRef.current;
         switch (phase) {
             case 0: gameEngine.handleClickPhase0(stateRefs); break;
+            case 1: gameEngine.handleClickPhase1(stateRefs, buttonEl); break;
+            case 2: gameEngine.handleClickPhase2(stateRefs, buttonEl); break;
+            case 3: gameEngine.handleClickPhase3(stateRefs, buttonEl); break;
             case 4: gameEngine.handleClickPhase4(stateRefs); break;
         }
     };
@@ -333,9 +324,8 @@ export default function StartPage({ profile }: StartPageProps) {
                 <div className="fixed top-0 left-0 w-screen h-screen bg-black z-30"></div>
             )}
 
-            <motion.button
-                ref={buttonRef}
-                // initial={false}
+            <motion.div
+                ref={buttonRef as any}
                 animate={{
                     left: phaseRef.current === 3 ? undefined : position.left,
                     top: phaseRef.current === 3 ? undefined : position.top,
@@ -345,16 +335,24 @@ export default function StartPage({ profile }: StartPageProps) {
                     position: "absolute",
                     x: phaseRef.current === 3 ? motionX : undefined,
                     y: phaseRef.current === 3 ? motionY : undefined,
+                    width: buttonSize.width,
+                    height: buttonSize.height,
+                    cursor: "pointer"
                 }}
                 transition={{
                     duration: phaseRef.current === 3 ? 0 : 0.3
                 }}
-                className="absolute px-6 py-3 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 z-20"
+                className="absolute z-20"
                 onMouseEnter={handleHover}
                 onClick={handleClick}
             >
-                Start
-            </motion.button>
+                <img 
+                    src="/images/dragons/lumie/Lumie_transparent.png" 
+                    alt="Lumie"
+                    className="w-full h-full object-contain pointer-events-none select-none"
+                    draggable={false}
+                />
+            </motion.div>
 
             {isDialogueActive && currentNode && (
                 <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-11/12 md:w-2/3 lg:w-1/2 bg-white text-black p-4 rounded-lg shadow-lg z-40">

@@ -41,8 +41,8 @@ export function initPhase2(state: StateRefs) {
     state.setIsBlackout(true);
     state.setButtonOpacity(0.8);
 
-    const buttonWidth = 100;
-    const buttonHeight = 50;
+    const buttonWidth = 200;
+    const buttonHeight = 200;
     const padding = 20;
 
     const newLeft = padding + Math.random() * (window.innerWidth - buttonWidth - 2 * padding);
@@ -71,8 +71,8 @@ export function initPhase3(state: StateRefs) {
     state.movement.current.vy = Math.random() > 0.5 ? 2 : -2;
     state.movement.current.speed = 2;
 
-    const buttonWidth = state.buttonSize.width || 100;
-    const buttonHeight = state.buttonSize.height || 50;
+    const buttonWidth = state.buttonSize.width || 200;
+    const buttonHeight = state.buttonSize.height || 200;
     const padding = 50;
 
     const left = Math.random() * (window.innerWidth - buttonWidth - padding * 2) + padding;

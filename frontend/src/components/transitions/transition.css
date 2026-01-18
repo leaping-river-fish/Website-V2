@@ -16,21 +16,12 @@
 /* Tiles */
 .tile {
   background-color: white;
-  opacity: 0;
-  transform: scale(0);
-  transition: transform 0.6s ease, opacity 0.6s ease;
-}
-
-/* Bubble up animation */
-.tile.bubble-up {
-  opacity: 1;
-  transform: scale(1.5);
-}
-
-/* Bubble down animation */
-.tile.bubble-down {
-  opacity: 0;
-  transform: scale(0);
+  /* Force GPU layer for better performance */
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  /* Prevent subpixel rendering issues */
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Container */

@@ -83,7 +83,6 @@ function Contact() {
     };
 
     const email = import.meta.env.VITE_EMAIL;
-    const phone = import.meta.env.VITE_PHONE;
 
     return (
         <div className="bg-[#1A1410] min-h-screen py-16 px-4 ">
@@ -172,18 +171,6 @@ function Contact() {
                             className="text-white hover:underline transition-colors"
                         >
                             {email}
-                        </a>
-                    </p>
-                    <p>
-                        Phone:{" "}
-                        <a
-                            href={`tel:+${phone}`}
-                            style={{ color: "inherit" }}
-                            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--flame-primary)")}
-                            onMouseLeave={(e) => (e.currentTarget.style.color = "")}
-                            className="text-white hover:underline transition-colors"
-                        >
-                            {phone}
                         </a>
                     </p>
                     <div className="flex gap-4 mt-4">

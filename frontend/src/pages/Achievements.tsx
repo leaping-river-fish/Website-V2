@@ -7,6 +7,10 @@ import EmberIcon from "../components/navbar/EmberIcon";
 import { useQuestContext } from "../contexts/QuestContext";
 import { useEffect, useState } from "react";
 
+import { useDialogue } from '../contexts/DialogueContext';
+import { DialogueBox } from '../components/DialogueBox';
+import { achievementDialogue } from '../dialogue/achievement-dialogue';
+
 interface Quest {
     id: string;
     name: string;
@@ -32,7 +36,15 @@ export default function Achievements() {
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<string>("all");
     const { questUpdateTrigger } = useQuestContext();
-    
+
+    // load tutorial
+    const { registerTutorial, unregisterTutorial } = useDialogue();
+
+    useEffect(() => {
+        registerTutorial(achievementDialogue.nodes);
+        return () => unregisterTutorial();
+    }, []);
+
     usePageTracking("achievements");
 
     const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
@@ -306,6 +318,7 @@ export default function Achievements() {
                     </div>
                 )}
             </div>
+            <DialogueBox nodes={achievementDialogue.nodes} />
         </div>
     );
 }

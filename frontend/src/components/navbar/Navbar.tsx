@@ -1,14 +1,17 @@
-// ADD achievements/quests
 import { useState, useRef, useEffect } from "react"
 import { motion, useAnimation } from "framer-motion";
 import { Link, useLocation } from "react-router-dom"
 import EmberCounter from "./EmberCounter";
 import { useEmbers } from "../../contexts/EmberContext";
 import { LogoSVG } from "../reusable_misc/LogoSvg";
+import { useDialogue } from "../../contexts/DialogueContext";
 
 import { Trophy } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 
 export const Navbar = () => {
+    const { showDialogue, tutorialNodes } = useDialogue();
+    
     const { gainTick } = useEmbers();
     const [isOpen, setIsOpen] = useState(false)
     const [isCondensed, setIsCondensed] = useState(false)
@@ -21,6 +24,12 @@ export const Navbar = () => {
     const currentRoute = location.pathname;
 
     const controls = useAnimation();
+
+    const startTutorial = () => {
+        if (tutorialNodes) {
+            showDialogue(tutorialNodes.welcome || Object.values(tutorialNodes)[0]);
+        }
+    };
 
     useEffect(() => {
         if (!gainTick) return;
@@ -139,6 +148,37 @@ export const Navbar = () => {
                         </motion.div>
                     </div>
 
+                    {tutorialNodes ? (
+                        <motion.button 
+                            onClick={startTutorial}
+                            className="px-4 py-2 rounded-full cursor-pointer relative text-orange-500 hover:bg-gray-600"
+                            aria-label="Start tutorial"
+                            animate={{
+                                scale: [1, 1.15, 1],
+                                filter: [
+                                    "drop-shadow(0 0 8px rgba(249,115,22,0.6))",
+                                    "drop-shadow(0 0 20px rgba(249,115,22,1)) drop-shadow(0 0 30px rgba(249,115,22,0.8))",
+                                    "drop-shadow(0 0 8px rgba(249,115,22,0.6))"
+                                ]
+                            }}
+                            transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        >
+                            <CircleHelp size={24} />
+                        </motion.button>
+                    ) : (
+                        <button 
+                            disabled
+                            className="px-4 py-2 rounded-full cursor-not-allowed relative text-gray-500"
+                            aria-label="Start tutorial"
+                        >
+                            <CircleHelp size={24} />
+                        </button>
+                    )}
+
                     {/* Collapse button */}
                     {!isCollapsed ? (
                         <button
@@ -199,10 +239,42 @@ export const Navbar = () => {
                             </motion.div>
                         </div>
 
+                        {/* TUTORIAL BUTTON */}
+                        {tutorialNodes ? (
+                            <motion.button 
+                                onClick={startTutorial}
+                                className="py-2 rounded-full relative text-orange-500 hover:bg-gray-600"
+                                aria-label="Start tutorial"
+                                animate={{
+                                    scale: [1, 1.15, 1],
+                                    filter: [
+                                        "drop-shadow(0 0 8px rgba(249,115,22,0.6))",
+                                        "drop-shadow(0 0 20px rgba(249,115,22,1)) drop-shadow(0 0 30px rgba(249,115,22,0.8))",
+                                        "drop-shadow(0 0 8px rgba(249,115,22,0.6))"
+                                    ]
+                                }}
+                                transition={{
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                }}
+                            >
+                                <CircleHelp size={22} />
+                            </motion.button>
+                        ) : (
+                            <button 
+                                disabled
+                                className="py-2 rounded-full cursor-not-allowed relative text-gray-500"
+                                aria-label="Start tutorial"
+                            >
+                                <CircleHelp size={22} />
+                            </button>
+                        )}
+
                         {/* TROPHY BUTTON */}
                         <Link 
                             to="/achievements" 
-                            className={`px-3 py-2 rounded-full ${
+                            className={`px-1 py-2 rounded-full ${
                                 currentRoute === "/achievements" ? "flame-gradient-text" : "text-white hover:bg-gray-600"
                             }`}
                         >

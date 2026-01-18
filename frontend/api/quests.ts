@@ -52,11 +52,11 @@ const questDefinitions: QuestDefinition[] = [
     {
         id: "complete_intro",
         name: "Getting Started",
-        description: "Complete the intro game",
+        description: "Beat Lumie the Dragon!",
         category: QUEST_CATEGORIES.EXPLORATION,
         requirement: 1,
         reward: 1000,
-        hidden: true,
+        hidden: false,
     },
     {
         id: "visit_about",

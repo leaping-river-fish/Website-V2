@@ -129,10 +129,7 @@ export default function App() {
         <Route
           path="/"
           element={
-            <>
-              <Navbar />
-              <Home />
-            </>
+            profileReady ? <StartPage profile={profile} /> : <LoadingScreen />
           }
         />
        

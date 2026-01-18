@@ -4,7 +4,20 @@ import { FlyingEmbers } from "../components/effects/flyingEmbers";
 import { usePageTracking } from "../components/quests/usePageTracking";
 import { useEmbers } from "../contexts/EmberContext";
 
+import { useDialogue } from '../contexts/DialogueContext';
+import { DialogueBox } from '../components/DialogueBox';
+import { homeDialogue } from '../dialogue/home-dialogue';
+
+
 export const Home = () => {
+    
+    const { registerTutorial, unregisterTutorial } = useDialogue();
+
+    useEffect(() => {
+        registerTutorial(homeDialogue.nodes);
+        return () => unregisterTutorial();
+    }, []);
+
     usePageTracking("home");
   
     const { earnEmbers } = useEmbers();
@@ -113,6 +126,8 @@ export const Home = () => {
                     </div>
                 </div>
             </div>
+            
+            <DialogueBox nodes={homeDialogue.nodes} />
         </div>
     );
 }
