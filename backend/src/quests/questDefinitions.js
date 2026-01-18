@@ -33,7 +33,7 @@ export const questDefinitions = [
         category: QUEST_CATEGORIES.EXPLORATION,
         requirement: 1,
         reward: 1000,
-        hidden: true,
+        hidden: false,
     },
     {
         id: "visit_about",
