@@ -126,11 +126,17 @@ export const Navbar = () => {
                         <Link to="/projects" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/projects" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}>Projects</Link>
                         <Link to="/gallery" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/gallery" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}>Gallery</Link>
                         <Link to="/contact" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/contact" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}>Contact</Link>
-                        <Link to="/achievements" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/achievements" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}><Trophy size={24} /></Link>
+                        <Link 
+                            to="/achievements" 
+                            className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/achievements" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}
+                            data-tutorial-id="achievements-button"
+                        >
+                            <Trophy size={24} />
+                        </Link>
                     </div>
 
                     {/* EMBER COUNTER */}
-                    <div className="ml-4 relative flex items-center z-0 overflow-visible">
+                    <div className="ml-4 relative flex items-center z-0 overflow-visible" data-tutorial-id="ember-counter">
                         <motion.div
                             animate={controls}
                             className="relative flex items-center"
@@ -156,6 +162,7 @@ export const Navbar = () => {
                             className="px-4 py-2 rounded-full cursor-pointer relative hover:bg-gray-600"
                             style={{ color: theme.helpButtonColor }}
                             aria-label="Start tutorial"
+                            data-tutorial-id="help-button"
                             animate={{
                                 scale: [1, 1.15, 1],
                                 filter: [
@@ -220,7 +227,7 @@ export const Navbar = () => {
                         </motion.div>
                     </Link>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3" data-tutorial-id="ember-counter">
                         {/* EMBER COUNTER */}
                         <div className="ml-4 relative flex items-center z-0 overflow-visible">
                             <motion.div
@@ -249,6 +256,7 @@ export const Navbar = () => {
                                 className="py-2 rounded-full relative hover:bg-gray-600"
                                 style={{ color: theme.helpButtonColor }}
                                 aria-label="Start tutorial"
+                                data-tutorial-id="help-button"
                                 animate={{
                                     scale: [1, 1.15, 1],
                                     filter: [
@@ -281,6 +289,7 @@ export const Navbar = () => {
                             className={`px-1 py-2 rounded-full ${
                                 currentRoute === "/achievements" ? "flame-gradient-text" : "text-white hover:bg-gray-600"
                             }`}
+                            data-tutorial-id="achievements-button"
                         >
                             <Trophy size={22} />
                         </Link>

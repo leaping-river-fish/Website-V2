@@ -139,7 +139,7 @@ export default function Achievements() {
                     </div>
     
                     {/* Stats Overview */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8" data-tutorial-id="statistics-section">
                         <div className="bg-[#2A1F1A] rounded-lg p-6 border transition-colors" style={{ borderColor: 'var(--achievement-border)' }}>
                             <div className="flex items-center gap-3">
                                 <Award size={32} style={{ color: 'var(--achievement-primary)' }} />
@@ -190,7 +190,7 @@ export default function Achievements() {
     
             {/* Category Filter */}
             <div className="max-w-6xl mx-auto px-6 py-6">
-                <div className="flex gap-2 overflow-x-auto pb-2">
+                <div className="flex gap-2 overflow-x-auto pb-2" data-tutorial-id="filter-buttons">
                     {categories.map((cat) => (
                         <button
                             key={cat.id}
@@ -219,7 +219,7 @@ export default function Achievements() {
     
             {/* Achievements Grid */}
             <div className="max-w-6xl mx-auto px-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-tutorial-id="quest-list">
                 {filteredQuests.map((quest) => {
                     const isBlurred = quest.hidden && quest.progress === 0;
                     

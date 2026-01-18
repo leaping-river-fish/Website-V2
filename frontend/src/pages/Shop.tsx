@@ -175,56 +175,62 @@ export default function Shop() {
 
             {/* SECTIONS */}
             <div className="max-w-6xl mx-auto">
-                <ShopSection
-                    title="Flame Color Themes"
-                    description="Change the color of your embers and flame effects."
-                >
-                    {FLAME_ITEMS.map(item => {
-                        const owned = effectiveOwned.has(item.id);
-                        const equipped = item.id === equippedThemeId;
-                        const canAfford = item.price !== undefined && embers >= item.price;
-                        return (
-                            <ShopCard
-                                key={item.id}
-                                title={item.title}
-                                description={item.description}
-                                price={owned ? undefined : item.price}
-                                owned={owned}
-                                equipped={equipped}
-                                canAfford={canAfford}
-                                onBuy={() => purchase(item)}
-                                onEquip={() => equip(item.id)}
-                            />
-                        );
-                        
-                    })}
-                </ShopSection>
+                <div data-tutorial-id="flame-themes-section">
+                    <ShopSection
+                        title="Flame Color Themes"
+                        description="Change the color of your embers and flame effects."
+                    >
+                        {FLAME_ITEMS.map(item => {
+                            const owned = effectiveOwned.has(item.id);
+                            const equipped = item.id === equippedThemeId;
+                            const canAfford = item.price !== undefined && embers >= item.price;
+                            return (
+                                <ShopCard
+                                    key={item.id}
+                                    title={item.title}
+                                    description={item.description}
+                                    price={owned ? undefined : item.price}
+                                    owned={owned}
+                                    equipped={equipped}
+                                    canAfford={canAfford}
+                                    onBuy={() => purchase(item)}
+                                    onEquip={() => equip(item.id)}
+                                />
+                            );
+                            
+                        })}
+                    </ShopSection>
+                </div>
                 
-                <ShopSection
-                    title="Dragons"
-                    description="Tame Dragons to help you collect embers."
-                >
-                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                    <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                </ShopSection>
-
-                <ShopSection
-                    title="Custom Cursors"
-                    description="Animated cursors forged from embers."
-                >
-                    <ShopCard title="Dragon Cursor" description="Have a cute dragon pet as your cursor." comingSoon />
-                </ShopSection>
+                <div data-tutorial-id="dragons-section">
+                    <ShopSection
+                        title="Dragons"
+                        description="Tame Dragons to help you collect embers."
+                    >
+                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                    </ShopSection>
+                </div>
+                
+                <div data-tutorial-id="cursors-section">
+                    <ShopSection
+                        title="Custom Cursors"
+                        description="Animated cursors forged from embers."
+                    >
+                        <ShopCard title="Dragon Cursor" description="Have a cute dragon pet as your cursor." comingSoon />
+                    </ShopSection>
+                </div>
 
                 <ShopSection
                     title="Special Effects"

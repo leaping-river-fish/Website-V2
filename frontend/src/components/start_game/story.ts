@@ -9,10 +9,10 @@ export const story: StoryType = {
                 animation: "scared-jump"
             },
             return: {
-                text: "Oh it's you again... what do you want?",
+                text: "Oh it's you again. Do you want to play again?",
                 choices: [
-                    { text: "Just let me through. (skips intro game)", next: "__SKIP__" },
-                    { text: "I'm challenging you again!", next: "finale" }
+                    { text: "Not today. (skips intro game)", next: "__SKIP__" },
+                    { text: "Yes, I'm challenging you again!", next: "finale" }
                 ],
             },
             start: {

@@ -8,6 +8,7 @@ interface DialogueContextValue {
     isActive: boolean;
     isTyping: boolean;
     currentNode: DialogueNode | null;
+    highlightTarget: string | null;
 
     // Methods
     showDialogue: (node: DialogueNode) => void;
@@ -34,6 +35,7 @@ export function DialogueProvider({ children }: { children: ReactNode }) {
     const [isActive, setIsActive] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
     const [currentNode, setCurrentNode] = useState<DialogueNode | null>(null);
+    const [highlightTarget, setHighlightTarget] = useState<string | null>(null);
     const [onChoiceSelect, setOnChoiceSelect] = useState<
         ((choice: DialogueChoice, nodes: Record<string, DialogueNode>) => void) | undefined
     >(undefined);
@@ -156,6 +158,15 @@ export function DialogueProvider({ children }: { children: ReactNode }) {
         };
     }, [clearTimer, clearDelayTimer]);
 
+    // Update highlight target when current node changes
+    useEffect(() => {
+        if (currentNode?.highlight) {
+            setHighlightTarget(currentNode.highlight);
+        } else {
+            setHighlightTarget(null);
+        }
+    }, [currentNode]);
+
     return (
         <DialogueContext.Provider 
             value={{ 
@@ -163,6 +174,7 @@ export function DialogueProvider({ children }: { children: ReactNode }) {
                 isActive,
                 isTyping,
                 currentNode,
+                highlightTarget,
                 showDialogue,
                 advanceToNode,
                 hideDialogue,

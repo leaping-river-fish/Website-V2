@@ -5,8 +5,9 @@ export interface DialogueNode {
     done?: boolean;
     character?: string; // Default "lumie", but could support other characters
     emotion?: string;   // Could change Lumie's expression
-    animation?: string;  // Only used in Start game, ignored elsewhere
-    delay?: number;      // Only used in Start game, ignored elsewhere
+    animation?: string;  
+    delay?: number;    
+    highlight?: string;
 }
 
 export interface DialogueChoice {

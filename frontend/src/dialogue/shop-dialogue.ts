@@ -11,6 +11,7 @@ export const shopDialogue: DialogueTree = {
         },
         cancel: {
             text: "Take you time! I'll always be available to help you if you click the help icon in the navbar!",
+            highlight: "help-button",
             done: true
         },
         tour_start: {
@@ -19,6 +20,7 @@ export const shopDialogue: DialogueTree = {
         },
         explain_shop_1: {
             text: "You can spend your hard-earned embers to unlock cool flame themes, tame dragons, and more!",
+            highlight: "ember-counter",
             next: "explain_shop_2"
         },
         explain_shop_2: {
@@ -27,18 +29,22 @@ export const shopDialogue: DialogueTree = {
         },
         explain_flame_themes: {
             text: "The Flame Themes section allows you to change the color of your embers and flame effects.",
+            highlight: "flame-themes-section",
             next: "explain_dragons"
         },
         explain_dragons: {
             text: "The Dragons section allows you to tame dragons to help you collect embers. You can upgrade these dragons to make them stronger and more efficient.",
+            highlight: "dragons-section",
             next: "explain_coming_soon"
         },
         explain_coming_soon: { 
             text: "Some items are still in development and will be added soon! Those are marked as 'Coming Soon'.",
+            highlight: "cursors-section",
             next: "tour_end"
         },
         tour_end: {
             text: "That's it! Feel free to explore the shop. I'll always be available to help you if you click the help icon in the navbar!",
+            highlight: "help-button",
             done: true
         }
     }

@@ -1,3 +1,4 @@
+// Make tutorial always play for new users, add check for tutorial completion in mongo profile
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion";
 import { FlyingEmbers } from "../components/effects/flyingEmbers";
@@ -86,7 +87,9 @@ export const Home = () => {
 
     return (
         <div className="relative bg-[#1A1410] min-h-screen overflow-hidden w-screen flex items-start justify-start pointer-events-none">
-            <FlyingEmbers onEarn={earnEmbers} />
+            <div data-tutorial-id="flying-embers" className="absolute inset-0">
+                <FlyingEmbers onEarn={earnEmbers} />
+            </div>
             <div className="flex flex-col items-start justify-start w-full h-[70%] mt-[5%] px-16">
                 <div className="relative pt-[140px] text-white space-y-6 z-10">
                     <p className="">Hello,</p>
