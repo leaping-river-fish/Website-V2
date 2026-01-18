@@ -166,6 +166,10 @@ export default function StartPage({ profile }: StartPageProps) {
         if (phase === 3) {
             motionX.set(stateRefs.position.left);
             motionY.set(stateRefs.position.top);
+            // Set initial facing direction based on initial velocity
+            const initialVx = movement.current.vx;
+            setIsFacingLeft(initialVx > 0);
+            prevVxRef.current = initialVx;
         }
     }, [phase, profile, isDesktop]);
 
@@ -178,6 +182,10 @@ export default function StartPage({ profile }: StartPageProps) {
         window.addEventListener("mousemove", handleMove);
         return () => window.removeEventListener("mousemove", handleMove);
     }, []);
+
+    /* Track Lumie's facing direction for flip animation */
+    const [isFacingLeft, setIsFacingLeft] = useState(false);
+    const prevVxRef = useRef(0);
 
     /* Animate moving button for phase 3 */
     useEffect(() => {
@@ -207,6 +215,14 @@ export default function StartPage({ profile }: StartPageProps) {
                 } else if (newY > window.innerHeight - buttonHeight) {
                     newY = window.innerHeight - buttonHeight;
                     movement.current.vy *= -1;
+                }
+
+                // Only update state when direction actually changes
+                const currentVx = movement.current.vx;
+                if (currentVx !== 0 && prevVxRef.current !== currentVx) {
+                    const shouldFaceLeft = currentVx > 0; // Flip when moving right
+                    setIsFacingLeft(shouldFaceLeft);
+                    prevVxRef.current = currentVx;
                 }
 
                 motionX.set(newX);
@@ -350,6 +366,10 @@ export default function StartPage({ profile }: StartPageProps) {
                     src="/images/dragons/lumie/Lumie_transparent.png" 
                     alt="Lumie"
                     className="w-full h-full object-contain pointer-events-none select-none"
+                    style={{
+                        transform: isFacingLeft ? 'scaleX(-1)' : 'scaleX(1)',
+                        transition: 'transform 0.3s ease-in-out'
+                    }}
                     draggable={false}
                 />
             </motion.div>
