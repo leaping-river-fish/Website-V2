@@ -72,6 +72,13 @@ export default function App() {
       await processCompletedQuests(data.completedQuests);
     }
 
+    // Dispatch dragons loaded event
+    if (data.profile?.ownedDragons) {
+      window.dispatchEvent(new CustomEvent('dragonsLoaded', {
+        detail: { ownedDragons: data.profile.ownedDragons }
+      }));
+    }
+
     return data.profile;
   }
 

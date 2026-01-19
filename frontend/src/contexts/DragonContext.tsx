@@ -107,9 +107,31 @@ export function DragonProvider({ children }: { children: React.ReactNode }) {
         return () => clearInterval(interval);
     }, [ownedDragons, calculatePendingEmbers]);
 
-    // Load dragons on mount
+    // Listen for dragons loaded from profile
     useEffect(() => {
-        refreshDragons();
+        const handleDragonsLoaded = (event: CustomEvent) => {
+            if (event.detail?.ownedDragons) {
+                setOwnedDragons(event.detail.ownedDragons);
+            }
+        };
+
+        window.addEventListener('dragonsLoaded', handleDragonsLoaded as EventListener);
+        
+        return () => {
+            window.removeEventListener('dragonsLoaded', handleDragonsLoaded as EventListener);
+        };
+    }, []);
+
+    // Load dragons on mount (with delay as fallback if event doesn't fire)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            // Only fetch if we don't have dragons yet
+            if (ownedDragons.length === 0) {
+                refreshDragons();
+            }
+        }, 2500); // Wait for user identification to complete
+        
+        return () => clearTimeout(timer);
     }, [refreshDragons]);
 
     // Collect all pending embers
