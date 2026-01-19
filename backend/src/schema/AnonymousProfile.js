@@ -47,6 +47,11 @@ const AnonymousProfileSchema = new mongoose.Schema({
         default: false,
     },
 
+    tutorialCompleted: {
+        type: Boolean,
+        default: false,
+    },
+
     quests: {
         type: [QuestSchema],
         default: [],

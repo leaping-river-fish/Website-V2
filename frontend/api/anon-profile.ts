@@ -6,7 +6,7 @@ import AnonymousProfile from "./models/AnonymousProfile";
 import { completeQuest, updateQuestProgress, getQuestById, initializeQuests } from "./quests";
 
 interface RequestBody {
-    action?: "identify" | "complete-intro"| "earn-embers" | "get-wallet"| "purchase" | "equip";
+    action?: "identify" | "complete-intro"| "earn-embers" | "get-wallet"| "purchase" | "equip" | "complete-tutorial";
     anonId?: string;
     amount?: number;
     itemId?: string;
@@ -71,6 +71,7 @@ export default async function handler(
                     totalEarned: 0,
                     totalSpent: 0,
                 },
+                tutorialCompleted: false,
             });
         }
 
@@ -145,6 +146,7 @@ export default async function handler(
                 profile: {
                     anonId: profile.anonId,
                     introGameCompleted: profile.introGameCompleted,
+                    tutorialCompleted: profile.tutorialCompleted,
                     quests: profile.quests,
                     wallet: profile.wallet ?? { embers: 0, totalEarned: 0, totalSpent: 0 },
                     ownedCosmetics: profile.ownedCosmetics,
@@ -197,7 +199,7 @@ export default async function handler(
         if (action === "get-wallet") {
             const profile = await AnonymousProfile.findOne(
                 { anonId, env },
-                { wallet: 1, _id: 0 }
+                { wallet: 1, tutorialCompleted: 1, _id: 0 }
             );
 
             return sendJSON(res, 200, {
@@ -207,6 +209,7 @@ export default async function handler(
                     totalEarned: 0,
                     totalSpent: 0,
                 },
+                tutorialCompleted: profile?.tutorialCompleted ?? false,
             });
         }
 
@@ -372,6 +375,23 @@ export default async function handler(
             });
         }
 
+        // ---------------- COMPLETE TUTORIAL ----------------
+        if (action === "complete-tutorial") {
+            const profile = await AnonymousProfile.findOneAndUpdate(
+                { anonId, env },
+                { $set: { tutorialCompleted: true, lastSeen: new Date() } },
+                { new: true }
+            );
+
+            if (!profile) {
+                return sendJSON(res, 404, { error: "Profile not found" });
+            }
+
+            return sendJSON(res, 200, {
+                ok: true,
+                tutorialCompleted: profile.tutorialCompleted,
+            });
+        }
 
         return sendJSON(res, 400, { error: "Invalid action" });
     } catch (err: any) {

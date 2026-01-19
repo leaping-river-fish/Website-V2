@@ -21,6 +21,7 @@ export interface AnonymousProfileDoc extends Document {
     anonId: string;
     env: "dev" | "prod";
     introGameCompleted: boolean;
+    tutorialCompleted: boolean;
     quests: Quest[];
     wallet: Wallet;
     ownedCosmetics: string[];
@@ -59,6 +60,7 @@ const AnonymousProfileSchema: Schema<AnonymousProfileDoc> = new mongoose.Schema(
     ownedCosmetics: { type: [String], default: ["flame:crimson"], index: true },
     equipped: { type: EquippedSchema, default: () => ({}) },
     introGameCompleted: { type: Boolean, default: false },
+    tutorialCompleted: { type: Boolean, default: false },
     quests: { type: [QuestSchema], default: [] },
     createdAt: { type: Date, default: Date.now },
     lastSeen: { type: Date, default: Date.now },

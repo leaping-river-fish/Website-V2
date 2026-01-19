@@ -1,4 +1,3 @@
-// Make tutorial always play for new users, add check for tutorial completion in mongo profile
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion";
 import { FlyingEmbers } from "../components/effects/flyingEmbers";
@@ -13,12 +12,44 @@ import { homeDialogue } from '../dialogue/home-dialogue';
 
 export const Home = () => {
     
-    const { registerTutorial, unregisterTutorial } = useDialogue();
+    const { showDialogue, registerTutorial, unregisterTutorial } = useDialogue();
+    const [tutorialChecked, setTutorialChecked] = useState(false);
 
     useEffect(() => {
         registerTutorial(homeDialogue.nodes);
+        
+        // Check if user has completed tutorial
+        const checkTutorial = async () => {
+            try {
+                const response = await fetch('/api/anon-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'get-wallet' })
+                });
+                
+                if (!response.ok) {
+                    console.error('Failed to fetch tutorial status:', response.status);
+                    setTutorialChecked(true);
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                // Auto-start tutorial for new users
+                if (!data.tutorialCompleted && !tutorialChecked) {
+                    showDialogue(homeDialogue.nodes.welcome);
+                }
+                setTutorialChecked(true);
+            } catch (error) {
+                console.error('Failed to check tutorial status:', error);
+                setTutorialChecked(true);
+            }
+        };
+        
+        checkTutorial();
+        
         return () => unregisterTutorial();
-    }, []);
+    }, [showDialogue, tutorialChecked]);
 
     usePageTracking("home");
   

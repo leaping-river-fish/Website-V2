@@ -8,6 +8,7 @@ export interface DialogueNode {
     animation?: string;  
     delay?: number;    
     highlight?: string;
+    onComplete?: () => void | Promise<void>; // Callback when dialogue node completes
 }
 
 export interface DialogueChoice {

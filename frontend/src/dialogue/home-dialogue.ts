@@ -1,5 +1,17 @@
 import type { DialogueTree } from './dialogue-types';
 
+async function markTutorialComplete() {
+    try {
+        await fetch('/api/anon-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'complete-tutorial' })
+        });
+    } catch (error) {
+        console.error('Failed to mark tutorial as complete:', error);
+    }
+}
+
 export const homeDialogue: DialogueTree = {
     nodes: {
         welcome: {
@@ -12,7 +24,8 @@ export const homeDialogue: DialogueTree = {
         cancel: {
             text: "That's okay, you can find me any time by clicking the help icon in the navbar beside the ember counter!",
             highlight: "help-button",
-            done: true
+            done: true,
+            onComplete: markTutorialComplete
         },
         tour_start: {
             text: "Awesome! Let me tell you about the ember system first...",
@@ -52,7 +65,8 @@ export const homeDialogue: DialogueTree = {
         tour_end: {
             text: "That's the basics! Feel free to explore. I'll always be available to help you if you click the help icon in the navbar!",
             highlight: "help-button",
-            done: true
+            done: true,
+            onComplete: markTutorialComplete
         }
     }
 };

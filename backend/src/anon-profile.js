@@ -47,6 +47,7 @@ export default async function anonProfileHandler(req, res) {
                 totalEarned: 0,
                 totalSpent: 0,
             },
+            tutorialCompleted: false,
         });
     }
 
@@ -120,6 +121,7 @@ export default async function anonProfileHandler(req, res) {
                 profile: {
                     anonId: profile.anonId,
                     introGameCompleted: profile.introGameCompleted,
+                    tutorialCompleted: profile.tutorialCompleted,
                     quests: profile.quests,
                     wallet: profile.wallet ?? { embers: 0, totalEarned: 0, totalSpent: 0 },
                     ownedCosmetics: profile.ownedCosmetics,
@@ -163,7 +165,7 @@ export default async function anonProfileHandler(req, res) {
         if (action === "get-wallet") {
             const profile = await AnonymousProfile.findOne(
                 { anonId, env },
-                { wallet: 1, _id: 0 }
+                { wallet: 1, tutorialCompleted: 1, _id: 0 }
             );
 
             return res.json({
@@ -173,6 +175,7 @@ export default async function anonProfileHandler(req, res) {
                     totalEarned: 0,
                     totalSpent: 0,
                 },
+                tutorialCompleted: profile?.tutorialCompleted ?? false,
             });
         }
 
@@ -319,6 +322,23 @@ export default async function anonProfileHandler(req, res) {
                 ok: true,
                 equipped: profile.equipped,
                 completedQuests,
+            });
+        }
+
+        if (action === "complete-tutorial") {
+            const profile = await AnonymousProfile.findOneAndUpdate(
+                { anonId, env },
+                { $set: { tutorialCompleted: true, lastSeen: new Date() } },
+                { new: true }
+            );
+
+            if (!profile) {
+                return res.status(404).json({ error: "Profile not found" });
+            }
+
+            return res.json({
+                ok: true,
+                tutorialCompleted: profile.tutorialCompleted,
             });
         }
 

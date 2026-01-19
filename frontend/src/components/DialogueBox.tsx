@@ -1,6 +1,7 @@
 import { useDialogue } from '../contexts/DialogueContext';
 import type { DialogueNode, DialogueChoice } from '../dialogue/dialogue-types';
 import { TutorialOverlay } from './tutorial/TutorialOverlay';
+import { useEffect } from 'react';
 
 interface DialogueBoxProps {
     nodes?: Record<string, DialogueNode>;
@@ -24,7 +25,7 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
     if (!isActive || !currentNode) return null;
 
     // Handle click on dialogue box
-    const handleClick = () => {
+    const handleClick = async () => {
         // Check cooldown first
         if (!canClick()) return;
 
@@ -53,11 +54,15 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
 
         // If done or no next, hide dialogue
         if (currentNode.done || !currentNode.next) {
+            // Call onComplete callback if it exists
+            if (currentNode.onComplete) {
+                await currentNode.onComplete();
+            }
             hideDialogue();
         }
     };
 
-    const handleChoiceClick = (choice: DialogueChoice) => {
+    const handleChoiceClick = async (choice: DialogueChoice) => {
         // Check cooldown first
         if (!canClick()) return;
 
@@ -69,9 +74,82 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
             advanceToNode(choice.next, nodes);
         } else {
             // No next node, hide dialogue
+            // Call onComplete callback if it exists
+            if (currentNode.onComplete) {
+                await currentNode.onComplete();
+            }
             hideDialogue();
         }
     };
+
+    // Add global click handler for advancing dialogue
+    useEffect(() => {
+        const handleGlobalClick = (e: MouseEvent) => {
+            // Don't handle if clicking on a choice button, the dialogue box itself, or the help button
+            const target = e.target as HTMLElement;
+            if (
+                target.closest('.dialogue-box') || 
+                target.closest('.dialogue-choice-button') ||
+                target.closest('[data-tutorial-id="help-button"]') ||
+                target.closest('.skip-dialogue-button')
+            ) {
+                return;
+            }
+
+            // If there are choices, don't auto-advance on global click
+            if (currentNode.choices && currentNode.choices.length > 0) {
+                return;
+            }
+
+            // Otherwise, handle the click like clicking on the dialogue box
+            handleClick();
+        };
+
+        if (isActive) {
+            // Add a small delay to prevent the click that opened the dialogue from immediately closing it
+            const timeoutId = setTimeout(() => {
+                document.addEventListener('click', handleGlobalClick);
+            }, 100);
+
+            return () => {
+                clearTimeout(timeoutId);
+                document.removeEventListener('click', handleGlobalClick);
+            };
+        }
+    }, [isActive, isTyping, currentNode, nodes]);
+
+    // Add keyboard handler for Space and Enter keys
+    useEffect(() => {
+        const handleKeyPress = (e: KeyboardEvent) => {
+            // Only handle Space and Enter keys
+            if (e.key !== ' ' && e.key !== 'Enter') {
+                return;
+            }
+
+            // Prevent default behavior (scrolling for Space, form submission for Enter)
+            e.preventDefault();
+
+            // If there are choices, don't auto-advance on keyboard press
+            if (currentNode.choices && currentNode.choices.length > 0) {
+                return;
+            }
+
+            // Otherwise, handle the key press like clicking on the dialogue box
+            handleClick();
+        };
+
+        if (isActive) {
+            // Add a small delay to prevent immediate key presses from closing the dialogue
+            const timeoutId = setTimeout(() => {
+                document.addEventListener('keydown', handleKeyPress);
+            }, 100);
+
+            return () => {
+                clearTimeout(timeoutId);
+                document.removeEventListener('keydown', handleKeyPress);
+            };
+        }
+    }, [isActive, isTyping, currentNode, nodes]);
 
     return (
         <>
@@ -81,7 +159,7 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
                 <div className="relative flex items-end justify-center">
                     {/* Dialogue Box */}
                     <div 
-                        className={`bg-white text-black p-6 rounded-lg shadow-lg pointer-events-auto relative z-40 w-full ${!currentNode.choices && !isTyping ? 'cursor-pointer' : ''}`}
+                        className={`dialogue-box bg-white text-black p-6 rounded-lg shadow-lg pointer-events-auto relative z-40 w-full ${!currentNode.choices && !isTyping ? 'cursor-pointer' : ''}`}
                         onClick={handleClick}
                     >
                         <div className="text-base leading-relaxed">
@@ -94,7 +172,7 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
                                 {currentNode.choices.map((choice, idx) => (
                                     <button
                                         key={idx}
-                                        className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors text-left cursor-pointer"
+                                        className="dialogue-choice-button px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors text-left cursor-pointer"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             handleChoiceClick(choice);
@@ -109,7 +187,7 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
                         {/* Continue prompt */}
                         {!isTyping && !currentNode.choices && (
                             <div className="text-gray-600 mt-3 text-sm select-none">
-                                <span className="blink">▼</span> Click to continue
+                                <span className="blink">▼</span> Click, Space, or Enter to continue
                             </div>
                         )}
                     </div>
@@ -127,6 +205,22 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
                             className="w-75 h-100 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
                         />
                     </div>
+
+                    {/* Skip Dialogue Button */}
+                    <button
+                        onClick={async (e) => {
+                            e.stopPropagation();
+                            // Call onComplete if it exists on current node
+                            if (currentNode.onComplete) {
+                                await currentNode.onComplete();
+                            }
+                            hideDialogue();
+                        }}
+                        className="skip-dialogue-button absolute top-0 right-0 mt-2 mr-2 px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-sm rounded transition-colors pointer-events-auto z-50"
+                        title="Skip dialogue"
+                    >
+                        Skip
+                    </button>
                 </div>
             </div>
         </>
