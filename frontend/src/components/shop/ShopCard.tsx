@@ -10,7 +10,11 @@ type ShopCardProps = {
     canAfford?: boolean;
     onBuy?: () => void;
     onEquip?: () => void;
+    onView?: () => void;
     comingSoon?: boolean;
+    imageUrl?: string;
+    rarity?: string;
+    rarityColor?: string;
 };
 
 export default function ShopCard({
@@ -22,10 +26,15 @@ export default function ShopCard({
     canAfford,
     onBuy,
     onEquip,
+    onView,
     comingSoon,
+    imageUrl,
+    rarity,
+    rarityColor,
 }: ShopCardProps) {
     const canBuy = !comingSoon && !owned && price !== undefined;
-    const canEquip = !comingSoon && owned && !equipped;
+    const canEquip = !comingSoon && owned && !equipped && onEquip;
+    const canView = !comingSoon && owned && onView;
 
     return (
         <motion.div
@@ -44,6 +53,29 @@ export default function ShopCard({
             )}
 
             <div className="flex flex-col h-full">
+                {/* Image */}
+                {imageUrl && (
+                    <div className="relative mb-4 flex justify-center">
+                        <img 
+                            src={imageUrl} 
+                            alt={title}
+                            className="w-32 h-32 object-contain drop-shadow-lg"
+                        />
+                        {rarity && rarityColor && (
+                            <span
+                                className="absolute top-0 right-0 px-2 py-1 rounded-lg text-xs font-semibold uppercase tracking-wider"
+                                style={{
+                                    backgroundColor: `${rarityColor}20`,
+                                    color: rarityColor,
+                                    border: `1px solid ${rarityColor}`,
+                                }}
+                            >
+                                {rarity}
+                            </span>
+                        )}
+                    </div>
+                )}
+                
                 {/* Text */}
                 <h2 className="text-xl font-semibold mb-2">{title}</h2>
                 <p className="text-neutral-400 text-sm grow">
@@ -96,6 +128,15 @@ export default function ShopCard({
                             className="rounded-lg px-4 py-1.5 text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 transition"
                         >
                             Equip
+                        </button>
+                    )}
+
+                    {canView && (
+                        <button
+                            onClick={onView}
+                            className="rounded-lg px-4 py-1.5 text-sm font-semibold bg-blue-600 hover:bg-blue-500 transition"
+                        >
+                            View
                         </button>
                     )}
                 </div>

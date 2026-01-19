@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion";
 import { FlyingEmbers } from "../components/effects/flyingEmbers";
+import { Dragon } from "../components/home/Dragon";
+import { CollectEmberButton } from "../components/home/CollectEmberButton";
 import { usePageTracking } from "../components/quests/usePageTracking";
 import { useEmbers } from "../contexts/EmberContext";
+import { useDragons } from "../contexts/DragonContext";
 import { useQuestTracker } from "../components/quests/useQuestTracker";
 
 import { useDialogue } from '../contexts/DialogueContext';
@@ -54,8 +57,14 @@ export const Home = () => {
     usePageTracking("home");
   
     const { earnEmbers } = useEmbers();
+    const { dragonsWithDetails } = useDragons();
     const { processCompletedQuests } = useQuestTracker();
     const isDev = import.meta.env.DEV;
+
+    // Get up to 5 highest level dragons to display
+    const activeDragons = dragonsWithDetails
+        .sort((a, b) => b.level - a.level)
+        .slice(0, 5);
 
     // Listen for quest completions from ember earning
     useEffect(() => {
@@ -121,6 +130,21 @@ export const Home = () => {
             <div data-tutorial-id="flying-embers" className="absolute inset-0">
                 <FlyingEmbers onEarn={earnEmbers} />
             </div>
+
+            {/* Dragons */}
+            {activeDragons.map((dragon, index) => (
+                <Dragon
+                    key={dragon.dragonId}
+                    imagePath={dragon.details.imagePath}
+                    canFly={dragon.details.canFly}
+                    facesLeft={dragon.details.facesLeft}
+                    index={index}
+                />
+            ))}
+
+            {/* Collect Ember Button */}
+            <CollectEmberButton />
+
             <div className="flex flex-col items-start justify-start w-full h-[70%] mt-[5%] px-16">
                 <div className="relative pt-[140px] text-white space-y-6 z-10">
                     <p className="">Hello,</p>

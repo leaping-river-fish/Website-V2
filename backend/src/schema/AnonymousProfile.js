@@ -10,6 +10,17 @@ const QuestSchema = new mongoose.Schema(
     { _id: false }
 );
 
+const OwnedDragonSchema = new mongoose.Schema(
+    {
+        dragonId: { type: String, required: true },
+        level: { type: Number, default: 1, min: 1 },
+        acquiredAt: { type: Date, default: Date.now },
+        totalGenerated: { type: Number, default: 0 },
+        lastCollectedAt: { type: Date, default: Date.now },
+    },
+    { _id: false }
+);
+
 const AnonymousProfileSchema = new mongoose.Schema({
     anonId: {
         type: String,
@@ -54,6 +65,11 @@ const AnonymousProfileSchema = new mongoose.Schema({
 
     quests: {
         type: [QuestSchema],
+        default: [],
+    },
+
+    ownedDragons: {
+        type: [OwnedDragonSchema],
         default: [],
     },
 

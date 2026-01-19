@@ -16,7 +16,7 @@ export default function ShopSection({
             <div className="mb-6">
                 <h2 className="text-2xl font-bold">{title}</h2>
                 {description && (
-                    <p className="text-neutral-400 mt-1 max-w-2xl">
+                    <p className="text-neutral-400 mt-1 whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
                         {description}
                     </p>
                 )}

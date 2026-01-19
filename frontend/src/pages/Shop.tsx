@@ -8,13 +8,17 @@ import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
 import { usePageTracking } from "../components/quests/usePageTracking";
 
 import { FLAME_ITEMS } from "../components/shop/shopItems";
+import { DRAGON_ITEMS, getRarityColor } from "../components/shop/dragonItems";
+import { DragonModal } from "../components/shop/DragonModal";
 import { useFlameTheme } from "../contexts/FlameThemeContext";
 import { useEmbers } from "../contexts/EmberContext";
+import { useDragons } from "../contexts/DragonContext";
 import { useQuestTracker } from "../components/quests/useQuestTracker";
 
 import { useDialogue } from '../contexts/DialogueContext';
 import { DialogueBox } from '../components/DialogueBox';
 import { shopDialogue } from '../dialogue/shop-dialogue';
+import type { DragonType } from "../types/dragon";
 
 export default function Shop() {
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
@@ -23,10 +27,15 @@ export default function Shop() {
     
     usePageTracking("shop");
     const { embers, setEmbers } = useEmbers();
+    const { ownedDragons, purchaseDragon } = useDragons();
     const [ownedCosmetics, setOwnedCosmetics] = useState<string[]>([]);
     const [equippedThemeId, setEquippedThemeId] = useState(DEFAULT_THEME_ID);
     const { themeId, setThemeId } = useFlameTheme();
     const { processCompletedQuests } = useQuestTracker();
+
+    // Dragon modal state
+    const [selectedDragon, setSelectedDragon] = useState<DragonType | null>(null);
+    const [isDragonModalOpen, setIsDragonModalOpen] = useState(false);
 
     // load tutorial
     const { registerTutorial, unregisterTutorial } = useDialogue();
@@ -145,6 +154,26 @@ export default function Shop() {
         }
     }
 
+    /* -------------------- PURCHASE DRAGON -------------------- */
+    async function handlePurchaseDragon(dragon: DragonType) {
+        if (!dragon.price) return;
+        
+        const success = await purchaseDragon(dragon.id, dragon.price);
+        
+        if (success) {
+            // Optionally show success message
+            console.log(`Successfully purchased ${dragon.name}!`);
+        } else {
+            alert("Failed to purchase dragon. Make sure you have enough embers.");
+        }
+    }
+
+    /* -------------------- VIEW DRAGON -------------------- */
+    function handleViewDragon(dragon: DragonType) {
+        setSelectedDragon(dragon);
+        setIsDragonModalOpen(true);
+    }
+
     if (loading) {
         return (
             <motion.div className="min-h-screen bg-[#1A1410] flex items-center justify-center text-white text-xl">
@@ -205,21 +234,28 @@ export default function Shop() {
                 <div data-tutorial-id="dragons-section">
                     <ShopSection
                         title="Dragons"
-                        description="Tame Dragons to help you collect embers."
+                        description="Tame Dragons to help you collect embers. (Top 5 highest level dragons are displayed on the home page.)"
                     >
-                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
-                        <ShopCard title="Lumie" description="Lumie is always around to help." comingSoon />
+                        {DRAGON_ITEMS.map(dragon => {
+                            const owned = ownedDragons.some(d => d.dragonId === dragon.id);
+                            const canAfford = dragon.price !== undefined && embers >= dragon.price;
+                            
+                            return (
+                                <ShopCard
+                                    key={dragon.id}
+                                    title={dragon.name}
+                                    description={dragon.description}
+                                    price={owned ? undefined : dragon.price}
+                                    owned={owned}
+                                    canAfford={canAfford}
+                                    onBuy={() => handlePurchaseDragon(dragon)}
+                                    onView={() => handleViewDragon(dragon)}
+                                    imageUrl={dragon.imagePath}
+                                    rarity={dragon.rarity}
+                                    rarityColor={getRarityColor(dragon.rarity)}
+                                />
+                            );
+                        })}
                     </ShopSection>
                 </div>
                 
@@ -240,6 +276,19 @@ export default function Shop() {
                 </ShopSection>
                 
                 <DialogueBox nodes={shopDialogue.nodes} />
+                
+                {/* Dragon Modal */}
+                {selectedDragon && (
+                    <DragonModal
+                        dragon={selectedDragon}
+                        ownedDragon={ownedDragons.find(d => d.dragonId === selectedDragon.id)}
+                        isOpen={isDragonModalOpen}
+                        onClose={() => {
+                            setIsDragonModalOpen(false);
+                            setSelectedDragon(null);
+                        }}
+                    />
+                )}
             </div>
         </motion.div>
     );

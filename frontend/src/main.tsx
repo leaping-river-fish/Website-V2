@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom"
 import { ImageProvider } from "./contexts/ImageContext";
 import { FlameThemeProvider } from "./contexts/FlameThemeContext";
 import { EmberProvider } from "./contexts/EmberContext";
+import { DragonProvider } from "./contexts/DragonContext";
 import { QuestToastProvider } from "./contexts/QuestToastContext";
 import { QuestProvider } from "./contexts/QuestContext";
 import { DialogueProvider } from "./contexts/DialogueContext";
@@ -29,19 +30,21 @@ createRoot(document.getElementById("root")!).render(
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
                 <EmberProvider>
-                    <FlameThemeProvider>
-                        <QuestToastProvider>
-                            <QuestProvider>
-                                <DialogueProvider>
-                                    <ImageProvider>
-                                        <DynamicFavicon />
-                                        <App />
-                                        {process.env.NODE_ENV === "development" && <FlameThemeDevSwitcher />}
-                                    </ImageProvider>
-                                </DialogueProvider>
-                            </QuestProvider>
-                        </QuestToastProvider>
-                    </FlameThemeProvider>
+                    <DragonProvider>
+                        <FlameThemeProvider>
+                            <QuestToastProvider>
+                                <QuestProvider>
+                                    <DialogueProvider>
+                                        <ImageProvider>
+                                            <DynamicFavicon />
+                                            <App />
+                                            {process.env.NODE_ENV === "development" && <FlameThemeDevSwitcher />}
+                                        </ImageProvider>
+                                    </DialogueProvider>
+                                </QuestProvider>
+                            </QuestToastProvider>
+                        </FlameThemeProvider>
+                    </DragonProvider>
                 </EmberProvider>
             </BrowserRouter>
         </QueryClientProvider>

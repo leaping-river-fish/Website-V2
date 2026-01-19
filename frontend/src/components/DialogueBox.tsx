@@ -22,12 +22,10 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
         canClick
     } = useDialogue();
 
-    if (!isActive || !currentNode) return null;
-
     // Handle click on dialogue box
     const handleClick = async () => {
         // Check cooldown first
-        if (!canClick()) return;
+        if (!canClick() || !currentNode) return;
 
         if (isTyping) {
             // Skip typewriter, show full text
@@ -64,7 +62,7 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
 
     const handleChoiceClick = async (choice: DialogueChoice) => {
         // Check cooldown first
-        if (!canClick()) return;
+        if (!canClick() || !currentNode) return;
 
         if (onChoiceSelect) {
             // Custom choice handler
@@ -85,6 +83,8 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
     // Add global click handler for advancing dialogue
     useEffect(() => {
         const handleGlobalClick = (e: MouseEvent) => {
+            if (!currentNode) return;
+            
             // Don't handle if clicking on a choice button, the dialogue box itself, or the help button
             const target = e.target as HTMLElement;
             if (
@@ -105,7 +105,7 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
             handleClick();
         };
 
-        if (isActive) {
+        if (isActive && currentNode) {
             // Add a small delay to prevent the click that opened the dialogue from immediately closing it
             const timeoutId = setTimeout(() => {
                 document.addEventListener('click', handleGlobalClick);
@@ -121,6 +121,8 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
     // Add keyboard handler for Space and Enter keys
     useEffect(() => {
         const handleKeyPress = (e: KeyboardEvent) => {
+            if (!currentNode) return;
+            
             // Only handle Space and Enter keys
             if (e.key !== ' ' && e.key !== 'Enter') {
                 return;
@@ -138,7 +140,7 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
             handleClick();
         };
 
-        if (isActive) {
+        if (isActive && currentNode) {
             // Add a small delay to prevent immediate key presses from closing the dialogue
             const timeoutId = setTimeout(() => {
                 document.addEventListener('keydown', handleKeyPress);
@@ -150,6 +152,9 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
             };
         }
     }, [isActive, isTyping, currentNode, nodes]);
+
+    // Early return AFTER all hooks
+    if (!isActive || !currentNode) return null;
 
     return (
         <>
@@ -210,10 +215,18 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
                     <button
                         onClick={async (e) => {
                             e.stopPropagation();
-                            // Call onComplete if it exists on current node
-                            if (currentNode.onComplete) {
-                                await currentNode.onComplete();
+                            
+                            // Mark tutorial as complete when skipping
+                            try {
+                                await fetch('/api/anon-profile', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ action: 'complete-tutorial' })
+                                });
+                            } catch (error) {
+                                console.error('Failed to mark tutorial as complete:', error);
                             }
+                            
                             hideDialogue();
                         }}
                         className="skip-dialogue-button absolute top-0 right-0 mt-2 mr-2 px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-sm rounded transition-colors pointer-events-auto z-50"

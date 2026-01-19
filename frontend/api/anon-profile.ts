@@ -2,15 +2,16 @@ import type { IncomingMessage, ServerResponse } from "http";
 import * as cookie from "cookie";
 
 import { connectMongo } from "./models/mongodb";
-import AnonymousProfile from "./models/AnonymousProfile";
+import AnonymousProfile, { type OwnedDragon } from "./models/AnonymousProfile";
 import { completeQuest, updateQuestProgress, getQuestById, initializeQuests } from "./quests";
 
 interface RequestBody {
-    action?: "identify" | "complete-intro"| "earn-embers" | "get-wallet"| "purchase" | "equip" | "complete-tutorial";
+    action?: "identify" | "complete-intro"| "earn-embers" | "get-wallet"| "purchase" | "equip" | "complete-tutorial" | "purchase-dragon" | "upgrade-dragon" | "collect-dragon-embers" | "get-dragons";
     anonId?: string;
     amount?: number;
     itemId?: string;
     price?: number;
+    dragonId?: string;
 }
 
 interface CompletedQuest {
@@ -55,7 +56,7 @@ export default async function handler(
         await connectMongo();
 
         const body = await parseBody(req);
-        const { action, amount = 0, itemId, price } = body;
+        const { action, amount = 0, itemId, price, dragonId } = body;
 
         const cookies = cookie.parse(req.headers.cookie || "");
         const anonId = body.anonId || cookies["anon_id"];
@@ -100,7 +101,14 @@ export default async function handler(
                     $setOnInsert: {
                         createdAt: new Date(),
                         ownedCosmetics: ["flame:crimson"],
-                        equipped: { flameTheme: "flame:crimson" }
+                        equipped: { flameTheme: "flame:crimson" },
+                        ownedDragons: [{
+                            dragonId: "dragon:lumie",
+                            level: 1,
+                            acquiredAt: new Date(),
+                            totalGenerated: 0,
+                            lastCollectedAt: new Date(),
+                        }],
                     },
                     $set: { lastSeen: new Date() },
                 },
@@ -117,6 +125,18 @@ export default async function handler(
             
             if (profile.equipped?.flameTheme === "crimson") {
                 profile.equipped.flameTheme = "flame:crimson";
+                needsSave = true;
+            }
+
+            // Auto-grant Lumie to existing users who don't have any dragons
+            if (!profile.ownedDragons || profile.ownedDragons.length === 0) {
+                profile.ownedDragons = [{
+                    dragonId: "dragon:lumie",
+                    level: 1,
+                    acquiredAt: new Date(),
+                    totalGenerated: 0,
+                    lastCollectedAt: new Date(),
+                }];
                 needsSave = true;
             }
 
@@ -151,6 +171,7 @@ export default async function handler(
                     wallet: profile.wallet ?? { embers: 0, totalEarned: 0, totalSpent: 0 },
                     ownedCosmetics: profile.ownedCosmetics,
                     equipped: profile.equipped,
+                    ownedDragons: profile.ownedDragons ?? [],
                 },
                 completedQuests,
             });
@@ -390,6 +411,230 @@ export default async function handler(
             return sendJSON(res, 200, {
                 ok: true,
                 tutorialCompleted: profile.tutorialCompleted,
+            });
+        }
+
+        // ---------------- PURCHASE DRAGON ----------------
+        if (action === "purchase-dragon") {
+            if (!dragonId || typeof dragonId !== "string") {
+                return sendJSON(res, 400, { error: "Missing dragonId" });
+            }
+
+            const cost = Number(price);
+
+            if (!Number.isFinite(cost) || cost <= 0) {
+                return sendJSON(res, 400, { error: "Invalid price" });
+            }
+
+            const profile = await AnonymousProfile.findOneAndUpdate(
+                {
+                    anonId,
+                    env,
+                    "wallet.embers": { $gte: cost },
+                    "ownedDragons.dragonId": { $ne: dragonId },
+                },
+                {
+                    $inc: {
+                        "wallet.embers": -cost,
+                        "wallet.totalSpent": cost,
+                    },
+                    $push: {
+                        ownedDragons: {
+                            dragonId,
+                            level: 1,
+                            acquiredAt: new Date(),
+                            totalGenerated: 0,
+                            lastCollectedAt: new Date(),
+                        },
+                    },
+                    $set: {
+                        lastSeen: new Date(),
+                    },
+                },
+                { new: true }
+            );
+
+            if (!profile) {
+                return sendJSON(res, 400, {
+                    error: "Not enough embers or dragon already owned",
+                });
+            }
+
+            const completedQuests: CompletedQuest[] = [];
+            const firstPurchaseResult = await updateQuestProgress(anonId, env, "first_purchase", 1);
+            if (firstPurchaseResult.questCompleted) {
+                const questDef = getQuestById("first_purchase");
+                completedQuests.push({
+                    questId: "first_purchase",
+                    questName: questDef?.name,
+                    category: questDef?.category,
+                    reward: firstPurchaseResult.reward,
+                });
+            }
+            
+            if (firstPurchaseResult.metaAchievements && firstPurchaseResult.metaAchievements.length > 0) {
+                completedQuests.push(...firstPurchaseResult.metaAchievements);
+            }
+
+            return sendJSON(res, 200, {
+                ok: true,
+                wallet: profile.wallet,
+                ownedDragons: profile.ownedDragons,
+                completedQuests,
+            });
+        }
+
+        // ---------------- UPGRADE DRAGON ----------------
+        if (action === "upgrade-dragon") {
+            if (!dragonId || typeof dragonId !== "string") {
+                return sendJSON(res, 400, { error: "Missing dragonId" });
+            }
+
+            const profile = await AnonymousProfile.findOne({ anonId, env });
+
+            if (!profile) {
+                return sendJSON(res, 404, { error: "Profile not found" });
+            }
+
+            if (!profile.ownedDragons || profile.ownedDragons.length === 0) {
+                return sendJSON(res, 400, { error: "No dragons owned" });
+            }
+
+            const dragon = profile.ownedDragons.find((d: OwnedDragon) => d.dragonId === dragonId);
+
+            if (!dragon) {
+                return sendJSON(res, 400, { error: "Dragon not owned" });
+            }
+
+            const upgradeCost = 500 * dragon.level;
+
+            if (profile.wallet.embers < upgradeCost) {
+                return sendJSON(res, 400, { error: "Not enough embers" });
+            }
+
+            dragon.level += 1;
+            profile.wallet.embers -= upgradeCost;
+            profile.wallet.totalSpent += upgradeCost;
+            profile.lastSeen = new Date();
+
+            await profile.save();
+
+            return sendJSON(res, 200, {
+                ok: true,
+                wallet: profile.wallet,
+                dragon: {
+                    dragonId: dragon.dragonId,
+                    level: dragon.level,
+                    totalGenerated: dragon.totalGenerated,
+                },
+            });
+        }
+
+        // ---------------- COLLECT DRAGON EMBERS ----------------
+        if (action === "collect-dragon-embers") {
+            const profile = await AnonymousProfile.findOne({ anonId, env });
+
+            if (!profile) {
+                return sendJSON(res, 404, { error: "Profile not found" });
+            }
+
+            if (!profile.ownedDragons || profile.ownedDragons.length === 0) {
+                return sendJSON(res, 200, {
+                    ok: true,
+                    collected: 0,
+                    wallet: profile.wallet,
+                });
+            }
+
+            // Dragon generation rates (embers per 10 seconds)
+            const dragonRates: Record<string, number> = {
+                "dragon:lumie": 5,
+                "dragon:fire": 3,
+                "dragon:water": 2,
+                "dragon:ice": 8,
+                "dragon:flora": 5,
+                "dragon:stone": 6,
+                "dragon:wind": 4,
+                "dragon:steel": 9,
+                "dragon:power": 7,
+                "dragon:lucky": 10,
+                "dragon:dawn": 11,
+                "dragon:dusk": 12,
+                "dragon:shad": 13,
+            };
+
+            let totalCollected = 0;
+            const now = new Date();
+
+            for (const dragon of profile.ownedDragons) {
+                const baseRate = dragonRates[dragon.dragonId] || 1;
+                const ratePerSecond = (baseRate * dragon.level) / 10;
+                
+                const lastCollected = dragon.lastCollectedAt || dragon.acquiredAt;
+                const secondsElapsed = Math.floor((now.getTime() - lastCollected.getTime()) / 1000);
+                
+                const generated = Math.floor(ratePerSecond * secondsElapsed);
+                
+                if (generated > 0) {
+                    totalCollected += generated;
+                    dragon.totalGenerated += generated;
+                    dragon.lastCollectedAt = now;
+                }
+            }
+
+            if (totalCollected > 0) {
+                profile.wallet.embers += totalCollected;
+                profile.wallet.totalEarned += totalCollected;
+            }
+
+            profile.lastSeen = now;
+            await profile.save();
+
+            const completedQuests: CompletedQuest[] = [];
+            
+            const emberQuests = [
+                { id: "ember_hoarder", check: profile.wallet.embers >= 10000 },
+                { id: "ember_tycoon", check: profile.wallet.totalEarned >= 30000 }
+            ];
+
+            for (const { id, check } of emberQuests) {
+                if (check) {
+                    const result = await updateQuestProgress(anonId, env, id, 0);
+                    if (result.questCompleted) {
+                        const questDef = getQuestById(id);
+                        completedQuests.push({
+                            questId: id,
+                            questName: questDef?.name,
+                            category: questDef?.category,
+                            reward: result.reward,
+                        });
+                    }
+                    
+                    if (result.metaAchievements && result.metaAchievements.length > 0) {
+                        completedQuests.push(...result.metaAchievements);
+                    }
+                }
+            }
+
+            return sendJSON(res, 200, {
+                ok: true,
+                collected: totalCollected,
+                wallet: profile.wallet,
+                ownedDragons: profile.ownedDragons,
+                completedQuests,
+            });
+        }
+
+        // ---------------- GET DRAGONS ----------------
+        if (action === "get-dragons") {
+            const profile = await AnonymousProfile.findOne(
+                { anonId, env },
+                { ownedDragons: 1, _id: 0 }
+            );
+
+            return sendJSON(res, 200, {
+                ok: true,
+                ownedDragons: profile?.ownedDragons ?? [],
             });
         }
 

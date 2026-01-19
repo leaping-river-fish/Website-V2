@@ -17,6 +17,14 @@ export interface Equipped {
     flameTheme: string;
 }
 
+export interface OwnedDragon {
+    dragonId: string;
+    level: number;
+    acquiredAt: Date;
+    totalGenerated: number;
+    lastCollectedAt?: Date;
+}
+
 export interface AnonymousProfileDoc extends Document {
     anonId: string;
     env: "dev" | "prod";
@@ -26,6 +34,7 @@ export interface AnonymousProfileDoc extends Document {
     wallet: Wallet;
     ownedCosmetics: string[];
     equipped: Equipped;
+    ownedDragons: OwnedDragon[];
     createdAt: Date;
     lastSeen: Date;
 }
@@ -53,12 +62,24 @@ const EquippedSchema: Schema<Equipped> = new mongoose.Schema(
     { _id: false }
 );
 
+const OwnedDragonSchema: Schema<OwnedDragon> = new mongoose.Schema(
+    {
+        dragonId: { type: String, required: true },
+        level: { type: Number, default: 1, min: 1 },
+        acquiredAt: { type: Date, default: Date.now },
+        totalGenerated: { type: Number, default: 0 },
+        lastCollectedAt: { type: Date, default: Date.now },
+    },
+    { _id: false }
+);
+
 const AnonymousProfileSchema: Schema<AnonymousProfileDoc> = new mongoose.Schema({
     anonId: { type: String, required: true },
     env: { type: String, enum: ["dev", "prod"], required: true, index: true },
     wallet: { type: WalletSchema, default: () => ({}) },
     ownedCosmetics: { type: [String], default: ["flame:crimson"], index: true },
     equipped: { type: EquippedSchema, default: () => ({}) },
+    ownedDragons: { type: [OwnedDragonSchema], default: [] },
     introGameCompleted: { type: Boolean, default: false },
     tutorialCompleted: { type: Boolean, default: false },
     quests: { type: [QuestSchema], default: [] },
