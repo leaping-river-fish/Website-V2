@@ -20,7 +20,7 @@ export const DRAGON_ITEMS: DragonType[] = [
         rarity: "common",
         canFly: true,
         facesLeft: true,
-        baseGenerationRate: 2,
+        baseGenerationRate: 1,
         imagePath: "/images/dragons/fire.png",
     },
     {
@@ -31,7 +31,7 @@ export const DRAGON_ITEMS: DragonType[] = [
         rarity: "common",
         canFly: false,
         facesLeft: false,
-        baseGenerationRate: 3,
+        baseGenerationRate: 1,
         imagePath: "/images/dragons/water.png",
     },
     {
@@ -42,7 +42,7 @@ export const DRAGON_ITEMS: DragonType[] = [
         rarity: "common",
         canFly: true,
         facesLeft: true,
-        baseGenerationRate: 4,
+        baseGenerationRate: 1,
         imagePath: "/images/dragons/wind.png",
     },
     {
@@ -53,7 +53,7 @@ export const DRAGON_ITEMS: DragonType[] = [
         rarity: "rare",
         canFly: true,
         facesLeft: true,
-        baseGenerationRate: 5,
+        baseGenerationRate: 2,
         imagePath: "/images/dragons/flora.png",
     },
     {
@@ -64,7 +64,7 @@ export const DRAGON_ITEMS: DragonType[] = [
         rarity: "rare",
         canFly: false,
         facesLeft: true,
-        baseGenerationRate: 6,
+        baseGenerationRate: 2,
         imagePath: "/images/dragons/stone.png",
     },
     {
@@ -75,7 +75,7 @@ export const DRAGON_ITEMS: DragonType[] = [
         rarity: "rare",
         canFly: false,
         facesLeft: false,
-        baseGenerationRate: 7,
+        baseGenerationRate: 2,
         imagePath: "/images/dragons/power.png",
     },
     {
@@ -86,7 +86,7 @@ export const DRAGON_ITEMS: DragonType[] = [
         rarity: "epic",
         canFly: true,
         facesLeft: true,
-        baseGenerationRate: 8,
+        baseGenerationRate: 3,
         imagePath: "/images/dragons/ice.png",
     },
     {
@@ -97,7 +97,7 @@ export const DRAGON_ITEMS: DragonType[] = [
         rarity: "epic",
         canFly: true,
         facesLeft: true,
-        baseGenerationRate: 9,
+        baseGenerationRate: 3,
         imagePath: "/images/dragons/steel.png",
     },
     {
@@ -108,7 +108,7 @@ export const DRAGON_ITEMS: DragonType[] = [
         rarity: "legendary",
         canFly: true,
         facesLeft: false,
-        baseGenerationRate: 10,
+        baseGenerationRate: 5,
         imagePath: "/images/dragons/lucky.png",
     },
     {
@@ -119,7 +119,7 @@ export const DRAGON_ITEMS: DragonType[] = [
         rarity: "legendary",
         canFly: true,
         facesLeft: false,
-        baseGenerationRate: 11,
+        baseGenerationRate: 5,
         imagePath: "/images/dragons/dawn.png",
     },
     {
@@ -130,7 +130,7 @@ export const DRAGON_ITEMS: DragonType[] = [
         rarity: "legendary",
         canFly: true,
         facesLeft: true,
-        baseGenerationRate: 12,
+        baseGenerationRate: 5,
         imagePath: "/images/dragons/dusk.png",
     },
     {
@@ -141,7 +141,7 @@ export const DRAGON_ITEMS: DragonType[] = [
         rarity: "legendary",
         canFly: true,
         facesLeft: false,
-        baseGenerationRate: 13,
+        baseGenerationRate: 5,
         imagePath: "/images/dragons/shad.png",
     },
 ];

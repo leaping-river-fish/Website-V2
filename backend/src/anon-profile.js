@@ -480,19 +480,19 @@ export default async function anonProfileHandler(req, res) {
 
             // Dragon generation rates (embers per 10 seconds)
             const dragonRates = {
-                "dragon:lumie": 1,
-                "dragon:fire": 2,
-                "dragon:water": 2,
+                "dragon:lumie": 5,
+                "dragon:fire": 1,
+                "dragon:water": 1,
                 "dragon:ice": 3,
-                "dragon:flora": 3,
-                "dragon:stone": 4,
-                "dragon:wind": 4,
-                "dragon:steel": 5,
-                "dragon:power": 6,
-                "dragon:lucky": 7,
-                "dragon:dawn": 8,
-                "dragon:dusk": 9,
-                "dragon:shad": 10,
+                "dragon:flora": 2,
+                "dragon:stone": 2,
+                "dragon:wind": 1,
+                "dragon:steel": 3,
+                "dragon:power": 2,
+                "dragon:lucky": 5,
+                "dragon:dawn": 5,
+                "dragon:dusk": 5,
+                "dragon:shad": 5,
             };
 
             const MAX_DRAGON_PENDING = 10000;
