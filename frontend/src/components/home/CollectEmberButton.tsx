@@ -1,9 +1,14 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useDragons } from "../../contexts/DragonContext";
+import { useFlameTheme } from "../../contexts/FlameThemeContext";
 import EmberIcon from "../navbar/EmberIcon";
 
 export function CollectEmberButton() {
     const { pendingEmbers, isCollecting, collectAllEmbers } = useDragons();
+    const { themeId } = useFlameTheme();
+    
+    const isPureFlame = themeId === "flame:pure";
+    const buttonTextColor = getComputedStyle(document.documentElement).getPropertyValue('--flame-button-text').trim() || "#ffffff";
 
     if (pendingEmbers === 0) return null;
 
@@ -52,13 +57,23 @@ export function CollectEmberButton() {
 
                     {/* Content */}
                     <div className="relative flex items-center gap-3">
-                        <EmberIcon size={24} />
+                        <div style={{ 
+                            filter: isPureFlame ? "drop-shadow(0 0 4px rgba(0,0,0,0.8)) drop-shadow(0 0 8px rgba(0,0,0,0.6))" : "none" 
+                        }}>
+                            <EmberIcon size={24} />
+                        </div>
                         <div className="flex flex-col items-start">
                             <span className="text-xs opacity-80">Collect</span>
                             <motion.span
                                 key={pendingEmbers}
-                                initial={{ scale: 1.2, color: "#FFD700" }}
-                                animate={{ scale: 1, color: "#FFFFFF" }}
+                                initial={{ 
+                                    scale: 1.2, 
+                                    color: isPureFlame ? "#FFD700" : "#FFD700" 
+                                }}
+                                animate={{ 
+                                    scale: 1, 
+                                    color: buttonTextColor
+                                }}
                                 transition={{ duration: 0.3 }}
                                 className="text-xl font-bold"
                             >
