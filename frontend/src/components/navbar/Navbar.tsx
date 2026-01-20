@@ -11,7 +11,7 @@ import { Trophy } from "lucide-react";
 import { CircleHelp } from "lucide-react";
 
 export const Navbar = () => {
-    const { showDialogue, tutorialNodes } = useDialogue();
+    const { showDialogue, tutorialNodes, isActive: dialogueActive } = useDialogue();
     const { theme } = useFlameTheme();
     
     const { gainTick } = useEmbers();
@@ -141,7 +141,16 @@ export const Navbar = () => {
                             animate={controls}
                             className="relative flex items-center"
                         >
-                            <Link to="/shop" className="rounded-full">
+                            <Link 
+                                to="/shop" 
+                                className="rounded-full"
+                                style={{ pointerEvents: dialogueActive ? 'none' : 'auto' }}
+                                onClick={(e) => {
+                                    if (dialogueActive) {
+                                        e.preventDefault();
+                                    }
+                                }}
+                            >
                                 <EmberCounter />
                             </Link>
 
@@ -213,7 +222,7 @@ export const Navbar = () => {
             {/* Quest and Achievements can sit as icons between ember counter and nav dropdown */}
             
             {/* Mobile */}
-            <nav className="md:hidden bg-[#1A1410] text-white shadow-md relative">
+            <nav className="md:hidden bg-[#1A1410] text-white shadow-md relative z-50">
                 <div className="flex h-16 items-center px-4 justify-between">
                     <Link to="/home" className="shrink-0">
                         <motion.div
@@ -227,14 +236,23 @@ export const Navbar = () => {
                         </motion.div>
                     </Link>
 
-                    <div className="flex items-center gap-3" data-tutorial-id="ember-counter">
+                    <div className="flex items-center gap-3">
                         {/* EMBER COUNTER */}
-                        <div className="ml-4 relative flex items-center z-0 overflow-visible">
+                        <div className="ml-4 relative flex items-center z-0 overflow-visible" data-tutorial-id="ember-counter-mobile">
                             <motion.div
                                 animate={controls}
                                 className="relative flex items-center"
                             >
-                                <Link to="/shop" className="rounded-full">
+                                <Link 
+                                    to="/shop" 
+                                    className="rounded-full"
+                                    style={{ pointerEvents: dialogueActive ? 'none' : 'auto' }}
+                                    onClick={(e) => {
+                                        if (dialogueActive) {
+                                            e.preventDefault();
+                                        }
+                                    }}
+                                >
                                     <EmberCounter />
                                 </Link>
 
@@ -256,7 +274,7 @@ export const Navbar = () => {
                                 className="py-2 rounded-full relative hover:bg-gray-600"
                                 style={{ color: theme.helpButtonColor }}
                                 aria-label="Start tutorial"
-                                data-tutorial-id="help-button"
+                                data-tutorial-id="help-button-mobile"
                                 animate={{
                                     scale: [1, 1.15, 1],
                                     filter: [
@@ -289,7 +307,7 @@ export const Navbar = () => {
                             className={`px-1 py-2 rounded-full ${
                                 currentRoute === "/achievements" ? "flame-gradient-text" : "text-white hover:bg-gray-600"
                             }`}
-                            data-tutorial-id="achievements-button"
+                            data-tutorial-id="achievements-button-mobile"
                         >
                             <Trophy size={22} />
                         </Link>

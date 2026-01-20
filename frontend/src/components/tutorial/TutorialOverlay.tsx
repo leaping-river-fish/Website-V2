@@ -34,7 +34,27 @@ export function TutorialOverlay({ targetId }: TutorialOverlayProps) {
             return;
         }
     
-        const element = document.querySelector(`[data-tutorial-id="${targetId}"]`);
+        // Try to find the element, checking both desktop and mobile versions
+        let element = document.querySelector(`[data-tutorial-id="${targetId}"]`);
+        
+        // If not found, try mobile version
+        if (!element) {
+            element = document.querySelector(`[data-tutorial-id="${targetId}-mobile"]`);
+        }
+        
+        // If we found an element, check if it's actually visible
+        if (element) {
+            const rect = element.getBoundingClientRect();
+            // Check if element has dimensions (visible elements have width/height > 0)
+            if (rect.width === 0 || rect.height === 0) {
+                // Element is hidden, try the alternate version
+                const alternateId = targetId.endsWith('-mobile') 
+                    ? targetId.replace('-mobile', '') 
+                    : `${targetId}-mobile`;
+                element = document.querySelector(`[data-tutorial-id="${alternateId}"]`);
+            }
+        }
+        
         if (!element) {
             console.warn(`Tutorial target not found: ${targetId}`);
             setSpotlightPos(null);
@@ -70,7 +90,27 @@ export function TutorialOverlay({ targetId }: TutorialOverlayProps) {
                 cancelAnimationFrame(animationFrameRef.current);
             }
             animationFrameRef.current = requestAnimationFrame(() => {
-                const el = document.querySelector(`[data-tutorial-id="${targetId}"]`);
+                // Try to find the element, checking both desktop and mobile versions
+                let el = document.querySelector(`[data-tutorial-id="${targetId}"]`);
+                
+                // If not found, try mobile version
+                if (!el) {
+                    el = document.querySelector(`[data-tutorial-id="${targetId}-mobile"]`);
+                }
+                
+                // If we found an element, check if it's actually visible
+                if (el) {
+                    const rect = el.getBoundingClientRect();
+                    // Check if element has dimensions (visible elements have width/height > 0)
+                    if (rect.width === 0 || rect.height === 0) {
+                        // Element is hidden, try the alternate version
+                        const alternateId = targetId.endsWith('-mobile') 
+                            ? targetId.replace('-mobile', '') 
+                            : `${targetId}-mobile`;
+                        el = document.querySelector(`[data-tutorial-id="${alternateId}"]`);
+                    }
+                }
+                
                 if (el) {
                     updateSpotlightPosition(el);
                 }
@@ -93,13 +133,13 @@ export function TutorialOverlay({ targetId }: TutorialOverlayProps) {
         <AnimatePresence>
             {spotlightPos && (
                 <>
-                    {/* Dark overlay - below navbar */}
+                    {/* Dark overlay - above navbar */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="fixed inset-0 pointer-events-none z-40"
+                        className="fixed inset-0 pointer-events-none z-55"
                         style={{
                             background: `radial-gradient(
                             circle at ${spotlightPos.left + spotlightPos.width / 2}px ${spotlightPos.top + spotlightPos.height / 2}px,
@@ -115,7 +155,7 @@ export function TutorialOverlay({ targetId }: TutorialOverlayProps) {
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.3 }}
-                        className="fixed pointer-events-auto rounded-lg z-60"
+                        className="fixed pointer-events-auto rounded-lg z-65"
                         style={{
                             top: spotlightPos.top,
                             left: spotlightPos.left,

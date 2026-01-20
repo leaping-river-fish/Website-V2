@@ -1,3 +1,4 @@
+// fix tutorial for small screens
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion";
 import { FlyingEmbers } from "../components/effects/flyingEmbers";

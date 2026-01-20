@@ -1,4 +1,4 @@
-// fix tags?, unlock project animation(gamify), cache the loaded projects so they are not constantly reloading
+// fix tags?, unlock project animation(gamify), greater detail on projects page
 import AllProjects from "../components/projects/AllProjects";
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
 import { usePageTracking } from "../components/quests/usePageTracking";

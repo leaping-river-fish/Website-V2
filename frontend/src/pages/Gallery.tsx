@@ -1,4 +1,4 @@
-// add empty slots for locked entries? preload images to reduce lag
+// Spin images animation for loading?
 import React, { useState, useEffect, useMemo } from "react";
 import { useImageContext } from "../contexts/ImageContext";
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
