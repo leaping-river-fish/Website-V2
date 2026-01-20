@@ -563,6 +563,8 @@ export default async function handler(
                 "dragon:shad": 13,
             };
 
+            const MAX_DRAGON_PENDING = 10000;
+
             let totalCollected = 0;
             const now = new Date();
 
@@ -581,6 +583,8 @@ export default async function handler(
                     dragon.lastCollectedAt = now;
                 }
             }
+
+            totalCollected = Math.min(totalCollected, MAX_DRAGON_PENDING);
 
             if (totalCollected > 0) {
                 profile.wallet.embers += totalCollected;
