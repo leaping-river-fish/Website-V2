@@ -2,13 +2,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useDragons } from "../../contexts/DragonContext";
 import { useFlameTheme } from "../../contexts/FlameThemeContext";
 import EmberIcon from "../navbar/EmberIcon";
+import { useState } from "react";
 
 export function CollectEmberButton() {
     const { pendingEmbers, isCollecting, collectAllEmbers } = useDragons();
     const { themeId } = useFlameTheme();
+    const [isPressed, setIsPressed] = useState(false);
     
     const isPureFlame = themeId === "flame:pure";
     const buttonTextColor = getComputedStyle(document.documentElement).getPropertyValue('--flame-button-text').trim() || "#ffffff";
+
+    const handleClick = () => {
+        setIsPressed(true);
+        collectAllEmbers();
+        
+        // Reset after animation
+        setTimeout(() => {
+            setIsPressed(false);
+        }, 800);
+    };
 
     if (pendingEmbers === 0) return null;
 
@@ -17,20 +29,28 @@ export function CollectEmberButton() {
             <motion.button
                 data-tutorial-id="collect-ember-button"
                 initial={{ scale: 0, opacity: 0 }}
-                animate={{ 
+                animate={isPressed ? {
+                    scale: [1, 0.95, 0.85, 0.9, 1.05, 1.1, 1.05, 1.02, 1],
+                    opacity: 1,
+                    y: 0,
+                } : { 
                     scale: 1, 
                     opacity: 1,
                     y: [0, -5, 0],
                 }}
                 exit={{ scale: 0, opacity: 0 }}
-                transition={{
+                transition={isPressed ? {
+                    duration: 0.8,
+                    times: [0, 0.1, 0.2, 0.3, 0.45, 0.6, 0.75, 0.9, 1],
+                    ease: "easeOut",
+                } : {
                     y: {
                         duration: 1.5,
                         repeat: Infinity,
                         ease: "easeInOut",
                     },
                 }}
-                onClick={collectAllEmbers}
+                onClick={handleClick}
                 disabled={isCollecting}
                 className="fixed bottom-8 right-8 z-50 pointer-events-auto cursor-pointer"
                 style={{
@@ -38,7 +58,7 @@ export function CollectEmberButton() {
                     boxShadow: "0 0 20px var(--flame-glow), 0 0 40px var(--flame-accent)",
                 }}
             >
-                <div className="relative px-6 py-4 rounded-2xl flex items-center gap-3 font-bold text-lg" style={{ color: "var(--flame-button-text)" }}>
+                <div className="relative px-8 py-6 md:px-6 md:py-4 rounded-2xl flex items-center gap-3 font-bold text-lg" style={{ color: "var(--flame-button-text)" }}>
                     {/* Pulsing glow effect */}
                     <motion.div
                         className="absolute inset-0 rounded-2xl"

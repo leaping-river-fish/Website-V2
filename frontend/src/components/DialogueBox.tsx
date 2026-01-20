@@ -167,7 +167,7 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
                 <div className="relative flex items-end justify-center">
                     {/* Dialogue Box */}
                     <div 
-                        className={`dialogue-box bg-white text-black p-6 pr-16 lg:pr-6 rounded-lg shadow-lg pointer-events-auto relative z-[70] w-full ${!currentNode.choices && !isTyping ? 'cursor-pointer' : ''}`}
+                        className={`dialogue-box bg-white text-black p-6 pr-16 lg:pr-6 rounded-lg shadow-lg pointer-events-auto relative z-70 w-full ${!currentNode.choices && !isTyping ? 'cursor-pointer' : ''}`}
                         onClick={(e) => {
                             e.stopPropagation();
                             handleClick();
