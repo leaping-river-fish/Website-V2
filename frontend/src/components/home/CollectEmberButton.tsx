@@ -15,6 +15,7 @@ export function CollectEmberButton() {
     return (
         <AnimatePresence>
             <motion.button
+                data-tutorial-id="collect-ember-button"
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ 
                     scale: 1, 

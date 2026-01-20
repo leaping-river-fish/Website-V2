@@ -38,11 +38,16 @@ export const homeDialogue: DialogueTree = {
         },
         explain_flares: { 
             text: "And sometimes, you'll see a flare. These are special embers which are 100x hotter than regular embers!",
-            next: "explain_dragons"
+            next: "explain_dragons1"
         },
-        explain_dragons: { 
-            text: "In the future, you'll be able to tame dragons to help you collect embers!",
-            next: "explain_quests_1"
+        explain_dragons1: { 
+            text: "Dragons like me will also help you collect embers, you'll be able to tame more dragons to help you collect embers!",
+            next: "explain_dragons_2"
+        },
+        explain_dragons_2: {
+            text: "You collect the embers collected by dragons by clicking this button in the bottom right corner of the screen.",
+            next: "explain_quests_1",
+            highlight: "collect-ember-button",
         },
         explain_quests_1: {
             text: "You can also earn embers by completing quests.",
