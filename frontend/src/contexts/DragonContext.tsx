@@ -26,6 +26,8 @@ export function DragonProvider({ children }: { children: React.ReactNode }) {
 
     // Calculate pending embers based on time elapsed
     const calculatePendingEmbers = useCallback((dragons: OwnedDragon[]): number => {
+        const MAX_DRAGON_PENDING = 10000;
+
         const dragonRates: Record<string, number> = {
             "dragon:lumie": 5,
             "dragon:fire": 3,
@@ -59,7 +61,7 @@ export function DragonProvider({ children }: { children: React.ReactNode }) {
             total += generated;
         }
 
-        return total;
+        return Math.min(total, MAX_DRAGON_PENDING);
     }, []);
 
     // Get dragons with their details

@@ -7,7 +7,7 @@ export interface DragonType {
     price?: number; 
     rarity: DragonRarity;
     canFly: boolean;
-    facesLeft: boolean; // Whether the dragon's default image faces left
+    facesLeft: boolean;
     baseGenerationRate: number; 
     imagePath: string;
 }

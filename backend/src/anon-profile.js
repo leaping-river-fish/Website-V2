@@ -495,6 +495,7 @@ export default async function anonProfileHandler(req, res) {
                 "dragon:shad": 10,
             };
 
+            const MAX_DRAGON_PENDING = 10000;
             let totalCollected = 0;
             const now = new Date();
 
@@ -513,6 +514,8 @@ export default async function anonProfileHandler(req, res) {
                     dragon.lastCollectedAt = now;
                 }
             }
+
+            totalCollected = Math.min(totalCollected, MAX_DRAGON_PENDING);
 
             if (totalCollected > 0) {
                 profile.wallet.embers += totalCollected;
