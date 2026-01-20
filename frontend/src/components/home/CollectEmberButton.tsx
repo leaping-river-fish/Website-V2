@@ -32,7 +32,7 @@ export function CollectEmberButton() {
                     boxShadow: "0 0 20px var(--flame-glow), 0 0 40px var(--flame-accent)",
                 }}
             >
-                <div className="relative px-6 py-4 rounded-2xl flex items-center gap-3 text-white font-bold text-lg">
+                <div className="relative px-6 py-4 rounded-2xl flex items-center gap-3 font-bold text-lg" style={{ color: "var(--flame-button-text)" }}>
                     {/* Pulsing glow effect */}
                     <motion.div
                         className="absolute inset-0 rounded-2xl"

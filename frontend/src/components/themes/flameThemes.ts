@@ -168,5 +168,7 @@ export const FLAME_THEMES: FlameThemeTypes[] = [
 
         helpButtonColor: "#ffffff",
         helpButtonGlow: "rgba(255,255,255,0.9)",
+
+        buttonTextColor: "#000000", // Black text for Pure Flame
     },
 ];

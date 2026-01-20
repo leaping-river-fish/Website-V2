@@ -61,6 +61,8 @@ export function FlameThemeProvider({ children }: { children: React.ReactNode }) 
         root.style.setProperty("--achievement-secondary", theme.achievementSecondary);
         root.style.setProperty("--achievement-border", theme.achievementBorder);
         root.style.setProperty("--achievement-hover", theme.achievementHover);
+
+        root.style.setProperty("--flame-button-text", theme.buttonTextColor || "#ffffff");
     }, [theme]);
 
     return (

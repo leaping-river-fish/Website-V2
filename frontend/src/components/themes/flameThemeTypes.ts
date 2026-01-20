@@ -31,4 +31,7 @@ export type FlameThemeTypes = {
     // Help button colors
     helpButtonColor: string;
     helpButtonGlow: string;
+
+    // Button text color (for buttons with gradient backgrounds)
+    buttonTextColor?: string; // Defaults to white if not specified
 };
