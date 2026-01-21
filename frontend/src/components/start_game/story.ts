@@ -97,10 +97,7 @@ export const story: StoryType = {
 
             found1: {
                 text: "What?! You found me already?",
-                choices: [
-                    { text: "Got you!", next: null },
-                    { text: "Too easy!", next: null }
-                ]
+                next: null
             },
 
             found2: {
@@ -118,9 +115,6 @@ export const story: StoryType = {
 
             finale: {
                 text: "You're better at this than I thought!",
-                choices: [
-                    { text: "Thanks!", next: null }
-                ],
                 done: true
             }
         }
@@ -140,14 +134,11 @@ export const story: StoryType = {
 
             caught2: {
                 text: "You're faster than you look!",
-                choices: [
-                    { text: "I'm just getting started!", next: null },
-                    { text: "Can't escape me!", next: null }
-                ]
+                next: null
             },
 
             caught3: {
-                text: "Okay okay! You got me! Stop clicking me already! I have Haphephobia!",
+                text: "Okay okay! You got me! Stop clicking me already!",
                 choices: [
                     { text: "That was fun!", next: "finale" },
                     { text: "Good game!", next: "finale" }
@@ -167,7 +158,7 @@ export const story: StoryType = {
     phase4: {
         nodes: {
             end: {
-                text: "Alright, you need to click me to enter...",
+                text: "Alright, you need to click me to enter.",
                 next: null
             }
         }

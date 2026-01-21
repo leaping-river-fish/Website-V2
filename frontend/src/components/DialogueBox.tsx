@@ -159,6 +159,18 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
     // Early return AFTER all hooks
     if (!isActive || !currentNode) return null;
 
+    // Get Lumie's image based on emotion
+    const getLumieImage = (emotion?: string): string => {
+        switch (emotion) {
+            case 'greedy':
+                return '/images/dragons/lumie/Lumie_Greedy_torso.png';
+            case 'neutral':
+                return '/images/dragons/lumie/Lumie_Mouth_Closed_torso.png';
+            default:
+                return '/images/dragons/lumie/Lumie_torso.png';
+        }
+    };
+
     return (
         <>
             <TutorialOverlay targetId={highlightTarget} />
@@ -198,7 +210,9 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
                         {/* Continue prompt */}
                         {!isTyping && !currentNode.choices && (
                             <div className="text-gray-600 mt-3 text-sm select-none">
-                                <span className="blink">▼</span> Click, Space, or Enter to continue
+                                <span className="blink">▼</span> 
+                                <span className="md:hidden"> Tap to Continue</span>
+                                <span className="hidden md:inline"> Click, Space, or Enter to continue</span>
                             </div>
                         )}
                     </div>
@@ -211,9 +225,9 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
                         }}
                     >
                         <img 
-                            src="/images/dragons/lumie/Lumie_torso.png"
+                            src={getLumieImage(currentNode.emotion)}
                             alt="Lumie"
-                            className="w-75 h-100 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
+                            className="w-75 h-100 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)] transition-opacity duration-300"
                         />
                     </div>
 

@@ -4,7 +4,7 @@ export interface DialogueNode {
     choices?: DialogueChoice[];
     done?: boolean;
     character?: string; // Default "lumie", but could support other characters
-    emotion?: string;   // Could change Lumie's expression
+    emotion?: string; 
     animation?: string;  
     delay?: number;    
     highlight?: string;
