@@ -1,4 +1,4 @@
-// make game long again? 
+// Add facial exressions during game
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useMotionValue } from "framer-motion";
@@ -29,6 +29,19 @@ export default function StartPage({ profile }: StartPageProps) {
     const [buttonOpacity, setButtonOpacity] = useState(1);
     const CLICK_COOLDOWN = 500;
     const [lastClickTime, setLastClickTime] = useState(0);
+
+    const [lumieEmotion, setLumieEmotion] = useState<string>("neutral");
+    const lumieEmotionMap: Record<string, string> = {
+        neutral: "/images/dragons/lumie/Lumie_Mouth_Closed.png",
+        angry: "/images/dragons/lumie/Lumie_Angry.png",
+        sad: "/images/dragons/lumie/Lumie_Sad.png",
+        greedy: "/images/dragons/lumie/Lumie_Greedy.png",
+        dizzy: "/images/dragons/lumie/Lumie_Dizzy.png",
+        shock: "/images/dragons/lumie/Lumie_Shock.png",
+        sleep: "/images/dragons/lumie/Lumie_Sleep.png",
+        unamused: "/images/dragons/lumie/Lumie_Unamused.png",
+        happy: "/images/dragons/lumie/Lumie_transparent.png",
+    };
 
     /* ----------------------- PHASE STATE ----------------------- */
     const [phase, setPhase] = useState(0);
@@ -186,6 +199,13 @@ export default function StartPage({ profile }: StartPageProps) {
     /* Track Lumie's facing direction for flip animation */
     const [isFacingLeft, setIsFacingLeft] = useState(false);
     const prevVxRef = useRef(0);
+    
+    /* Track Lumie's emotion for facial expression */
+    useEffect(() => {
+        if (currentNode?.emotion) {
+            setLumieEmotion(currentNode.emotion);
+        }
+    }, [currentNode]);
 
     /* Animate moving button for phase 3 */
     useEffect(() => {
@@ -363,7 +383,7 @@ export default function StartPage({ profile }: StartPageProps) {
                 onClick={handleClick}
             >
                 <img 
-                    src="/images/dragons/lumie/Lumie_transparent.png" 
+                    src={lumieEmotionMap[lumieEmotion] ?? lumieEmotionMap.neutral} 
                     alt="Lumie"
                     className="w-full h-full object-contain pointer-events-none select-none"
                     style={{

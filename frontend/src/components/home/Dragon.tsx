@@ -1,3 +1,4 @@
+// increase upgrade costs for dragons
 import { motion } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
 
@@ -10,9 +11,6 @@ interface DragonProps {
 
 export function Dragon({ imagePath, canFly, facesLeft, index }: DragonProps) {
     const [position, setPosition] = useState({ x: 0, y: 0 });
-    // If dragon faces left by default, we need to flip the direction logic
-    // For dragons facing right: 1 = right (normal), -1 = left (flipped)
-    // For dragons facing left: -1 = right (flipped to face right), 1 = left (normal)
     const [direction, setDirection] = useState(facesLeft ? -1 : 1);
     const [isMoving, setIsMoving] = useState(false);
 

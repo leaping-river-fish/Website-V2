@@ -3,7 +3,7 @@ export interface DialogueNode {
     next?: string | null;
     choices?: DialogueChoice[];
     done?: boolean;
-    character?: string; // Default "lumie", but could support other characters
+    character?: string;
     emotion?: string; 
     animation?: string;  
     delay?: number;    

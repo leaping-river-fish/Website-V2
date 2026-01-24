@@ -1,7 +1,7 @@
 // Add Trigger: Hello World!, Conversationalist, Visitor quests, Gallery views
 // Achievements to add:
 // dragon collection achievements, complete tutorials, more earn embers achievements, upgrade dragons 
-// achievements, visit projects on github, collect from dragons, skip tutorial.
+// achievements, visit projects on github, collect from dragons, skip tutorial!
 
 import { Trophy, Lock, CheckCircle2, Award, TrendingUp } from "lucide-react";
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";

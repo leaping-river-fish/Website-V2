@@ -24,6 +24,7 @@ export interface DialogueNode {
     next?: string | null;
     done?: boolean;
     animation?: AnimationName;
+    emotion?: string;
 }
 
 export interface DialogueChoice {

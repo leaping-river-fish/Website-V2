@@ -5,11 +5,13 @@ export const story: StoryType = {
         nodes: {
             start_returning: {
                 text: "AAAAH!",
+                emotion: "shock",
                 next: "return",
                 animation: "scared-jump"
             },
             return: {
                 text: "Oh it's you again. Do you want to play again?",
+                emotion: "happy",
                 choices: [
                     { text: "Not today. (skips intro game)", next: "__SKIP__" },
                     { text: "Yes, I'm challenging you again!", next: "finale" }
@@ -17,6 +19,7 @@ export const story: StoryType = {
             },
             start: {
                 text: "Woah, what do you think you're doing?",
+                emotion: "shock",
                 choices: [
                     { text: "Who are you?", next: "lumieResponse1" },
                     { text: "I just want to enter the website...", next: "lumieResponse2" }
@@ -26,18 +29,21 @@ export const story: StoryType = {
 
             lumieResponse1: {
                 text: "I'm Lumie! I'm the guardian of this website. You'll have to prove yourself to me before you can enter!",
+                emotion: "angry",
                 next: "argue",
                 animation: "frustrated-wobble"
             },
 
             lumieResponse2: {
                 text: "Not so fast! Every visitor needs to pass through me, Lumie, first!",
+                emotion: "angry",
                 next: "argue",
                 animation: "frustrated-wobble"
             },
 
             argue: {
                 text: "Think you can keep up with me?",
+                emotion: "neutral",
                 choices: [
                     { text: "Absolutely! Let's do this!", next: "finale" },
                     { text: "How hard could it be?", next: "finale", animation: "shake-y" }
@@ -46,6 +52,7 @@ export const story: StoryType = {
 
             finale: {
                 text: "Alright then! Let's see if you can catch me!",
+                emotion: "happy",
                 choices: [
                     { text: "Bring it!", next: null }
                 ],
@@ -58,10 +65,12 @@ export const story: StoryType = {
         nodes: {
             intro: {
                 text: "Let's see if you can keep up. Try to click me!",
+                emotion: "happy",
                 next: null
             },
             finale: {
                 text: "Ok, you're getting pretty good at this.",
+                emotion: "unamused",
                 next: null,
                 done: true
             },
@@ -92,16 +101,19 @@ export const story: StoryType = {
         nodes: {
             intro: {
                 text: "Now let's see if you can find me when I hide!",
+                emotion: "happy",
                 next: null
             },
 
             found1: {
                 text: "What?! You found me already?",
+                emotion: "shock",
                 next: null
             },
 
             found2: {
                 text: "How are you doing this?! Are you cheating?",
+                emotion: "shock",
                 choices: [
                     { text: "Just good eyesight!", next: null },
                     { text: "Maybe I am...", next: null }
@@ -110,11 +122,13 @@ export const story: StoryType = {
 
             found3: {
                 text: "Okay okay, you win this round!",
+                emotion: "unamused",
                 next: "finale"
             },
 
             finale: {
                 text: "You're better at this than I thought!",
+                emotion: "unamused",
                 done: true
             }
         }
@@ -124,21 +138,25 @@ export const story: StoryType = {
         nodes: {
             intro: {
                 text: "Alright, let's see if you can catch me while I'm moving!",
+                emotion: "happy",
                 next: null
             },
 
             caught1: {
                 text: "Hey! No fair!",
+                emotion: "angry",
                 next: null
             },
 
             caught2: {
                 text: "You're faster than you look!",
+                emotion: "happy",
                 next: null
             },
 
             caught3: {
                 text: "Okay okay! You got me! Stop clicking me already!",
+                emotion: "dizzy",
                 choices: [
                     { text: "That was fun!", next: "finale" },
                     { text: "Good game!", next: "finale" }
@@ -147,6 +165,7 @@ export const story: StoryType = {
 
             finale: {
                 text: "You're pretty impressive! Alright, you've earned your way in. Welcome to the website!",
+                emotion: "greedy",
                 choices: [
                     { text: "Thanks, Lumie!", next: null }
                 ],
@@ -159,6 +178,7 @@ export const story: StoryType = {
         nodes: {
             end: {
                 text: "Alright, you need to click me to enter.",
+                emotion: "happy",
                 next: null
             }
         }
