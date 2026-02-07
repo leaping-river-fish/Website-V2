@@ -205,6 +205,15 @@ const questDefinitions: QuestDefinition[] = [
         hidden: false,
     },
     {
+        id: "ember_startup",
+        name: "Ember Startup",
+        description: "Collect 10000 embers cumulatively",
+        category: QUEST_CATEGORIES.COLLECTION,
+        requirement: 10000,
+        reward: 500,
+        hidden: false,
+    },
+    {
         id: "ember_tycoon",
         name: "Ember Tycoon",
         description: "Collect 30000 embers cumulatively",
@@ -213,6 +222,70 @@ const questDefinitions: QuestDefinition[] = [
         reward: 2000,
         hidden: false,
     },
+    {
+        id: "unemployed",
+        name: "Unemployed",
+        description: "Collect 1000000 embers cumulatively",
+        category: QUEST_CATEGORIES.COLLECTION,
+        requirement: 1000000,
+        reward: 10000,
+        hidden: false,
+    },
+    {
+        id: "first_dragon",
+        name: "Best Buddies For Life",
+        description: "Unlock Lumie",
+        category: QUEST_CATEGORIES.COLLECTION,
+        requirement: 1,
+        reward: 100,
+        hidden: false,
+    },
+    {
+        id: "second_dragon",
+        name: "New Friend",
+        description: "Tame first dragon",
+        category: QUEST_CATEGORIES.COLLECTION,
+        requirement: 2,
+        reward: 1000,
+        hidden: false,
+    },
+    {
+        id: "five_dragons",
+        name: "Friends of Flame and Fang",
+        description: "Tame 5 different dragons",
+        category: QUEST_CATEGORIES.COLLECTION,
+        requirement: 5,
+        reward: 1000,
+        hidden: false,
+    },
+    {
+        id: "ten_dragons",
+        name: "Family of Fire",
+        description: "Tame 10 different dragons",
+        category: QUEST_CATEGORIES.COLLECTION,
+        requirement: 10,
+        reward: 1000,
+        hidden: false,
+    },
+    {
+        id: "all_dragons",
+        name: "When All Wings Come Home",
+        description: "Tame all possible dragons",
+        category: QUEST_CATEGORIES.COLLECTION,
+        requirement: 13,
+        reward: 1000,
+        hidden: false,
+    },
+    {
+        id: "all_legendary_dragons",
+        name: "A Legend In The Making",
+        description: "Tame all legendary dragons",
+        category: QUEST_CATEGORIES.COLLECTION,
+        requirement: 5,
+        reward: 5000,
+        hidden: false,
+    },
+
     // MASTERY QUESTS
     {
         id: "style_switcher",
@@ -461,10 +534,20 @@ export async function getUserQuestsWithDefinitions(anonId: string, env: string) 
         
         if (questDef.id === "ember_hoarder") {
             progress = profile.wallet.embers || 0;
-        } else if (questDef.id === "ember_tycoon") {
+        } else if (questDef.id === "ember_startup" || questDef.id === "ember_tycoon" || questDef.id === "unemployed") {
             progress = profile.wallet.totalEarned || 0;
         } else if (questDef.id === "collector" || questDef.id === "completionist") {
             progress = profile.ownedCosmetics?.length || 0;
+        } else if (questDef.id === "first_dragon" || questDef.id === "second_dragon" || 
+                   questDef.id === "five_dragons" || questDef.id === "ten_dragons" || 
+                   questDef.id === "all_dragons") {
+            progress = profile.ownedDragons?.length || 0;
+        } else if (questDef.id === "all_legendary_dragons") {
+            const legendaryDragons = ["dragon:lucky", "dragon:dawn", "dragon:dusk", "dragon:shad", "dragon:lumie"];
+            const ownedLegendaries = profile.ownedDragons?.filter((d: any) => 
+                legendaryDragons.includes(d.dragonId)
+            ).length || 0;
+            progress = ownedLegendaries;
         } else if (questDef.id === "achievement_25" || questDef.id === "achievement_50" || 
                 questDef.id === "achievement_75" || questDef.id === "achievement_100") {
             
