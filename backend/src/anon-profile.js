@@ -135,6 +135,21 @@ export default async function anonProfileHandler(req, res) {
                 completedQuests.push(...firstVisitResult.metaAchievements);
             }
 
+            const firstDragonResult = await updateQuestProgress(anonId, env, "first_dragon", 0);
+            if (firstDragonResult.questCompleted) {
+                const questDef = getQuestById("first_dragon");
+                completedQuests.push({
+                    questId: "first_dragon",
+                    questName: questDef?.name,
+                    category: questDef?.category,
+                    reward: firstDragonResult.reward,
+                });
+            }
+
+            if (firstDragonResult.metaAchievements && firstDragonResult.metaAchievements.length > 0) {
+                completedQuests.push(...firstDragonResult.metaAchievements);
+            }
+
             return res.json({
                 ok: true,
                 profile: {
@@ -222,7 +237,9 @@ export default async function anonProfileHandler(req, res) {
             
             const emberQuests = [
                 { id: "ember_hoarder", check: profile.wallet.embers >= 10000 },
-                { id: "ember_tycoon", check: profile.wallet.totalEarned >= 30000 }
+                { id: "ember_startup", check: profile.wallet.totalEarned >= 10000 },
+                { id: "ember_tycoon", check: profile.wallet.totalEarned >= 30000 },
+                { id: "unemployed", check: profile.wallet.totalEarned >= 1000000 }
             ];
 
             for (const { id, check } of emberQuests) {
@@ -410,6 +427,17 @@ export default async function anonProfileHandler(req, res) {
             }
 
             const completedQuests = [];
+            
+            // Check dragon collection quests
+            const dragonQuests = ["first_dragon", "second_dragon", "five_dragons", "ten_dragons", "all_dragons"];
+            for (const questId of dragonQuests) {
+                completedQuests.push(...await handleQuestCompletion(anonId, env, questId, 0));
+            }
+
+            // Check legendary dragon quest
+            completedQuests.push(...await handleQuestCompletion(anonId, env, "all_legendary_dragons", 0));
+
+            // Check first purchase quest
             completedQuests.push(...await handleQuestCompletion(anonId, env, "first_purchase", 1));
 
             return res.json({
@@ -439,7 +467,7 @@ export default async function anonProfileHandler(req, res) {
                 return res.status(400).json({ error: "Dragon not owned" });
             }
 
-            const upgradeCost = 500 * dragon.level;
+            const upgradeCost = 1000 * dragon.level;
 
             if (profile.wallet.embers < upgradeCost) {
                 return res.status(400).json({ error: "Not enough embers" });
@@ -529,7 +557,9 @@ export default async function anonProfileHandler(req, res) {
             
             const emberQuests = [
                 { id: "ember_hoarder", check: profile.wallet.embers >= 10000 },
-                { id: "ember_tycoon", check: profile.wallet.totalEarned >= 30000 }
+                { id: "ember_startup", check: profile.wallet.totalEarned >= 10000 },
+                { id: "ember_tycoon", check: profile.wallet.totalEarned >= 30000 },
+                { id: "unemployed", check: profile.wallet.totalEarned >= 1000000 }
             ];
 
             for (const { id, check } of emberQuests) {

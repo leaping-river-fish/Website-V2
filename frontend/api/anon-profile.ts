@@ -476,6 +476,41 @@ export default async function handler(
                 completedQuests.push(...firstPurchaseResult.metaAchievements);
             }
 
+            // Check dragon collection quests
+            const dragonQuests = ["first_dragon", "second_dragon", "five_dragons", "ten_dragons", "all_dragons"];
+            for (const questId of dragonQuests) {
+                const result = await updateQuestProgress(anonId, env, questId, 0);
+                if (result.questCompleted) {
+                    const questDef = getQuestById(questId);
+                    completedQuests.push({
+                        questId,
+                        questName: questDef?.name,
+                        category: questDef?.category,
+                        reward: result.reward,
+                    });
+                }
+                
+                if (result.metaAchievements && result.metaAchievements.length > 0) {
+                    completedQuests.push(...result.metaAchievements);
+                }
+            }
+
+            // Check legendary dragon quest
+            const legendaryResult = await updateQuestProgress(anonId, env, "all_legendary_dragons", 0);
+            if (legendaryResult.questCompleted) {
+                const questDef = getQuestById("all_legendary_dragons");
+                completedQuests.push({
+                    questId: "all_legendary_dragons",
+                    questName: questDef?.name,
+                    category: questDef?.category,
+                    reward: legendaryResult.reward,
+                });
+            }
+            
+            if (legendaryResult.metaAchievements && legendaryResult.metaAchievements.length > 0) {
+                completedQuests.push(...legendaryResult.metaAchievements);
+            }
+
             return sendJSON(res, 200, {
                 ok: true,
                 wallet: profile.wallet,
@@ -506,7 +541,7 @@ export default async function handler(
                 return sendJSON(res, 400, { error: "Dragon not owned" });
             }
 
-            const upgradeCost = 500 * dragon.level;
+            const upgradeCost = 1000 * dragon.level;
 
             if (profile.wallet.embers < upgradeCost) {
                 return sendJSON(res, 400, { error: "Not enough embers" });

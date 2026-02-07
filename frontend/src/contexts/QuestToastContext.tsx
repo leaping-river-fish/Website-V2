@@ -32,7 +32,7 @@ export function QuestToastProvider({ children }: { children: ReactNode }) {
             {children}
                 
             {/* Toast Container */}
-            <div className="fixed top-20 right-6 z-9999 flex flex-col gap-3 pointer-events-none">
+            <div className="fixed top-20 right-6 flex flex-col gap-3 pointer-events-none" style={{ zIndex: 9999 }}>
                 {toasts.map((toast) => (
                     <div
                         key={toast.id}

@@ -80,10 +80,20 @@ export async function updateQuestProgress(anonId, env, questId, incrementBy = 1)
     // Update progress
     if (questId === "ember_hoarder") {
         quest.progress = profile.wallet.embers || 0;
-    } else if (questId === "ember_tycoon") {
+    } else if (questId === "ember_startup" || questId === "ember_tycoon" || questId === "unemployed") {
         quest.progress = profile.wallet.totalEarned || 0;
     } else if (questId === "collector" || questId === "completionist") {
         quest.progress = profile.ownedCosmetics?.length || 0;
+    } else if (questId === "first_dragon" || questId === "second_dragon" || 
+               questId === "five_dragons" || questId === "ten_dragons" || 
+               questId === "all_dragons") {
+        quest.progress = profile.ownedDragons?.length || 0;
+    } else if (questId === "all_legendary_dragons") {
+        const legendaryDragons = ["dragon:lucky", "dragon:dawn", "dragon:dusk", "dragon:shad", "dragon:lumie"];
+        const ownedLegendaries = profile.ownedDragons?.filter(d => 
+            legendaryDragons.includes(d.dragonId)
+        ).length || 0;
+        quest.progress = ownedLegendaries;
     } else {
         quest.progress += incrementBy;
     }
@@ -200,8 +210,22 @@ export async function getUserQuestsWithDefinitions(anonId, env) {
         // Sync ember quests with wallet values
         if (questDef.id === "ember_hoarder") {
             progress = profile.wallet.embers || 0;
-        } else if (questDef.id === "ember_tycoon") {
+        } else if (questDef.id === "ember_startup" || questDef.id === "ember_tycoon" || questDef.id === "unemployed") {
             progress = profile.wallet.totalEarned || 0;
+        }
+
+        else if (questDef.id === "first_dragon" || questDef.id === "second_dragon" || 
+                    questDef.id === "five_dragons" || questDef.id === "ten_dragons" || 
+                    questDef.id === "all_dragons") {
+            progress = profile.ownedDragons?.length || 0;
+        }
+
+        else if (questDef.id === "all_legendary_dragons") {
+            const legendaryDragons = ["dragon:lucky", "dragon:dawn", "dragon:dusk", "dragon:shad", "dragon:lumie"];
+            const ownedLegendaries = profile.ownedDragons?.filter(d => 
+                legendaryDragons.includes(d.dragonId)
+            ).length || 0;
+            progress = ownedLegendaries;
         }
 
         // Sync collector quests with owned cosmetics count

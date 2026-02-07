@@ -21,7 +21,7 @@ export function DragonModal({ dragon, ownedDragon, isOpen, onClose }: DragonModa
     if (!isOpen) return null;
 
     const level = ownedDragon?.level || 1;
-    const upgradeCost = 500 * level;
+    const upgradeCost = 1000 * level;
     const canAffordUpgrade = embers >= upgradeCost;
     
     const currentRate = dragon.baseGenerationRate * level;

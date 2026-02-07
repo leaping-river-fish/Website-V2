@@ -179,8 +179,8 @@ const questDefinitions: QuestDefinition[] = [
     },
     {
         id: "collector",
-        name: "Collector",
-        description: "Own 3 different cosmetic items",
+        name: "Flame Collector",
+        description: "Own 3 different flame themes",
         category: QUEST_CATEGORIES.COLLECTION,
         requirement: 3,
         reward: 1000,
@@ -188,8 +188,8 @@ const questDefinitions: QuestDefinition[] = [
     },
     {
         id: "completionist",
-        name: "Completionist",
-        description: "Own all cosmetic items",
+        name: "Flame Completionist",
+        description: "Own all flame themes",
         category: QUEST_CATEGORIES.COLLECTION,
         requirement: 6,
         reward: 2000,
@@ -345,11 +345,21 @@ export async function updateQuestProgress(anonId: string, env: string, questId: 
 
     if (questId === "ember_hoarder") {
         quest.progress = profile.wallet.embers || 0;
-    } else if (questId === "ember_tycoon") {
+    } else if (questId === "ember_startup" || questId === "ember_tycoon" || questId === "unemployed") {
         quest.progress = profile.wallet.totalEarned || 0;
     } else if (questId === "collector" || questId === "completionist") {
         quest.progress = profile.ownedCosmetics?.length || 0;
-    }else {
+    } else if (questId === "first_dragon" || questId === "second_dragon" || 
+               questId === "five_dragons" || questId === "ten_dragons" || 
+               questId === "all_dragons") {
+        quest.progress = profile.ownedDragons?.length || 0;
+    } else if (questId === "all_legendary_dragons") {
+        const legendaryDragons = ["dragon:lucky", "dragon:dawn", "dragon:dusk", "dragon:shad", "dragon:lumie"];
+        const ownedLegendaries = profile.ownedDragons?.filter((d: any) => 
+            legendaryDragons.includes(d.dragonId)
+        ).length || 0;
+        quest.progress = ownedLegendaries;
+    } else {
         quest.progress += incrementBy;
     }
 

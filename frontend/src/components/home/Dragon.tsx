@@ -14,27 +14,25 @@ export function Dragon({ imagePath, canFly, facesLeft, index }: DragonProps) {
     const [direction, setDirection] = useState(facesLeft ? -1 : 1);
     const [isMoving, setIsMoving] = useState(false);
 
-    // Generate random movement
     const moveToRandomPosition = useCallback(() => {
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
         
-        // Keep dragons in visible area with some padding
         const padding = 100;
         const newX = padding + Math.random() * (screenWidth - padding * 2);
         const newY = canFly 
-            ? padding + Math.random() * (screenHeight * 0.6) // Flying dragons can go higher
-            : screenHeight * 0.6 + Math.random() * (screenHeight * 0.3); // Walking dragons stay lower
+            ? padding + Math.random() * (screenHeight * 0.6) 
+            : screenHeight * 0.6 + Math.random() * (screenHeight * 0.3); 
         
         // Update direction based on movement
         setPosition(prev => {
-            // Determine which way the dragon should face
+            
             const movingRight = newX > prev.x;
             
-            // If dragon naturally faces left, flip the logic
+            
             const newDirection = facesLeft 
-                ? (movingRight ? -1 : 1)  // Flip: moving right = -1 (flipped), moving left = 1 (normal)
-                : (movingRight ? 1 : -1); // Normal: moving right = 1 (normal), moving left = -1 (flipped)
+                ? (movingRight ? -1 : 1)  
+                : (movingRight ? 1 : -1);
             
             setDirection(newDirection);
             return { x: newX, y: newY };
@@ -42,7 +40,6 @@ export function Dragon({ imagePath, canFly, facesLeft, index }: DragonProps) {
         
         setIsMoving(true);
         
-        // Stop moving after animation completes
         setTimeout(() => setIsMoving(false), canFly ? 8000 : 5000);
     }, [canFly]);
 
@@ -51,7 +48,6 @@ export function Dragon({ imagePath, canFly, facesLeft, index }: DragonProps) {
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
         
-        // Spread dragons out initially
         const initialX = (screenWidth / 6) * (index + 1);
         const initialY = canFly 
             ? screenHeight * 0.3 + (index * 50)
@@ -59,26 +55,24 @@ export function Dragon({ imagePath, canFly, facesLeft, index }: DragonProps) {
         
         setPosition({ x: initialX, y: initialY });
         
-        // Start random movement after a delay
         const initialDelay = 2000 + index * 1000;
         const timer = setTimeout(moveToRandomPosition, initialDelay);
         
         return () => clearTimeout(timer);
     }, [index, canFly, moveToRandomPosition]);
 
-    // Move to new position periodically
     useEffect(() => {
         if (!isMoving) {
             const interval = setInterval(() => {
                 moveToRandomPosition();
-            }, 5000 + Math.random() * 5000); // Random interval between 5-10 seconds
+            }, 5000 + Math.random() * 5000); 
             
             return () => clearInterval(interval);
         }
     }, [isMoving, moveToRandomPosition]);
 
     if (canFly) {
-        // Flying dragon - flappy bird style
+        
         return (
             <motion.div
                 className="absolute pointer-events-none"
@@ -144,7 +138,7 @@ export function Dragon({ imagePath, canFly, facesLeft, index }: DragonProps) {
             </motion.div>
         );
     } else {
-        // Walking dragon - bouncing horizontally
+        
         return (
             <motion.div
                 className="absolute pointer-events-none"

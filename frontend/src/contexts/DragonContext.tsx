@@ -30,18 +30,18 @@ export function DragonProvider({ children }: { children: React.ReactNode }) {
 
         const dragonRates: Record<string, number> = {
             "dragon:lumie": 5,
-            "dragon:fire": 3,
-            "dragon:water": 2,
-            "dragon:ice": 8,
-            "dragon:flora": 5,
-            "dragon:stone": 6,
-            "dragon:wind": 4,
-            "dragon:steel": 9,
-            "dragon:power": 7,
-            "dragon:lucky": 10,
-            "dragon:dawn": 11,
-            "dragon:dusk": 12,
-            "dragon:shad": 13,
+            "dragon:fire": 1,
+            "dragon:water": 1,
+            "dragon:ice": 3,
+            "dragon:flora": 2,
+            "dragon:stone": 2,
+            "dragon:wind": 1,
+            "dragon:steel": 3,
+            "dragon:power": 2,
+            "dragon:lucky": 5,
+            "dragon:dawn": 5,
+            "dragon:dusk": 5,
+            "dragon:shad": 5,
         };
 
         let total = 0;

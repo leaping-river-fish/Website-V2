@@ -45,6 +45,16 @@ export default function Shop() {
         return () => unregisterTutorial();
     }, []);
 
+    // Listen for quest completions from dragon purchases
+    useEffect(() => {
+        const handleQuestsCompleted = (event: any) => {
+            processCompletedQuests(event.detail.completedQuests);
+        };
+
+        window.addEventListener('questsCompleted', handleQuestsCompleted);
+        return () => window.removeEventListener('questsCompleted', handleQuestsCompleted);
+    }, [processCompletedQuests]);
+
     const effectiveOwned = new Set([
         DEFAULT_THEME_ID,
         ...ownedCosmetics,
