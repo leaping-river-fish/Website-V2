@@ -7,7 +7,7 @@ export const shopDialogue: DialogueTree = {
             emotion: "happy",
             choices: [
                 { text: "Yes, please!", next: "tour_start" },
-                { text: "No, thanks", next: "cancel" }
+                { text: "No, thanks (skip tutorial)", next: "cancel" }
             ]
         },
         cancel: {

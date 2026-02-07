@@ -1,7 +1,4 @@
-// Add Trigger: Hello World!, Conversationalist, Gallery views
-// Achievements to add:
-// complete tutorials, upgrade dragons 
-// achievements, visit projects on github, collect from dragons, skip tutorial!
+// Add Trigger: Hello World!, Conversationalist, Gallery views, visit projects on github
 
 // Test daily visit quests
 
@@ -25,6 +22,7 @@ interface Quest {
     requirement: number;
     reward: number;
     hidden: boolean;
+    comingSoon: boolean;
     progress: number;
     completed: boolean;
     completedAt?: string;
@@ -62,6 +60,7 @@ export default function Achievements() {
             case "engagement": return "💬";
             case "collection": return "💎";
             case "mastery": return "🏆";
+            case "hidden": return "❓";
             default: return "⭐";
         }
     };
@@ -111,7 +110,7 @@ export default function Achievements() {
     
     const getRemainingEmbers = () => {
         return quests
-            .filter(q => !q.completed && !(q.hidden && q.progress === 0))
+            .filter(q => !q.completed && q.category !== "hidden")
             .reduce((sum, q) => sum + q.reward, 0);
     };
     
@@ -121,6 +120,7 @@ export default function Achievements() {
         { id: "engagement", name: "Engagement" },
         { id: "collection", name: "Collection" },
         { id: "mastery", name: "Mastery" },
+        { id: "hidden", name: "Hidden" },
     ];
         
     const filteredQuests = filter === "all" 
@@ -235,7 +235,10 @@ export default function Achievements() {
             <div className="max-w-6xl mx-auto px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-tutorial-id="quest-list">
                 {filteredQuests.map((quest) => {
-                    const isBlurred = quest.hidden && quest.progress === 0;
+                    // Coming Soon: fully censored with golden badge
+                    const isComingSoon = quest.comingSoon && !quest.completed;
+                    // Hidden: text blurred with question mark icon
+                    const isHidden = quest.category === "hidden" && !quest.completed;
                     
                     return (
                         <div
@@ -258,7 +261,8 @@ export default function Achievements() {
                                 }
                             }}
                         >   
-                            {isBlurred && (
+                            {/* Coming Soon Badge - fully censors the quest */}
+                            {isComingSoon && (
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
                                     <div className="bg-yellow-500/20 border border-yellow-500/50 px-4 py-2 rounded-full backdrop-blur-sm">
                                         <span className="text-yellow-400 text-sm font-bold">Coming Soon</span>
@@ -266,13 +270,15 @@ export default function Achievements() {
                                 </div>
                             )}
 
-                            <div className={`flex gap-4 ${isBlurred ? 'blur-sm select-none' : ''}`}>
+                            <div className={`flex gap-4 ${isComingSoon ? 'blur-sm select-none' : ''}`}>
                                 {/* Icon */}
                                 <div className={`text-4xl shrink-0 ${quest.completed ? "" : "grayscale opacity-50"}`}>
                                     {quest.completed ? (
                                         <CheckCircle2 className="text-green-400" size={48} />
-                                    ) : isBlurred ? (
+                                    ) : isComingSoon ? (
                                         <Lock className="text-gray-500" size={48} />
+                                    ) : isHidden ? (
+                                        <span className="text-4xl">❓</span>
                                     ) : (
                                         <span>{getCategoryIcon(quest.category)}</span>
                                     )}
@@ -281,21 +287,21 @@ export default function Achievements() {
                                 {/* Content */}
                                 <div className="grow min-w-0">
                                     <div className="flex items-start justify-between gap-2 mb-2">
-                                        <h3 className={`font-bold text-lg ${quest.completed ? "text-green-400" : "text-white"}`}>
-                                            {isBlurred ? "???" : quest.name}
+                                        <h3 className={`font-bold text-lg ${quest.completed ? "text-green-400" : "text-white"} ${isHidden ? 'blur-sm' : ''}`}>
+                                            {isComingSoon ? "???" : quest.name}
                                         </h3>
-                                        <div className="flex items-center gap-1 font-bold shrink-0" style={{ color: 'var(--achievement-primary)' }}>
+                                        <div className={`flex items-center gap-1 font-bold shrink-0 ${isHidden ? 'blur-sm' : ''}`} style={{ color: 'var(--achievement-primary)' }}>
                                             <EmberIcon size={20} />
-                                            <span>{isBlurred ? "?" : quest.reward}</span>
+                                            <span>{isComingSoon ? "?" : quest.reward}</span>
                                         </div>
                                     </div>
 
-                                    <p className="text-gray-400 text-sm mb-3">
-                                        {isBlurred ? "???" : quest.description}
+                                    <p className={`text-gray-400 text-sm mb-3 ${isHidden ? 'blur-sm' : ''}`}>
+                                        {isComingSoon ? "???" : quest.description}
                                     </p>
 
                                     {/* Progress Bar */}
-                                    {!quest.completed && !isBlurred && (
+                                    {!quest.completed && !isComingSoon && !isHidden && (
                                         <div className="space-y-1">
                                             <div className="flex justify-between text-xs text-gray-500">
                                                 <span>Progress</span>

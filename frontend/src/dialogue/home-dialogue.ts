@@ -1,14 +1,44 @@
 import type { DialogueTree } from './dialogue-types';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
 async function markTutorialComplete() {
     try {
-        await fetch('/api/anon-profile', {
+        const response = await fetch(`${API_BASE}/anon-profile`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'complete-tutorial' })
         });
+        const data = await response.json();
+        
+        // Dispatch quest completion events
+        if (data.completedQuests && data.completedQuests.length > 0) {
+            window.dispatchEvent(new CustomEvent('questsCompleted', { 
+                detail: { completedQuests: data.completedQuests } 
+            }));
+        }
     } catch (error) {
         console.error('Failed to mark tutorial as complete:', error);
+    }
+}
+
+async function markTutorialSkipped() {
+    try {
+        const response = await fetch(`${API_BASE}/anon-profile`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'skip-tutorial' })
+        });
+        const data = await response.json();
+        
+        // Dispatch quest completion events
+        if (data.completedQuests && data.completedQuests.length > 0) {
+            window.dispatchEvent(new CustomEvent('questsCompleted', { 
+                detail: { completedQuests: data.completedQuests } 
+            }));
+        }
+    } catch (error) {
+        console.error('Failed to mark tutorial as skipped:', error);
     }
 }
 
@@ -19,7 +49,7 @@ export const homeDialogue: DialogueTree = {
             emotion: "happy",
             choices: [
                 { text: "Sure, show me around!", next: "tour_start" },
-                { text: "Maybe later", next: "cancel" }
+                { text: "Maybe later (skip tutorial)", next: "cancel" }
             ]
         },
         cancel: {
@@ -27,7 +57,7 @@ export const homeDialogue: DialogueTree = {
             emotion: "neutral",
             highlight: "help-button",
             done: true,
-            onComplete: markTutorialComplete
+            onComplete: markTutorialSkipped
         },
         tour_start: {
             text: "Awesome! Let me tell you about the ember system first...",

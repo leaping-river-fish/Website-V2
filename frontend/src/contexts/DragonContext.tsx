@@ -242,6 +242,13 @@ export function DragonProvider({ children }: { children: React.ReactNode }) {
                     setEmbers(data.wallet.embers);
                 }
 
+                // Process completed quests if any
+                if (data.completedQuests && data.completedQuests.length > 0) {
+                    window.dispatchEvent(new CustomEvent('questsCompleted', { 
+                        detail: { completedQuests: data.completedQuests } 
+                    }));
+                }
+
                 return true;
             }
             return false;

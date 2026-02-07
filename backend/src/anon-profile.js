@@ -373,9 +373,36 @@ export default async function anonProfileHandler(req, res) {
                 return res.status(404).json({ error: "Profile not found" });
             }
 
+            // Track quest completion
+            const completedQuests = await handleQuestCompletion(anonId, env, "complete_tutorial", 1);
+
             return res.json({
                 ok: true,
                 tutorialCompleted: profile.tutorialCompleted,
+                completedQuests,
+            });
+        }
+
+        if (action === "skip-tutorial") {
+            const profile = await AnonymousProfile.findOneAndUpdate(
+                { anonId, env },
+                { $set: { tutorialCompleted: true, lastSeen: new Date() } },
+                { new: true }
+            );
+
+            if (!profile) {
+                return res.status(404).json({ error: "Profile not found" });
+            }
+
+            // Track both skip and complete tutorial quests
+            const completedQuests = [];
+            completedQuests.push(...await handleQuestCompletion(anonId, env, "skip_tutorial", 1));
+            completedQuests.push(...await handleQuestCompletion(anonId, env, "complete_tutorial", 1));
+
+            return res.json({
+                ok: true,
+                tutorialCompleted: profile.tutorialCompleted,
+                completedQuests,
             });
         }
 
@@ -480,6 +507,9 @@ export default async function anonProfileHandler(req, res) {
 
             await profile.save();
 
+            // Track first dragon upgrade quest
+            const completedQuests = await handleQuestCompletion(anonId, env, "upgrade_dragon", 1);
+
             return res.json({
                 ok: true,
                 wallet: profile.wallet,
@@ -488,6 +518,7 @@ export default async function anonProfileHandler(req, res) {
                     level: dragon.level,
                     totalGenerated: dragon.totalGenerated,
                 },
+                completedQuests,
             });
         }
 
@@ -554,6 +585,11 @@ export default async function anonProfileHandler(req, res) {
             await profile.save();
 
             const completedQuests = [];
+            
+            // Track first dragon ember collection quest
+            if (totalCollected > 0) {
+                completedQuests.push(...await handleQuestCompletion(anonId, env, "dragon_embers", 1));
+            }
             
             const emberQuests = [
                 { id: "ember_hoarder", check: profile.wallet.embers >= 10000 },

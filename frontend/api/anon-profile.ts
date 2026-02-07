@@ -8,7 +8,7 @@ import AnonymousProfile, { type OwnedDragon } from "./models/AnonymousProfile";
 import { completeQuest, updateQuestProgress, getQuestById, initializeQuests } from "./quests";
 
 interface RequestBody {
-    action?: "identify" | "complete-intro"| "earn-embers" | "get-wallet"| "purchase" | "equip" | "complete-tutorial" | "purchase-dragon" | "upgrade-dragon" | "collect-dragon-embers" | "get-dragons";
+    action?: "identify" | "complete-intro"| "earn-embers" | "get-wallet"| "purchase" | "equip" | "complete-tutorial" | "skip-tutorial" | "purchase-dragon" | "upgrade-dragon" | "collect-dragon-embers" | "get-dragons";
     anonId?: string;
     amount?: number;
     itemId?: string;
@@ -428,9 +428,76 @@ export default async function handler(
                 return sendJSON(res, 404, { error: "Profile not found" });
             }
 
+            // Track quest completion
+            const completedQuests: CompletedQuest[] = [];
+            const result = await updateQuestProgress(anonId, env, "complete_tutorial", 1);
+            if (result.questCompleted) {
+                const questDef = getQuestById("complete_tutorial");
+                completedQuests.push({
+                    questId: "complete_tutorial",
+                    questName: questDef?.name,
+                    category: questDef?.category,
+                    reward: result.reward,
+                });
+            }
+            if (result.metaAchievements && result.metaAchievements.length > 0) {
+                completedQuests.push(...result.metaAchievements);
+            }
+
             return sendJSON(res, 200, {
                 ok: true,
                 tutorialCompleted: profile.tutorialCompleted,
+                completedQuests,
+            });
+        }
+
+        // ---------------- SKIP TUTORIAL ----------------
+        if (action === "skip-tutorial") {
+            const profile = await AnonymousProfile.findOneAndUpdate(
+                { anonId, env },
+                { $set: { tutorialCompleted: true, lastSeen: new Date() } },
+                { new: true }
+            );
+
+            if (!profile) {
+                return sendJSON(res, 404, { error: "Profile not found" });
+            }
+
+            // Track both skip and complete tutorial quests
+            const completedQuests: CompletedQuest[] = [];
+            
+            const skipResult = await updateQuestProgress(anonId, env, "skip_tutorial", 1);
+            if (skipResult.questCompleted) {
+                const questDef = getQuestById("skip_tutorial");
+                completedQuests.push({
+                    questId: "skip_tutorial",
+                    questName: questDef?.name,
+                    category: questDef?.category,
+                    reward: skipResult.reward,
+                });
+            }
+            if (skipResult.metaAchievements && skipResult.metaAchievements.length > 0) {
+                completedQuests.push(...skipResult.metaAchievements);
+            }
+
+            const completeResult = await updateQuestProgress(anonId, env, "complete_tutorial", 1);
+            if (completeResult.questCompleted) {
+                const questDef = getQuestById("complete_tutorial");
+                completedQuests.push({
+                    questId: "complete_tutorial",
+                    questName: questDef?.name,
+                    category: questDef?.category,
+                    reward: completeResult.reward,
+                });
+            }
+            if (completeResult.metaAchievements && completeResult.metaAchievements.length > 0) {
+                completedQuests.push(...completeResult.metaAchievements);
+            }
+
+            return sendJSON(res, 200, {
+                ok: true,
+                tutorialCompleted: profile.tutorialCompleted,
+                completedQuests,
             });
         }
 
@@ -574,6 +641,22 @@ export default async function handler(
 
             await profile.save();
 
+            // Track first dragon upgrade quest
+            const completedQuests: CompletedQuest[] = [];
+            const upgradeResult = await updateQuestProgress(anonId, env, "upgrade_dragon", 1);
+            if (upgradeResult.questCompleted) {
+                const questDef = getQuestById("upgrade_dragon");
+                completedQuests.push({
+                    questId: "upgrade_dragon",
+                    questName: questDef?.name,
+                    category: questDef?.category,
+                    reward: upgradeResult.reward,
+                });
+            }
+            if (upgradeResult.metaAchievements && upgradeResult.metaAchievements.length > 0) {
+                completedQuests.push(...upgradeResult.metaAchievements);
+            }
+
             return sendJSON(res, 200, {
                 ok: true,
                 wallet: profile.wallet,
@@ -582,6 +665,7 @@ export default async function handler(
                     level: dragon.level,
                     totalGenerated: dragon.totalGenerated,
                 },
+                completedQuests,
             });
         }
 
@@ -650,6 +734,23 @@ export default async function handler(
             await profile.save();
 
             const completedQuests: CompletedQuest[] = [];
+            
+            // Track first dragon ember collection quest
+            if (totalCollected > 0) {
+                const collectResult = await updateQuestProgress(anonId, env, "dragon_embers", 1);
+                if (collectResult.questCompleted) {
+                    const questDef = getQuestById("dragon_embers");
+                    completedQuests.push({
+                        questId: "dragon_embers",
+                        questName: questDef?.name,
+                        category: questDef?.category,
+                        reward: collectResult.reward,
+                    });
+                }
+                if (collectResult.metaAchievements && collectResult.metaAchievements.length > 0) {
+                    completedQuests.push(...collectResult.metaAchievements);
+                }
+            }
             
             const emberQuests = [
                 { id: "ember_hoarder", check: profile.wallet.embers >= 10000 },

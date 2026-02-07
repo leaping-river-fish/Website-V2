@@ -7,7 +7,7 @@ export const achievementDialogue: DialogueTree = {
             emotion: "happy",
             choices: [
                 { text: "Yes!", next: "tour_start" },
-                { text: "Nope, I got it!", next: "cancel" }
+                { text: "Nope, I got it! (skip tutorial)", next: "cancel" }
             ]
         },
         cancel: {
@@ -52,6 +52,12 @@ export const achievementDialogue: DialogueTree = {
         },
         explain_coming_soon: {
             text: "Some achievements are still in development and will be added soon! Those are marked as 'Coming Soon'.",
+            emotion: "neutral",
+            highlight: "quest-list",
+            next: "explain_hidden"
+        },
+        explain_hidden: {
+            text: "Some achievements are hidden! They are blurred out with a question mark icon. You will not be told how to complete them, you will have to discover them yourself!",
             emotion: "neutral",
             highlight: "quest-list",
             next: "tour_end"

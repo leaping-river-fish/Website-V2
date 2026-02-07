@@ -6,6 +6,8 @@ const META_QUEST_IDS = ["achievement_25", "achievement_50", "achievement_75", "a
 function getCountableQuests(quests, profileQuests) {
     return quests.filter(q => {
         if (META_QUEST_IDS.includes(q.id)) return false;
+        // Exclude Hidden category quests from counting
+        if (q.category === "hidden") return false;
         const userQ = profileQuests?.find(uq => uq.questId === q.id);
         if (q.hidden && (!userQ || userQ.progress === 0)) return false;
         return true;
@@ -248,6 +250,8 @@ export async function getUserQuestsWithDefinitions(anonId, env) {
             const metaQuestIds = ["achievement_25", "achievement_50", "achievement_75", "achievement_100"];
             const countableQuests = allQuests.filter(q => {
                 if (metaQuestIds.includes(q.id)) return false;
+                // Exclude Hidden category quests from counting
+                if (q.category === "hidden") return false;
                 const userQ = profile.quests.find(uq => uq.questId === q.id);
                 if (q.hidden && (!userQ || userQ.progress === 0)) return false;
                 return true;
@@ -273,6 +277,8 @@ export async function getUserQuestsWithDefinitions(anonId, env) {
     const metaQuestIds = ["achievement_25", "achievement_50", "achievement_75", "achievement_100"];
     const countableQuests = questsWithDefs.filter(q => {
         if (metaQuestIds.includes(q.id)) return false;
+        // Exclude Hidden category quests from counting
+        if (q.category === "hidden") return false;
 
         if (q.hidden && q.progress === 0) return false;
         return true;

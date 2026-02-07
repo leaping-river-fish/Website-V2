@@ -3,6 +3,8 @@ import type { DialogueNode, DialogueChoice } from '../dialogue/dialogue-types';
 import { TutorialOverlay } from './tutorial/TutorialOverlay';
 import { useEffect } from 'react';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
 interface DialogueBoxProps {
     nodes?: Record<string, DialogueNode>;
     onContinue?: () => void;               
@@ -236,15 +238,23 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
                         onClick={async (e) => {
                             e.stopPropagation();
                             
-                            // Mark tutorial as complete when skipping
+                            // Mark tutorial as skipped
                             try {
-                                await fetch('/api/anon-profile', {
+                                const response = await fetch(`${API_BASE}/anon-profile`, {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ action: 'complete-tutorial' })
+                                    body: JSON.stringify({ action: 'skip-tutorial' })
                                 });
+                                const data = await response.json();
+                                
+                                // Dispatch quest completion events
+                                if (data.completedQuests && data.completedQuests.length > 0) {
+                                    window.dispatchEvent(new CustomEvent('questsCompleted', { 
+                                        detail: { completedQuests: data.completedQuests } 
+                                    }));
+                                }
                             } catch (error) {
-                                console.error('Failed to mark tutorial as complete:', error);
+                                console.error('Failed to mark tutorial as skipped:', error);
                             }
                             
                             hideDialogue();
