@@ -94,6 +94,9 @@ export async function updateQuestProgress(anonId, env, questId, incrementBy = 1)
             legendaryDragons.includes(d.dragonId)
         ).length || 0;
         quest.progress = ownedLegendaries;
+    } else if (questId === "daily_visitor" || questId === "weekly_visitor") {
+        // Sync with uniqueDaysVisited count
+        quest.progress = profile.uniqueDaysVisited || 0;
     } else {
         quest.progress += incrementBy;
     }
@@ -231,6 +234,11 @@ export async function getUserQuestsWithDefinitions(anonId, env) {
         // Sync collector quests with owned cosmetics count
         else if (questDef.id === "collector" || questDef.id === "completionist") {
             progress = profile.ownedCosmetics?.length || 0;
+        }
+
+        // Sync daily visit quests with uniqueDaysVisited count
+        else if (questDef.id === "daily_visitor" || questDef.id === "weekly_visitor") {
+            progress = profile.uniqueDaysVisited || 0;
         }
 
         // Sync meta achievement quests with completion percentage

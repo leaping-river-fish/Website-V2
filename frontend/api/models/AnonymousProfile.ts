@@ -37,6 +37,8 @@ export interface AnonymousProfileDoc extends Document {
     ownedDragons: OwnedDragon[];
     createdAt: Date;
     lastSeen: Date;
+    uniqueDaysVisited?: number;
+    lastLoginDate?: string;
 }
 
 const QuestSchema: Schema<Quest> = new mongoose.Schema({
@@ -85,6 +87,8 @@ const AnonymousProfileSchema: Schema<AnonymousProfileDoc> = new mongoose.Schema(
     quests: { type: [QuestSchema], default: [] },
     createdAt: { type: Date, default: Date.now },
     lastSeen: { type: Date, default: Date.now },
+    uniqueDaysVisited: { type: Number, default: 0 },
+    lastLoginDate: { type: String, default: null },
 });
 
 AnonymousProfileSchema.index({ anonId: 1, env: 1 }, { unique: true });

@@ -1,3 +1,5 @@
+// READ THIS BEFORE YOU EDIT THIS FILE:
+// THIS IS THE PRODUCTION BACKEND DO NOT EDIT THIS UNLESS INSTRUCTED TO DO SO
 import type { IncomingMessage, ServerResponse } from "http";
 import * as cookie from "cookie";
 import { connectMongo } from "./models/mongodb";
@@ -432,6 +434,9 @@ export async function updateQuestProgress(anonId: string, env: string, questId: 
             legendaryDragons.includes(d.dragonId)
         ).length || 0;
         quest.progress = ownedLegendaries;
+    } else if (questId === "daily_visitor" || questId === "weekly_visitor") {
+        // Sync with uniqueDaysVisited count
+        quest.progress = (profile as any).uniqueDaysVisited || 0;
     } else {
         quest.progress += incrementBy;
     }
@@ -548,6 +553,8 @@ export async function getUserQuestsWithDefinitions(anonId: string, env: string) 
                 legendaryDragons.includes(d.dragonId)
             ).length || 0;
             progress = ownedLegendaries;
+        } else if (questDef.id === "daily_visitor" || questDef.id === "weekly_visitor") {
+            progress = (profile as any).uniqueDaysVisited || 0;
         } else if (questDef.id === "achievement_25" || questDef.id === "achievement_50" || 
                 questDef.id === "achievement_75" || questDef.id === "achievement_100") {
             
@@ -721,8 +728,42 @@ export default async function handler(
 
         // GET /api/quests - Get all quests with user progress
         if (req.method === "GET") {
+            // First, trigger daily visitor quest checks (with increment 0 to just sync)
+            const completedQuests: any[] = [];
+            try {
+                const dailyResult = await updateQuestProgress(anonId, env, "daily_visitor", 0);
+                if (dailyResult.questCompleted) {
+                    const questDef = getQuestById("daily_visitor");
+                    completedQuests.push({
+                        questId: "daily_visitor",
+                        questName: questDef?.name,
+                        category: questDef?.category,
+                        reward: dailyResult.reward,
+                    });
+                }
+                if (dailyResult.metaAchievements?.length) {
+                    completedQuests.push(...dailyResult.metaAchievements);
+                }
+
+                const weeklyResult = await updateQuestProgress(anonId, env, "weekly_visitor", 0);
+                if (weeklyResult.questCompleted) {
+                    const questDef = getQuestById("weekly_visitor");
+                    completedQuests.push({
+                        questId: "weekly_visitor",
+                        questName: questDef?.name,
+                        category: questDef?.category,
+                        reward: weeklyResult.reward,
+                    });
+                }
+                if (weeklyResult.metaAchievements?.length) {
+                    completedQuests.push(...weeklyResult.metaAchievements);
+                }
+            } catch (error) {
+                console.error("[Daily Visitor Quest Check] Error:", error);
+            }
+
             const data = await getUserQuestsWithDefinitions(anonId, env);
-            return sendJSON(res, 200, { ok: true, ...data });
+            return sendJSON(res, 200, { ok: true, ...data, completedQuests });
         }
 
         // POST endpoints

@@ -1,8 +1,9 @@
-// Add Trigger: Hello World!, Conversationalist, Visitor quests, Gallery views
+// Add Trigger: Hello World!, Conversationalist, Gallery views
 // Achievements to add:
 // complete tutorials, upgrade dragons 
 // achievements, visit projects on github, collect from dragons, skip tutorial!
 
+// Test daily visit quests
 
 import { Trophy, Lock, CheckCircle2, Award, TrendingUp } from "lucide-react";
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
@@ -10,6 +11,7 @@ import { usePageTracking } from "../components/quests/usePageTracking";
 import EmberIcon from "../components/navbar/EmberIcon";
 import { useQuestContext } from "../contexts/QuestContext";
 import { useEffect, useState } from "react";
+import { useQuestToast } from "../contexts/QuestToastContext";
 
 import { useDialogue } from '../contexts/DialogueContext';
 import { DialogueBox } from '../components/DialogueBox';
@@ -40,6 +42,7 @@ export default function Achievements() {
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<string>("all");
     const { questUpdateTrigger } = useQuestContext();
+    const { showQuestComplete } = useQuestToast();
 
     // load tutorial
     const { registerTutorial, unregisterTutorial } = useDialogue();
@@ -53,6 +56,16 @@ export default function Achievements() {
 
     const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
     
+    const getCategoryIcon = (category: string) => {
+        switch (category) {
+            case "exploration": return "🗺️";
+            case "engagement": return "💬";
+            case "collection": return "💎";
+            case "mastery": return "🏆";
+            default: return "⭐";
+        }
+    };
+    
     const fetchQuests = async () => {
         try {
             const response = await fetch(`${API_BASE}/quests`, {
@@ -63,6 +76,17 @@ export default function Achievements() {
             if (data.ok) {
                 setQuests(data.quests);
                 setStats(data.stats);
+                
+                // Show toast for any completed quests
+                if (data.completedQuests && data.completedQuests.length > 0) {
+                    data.completedQuests.forEach((quest: any) => {
+                        showQuestComplete(
+                            quest.questName,
+                            getCategoryIcon(quest.category),
+                            quest.reward
+                        );
+                    });
+                }
             }
         } catch (error) {
             console.error("Error fetching quests:", error);
@@ -80,21 +104,6 @@ export default function Achievements() {
             fetchQuests();
         }
     }, [questUpdateTrigger]);
-    
-    const getCategoryIcon = (category: string) => {
-        switch (category) {
-            case "exploration":
-                return "🗺️";
-            case "engagement":
-                return "💬";
-            case "collection":
-                return "💎";
-            case "mastery":
-                return "🏆";
-            default:
-                return "⭐";
-        }
-    };
     
     const getProgressPercentage = (quest: Quest) => {
         return Math.min((quest.progress / quest.requirement) * 100, 100);

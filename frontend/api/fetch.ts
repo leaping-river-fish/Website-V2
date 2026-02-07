@@ -1,3 +1,5 @@
+// READ THIS BEFORE YOU EDIT THIS FILE:
+// THIS IS THE PRODUCTION BACKEND DO NOT EDIT THIS UNLESS INSTRUCTED TO DO SO
 import { v2 as cloudinary } from 'cloudinary';
 import type { IncomingMessage, ServerResponse } from "http";
 

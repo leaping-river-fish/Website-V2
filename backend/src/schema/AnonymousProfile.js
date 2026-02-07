@@ -79,6 +79,16 @@ const AnonymousProfileSchema = new mongoose.Schema({
     },
 
     lastSeen: Date,
+
+    uniqueDaysVisited: {
+        type: Number,
+        default: 0,
+    },
+
+    lastLoginDate: {
+        type: String,
+        default: null,
+    },
 });
 
 AnonymousProfileSchema.index({ anonId: 1, env: 1 }, { unique: true });
