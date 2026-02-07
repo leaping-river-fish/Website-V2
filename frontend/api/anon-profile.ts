@@ -142,6 +142,36 @@ export default async function handler(
                 needsSave = true;
             }
 
+            // Track unique days visited (EST timezone)
+            const getCurrentESTDate = () => {
+                const dateStr = new Date().toLocaleString('en-US', { 
+                    timeZone: 'America/New_York',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                });
+                // Convert "MM/DD/YYYY" to "YYYY-MM-DD"
+                const [month, day, year] = dateStr.split(',')[0].split('/');
+                return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+            };
+
+            const todayEST = getCurrentESTDate();
+            const lastLoginDate = profile.lastLoginDate;
+            
+            // Initialize fields for existing users
+            if (profile.uniqueDaysVisited === undefined) {
+                profile.uniqueDaysVisited = 0;
+            }
+            
+            let isNewDay = false;
+            if (lastLoginDate !== todayEST) {
+                // First login of this day (EST)
+                profile.uniqueDaysVisited += 1;
+                profile.lastLoginDate = todayEST;
+                isNewDay = true;
+                needsSave = true;
+            }
+
             if (needsSave) await profile.save();
 
             await initializeQuests(profile);
@@ -161,6 +191,37 @@ export default async function handler(
 
             if (firstVisitResult.metaAchievements && firstVisitResult.metaAchievements.length > 0) {
                 completedQuests.push(...firstVisitResult.metaAchievements);
+            }
+
+            // Update daily visitor quests if it's a new day
+            if (isNewDay) {
+                const dailyResult = await updateQuestProgress(anonId, env, "daily_visitor", 0);
+                if (dailyResult.questCompleted) {
+                    const questDef = getQuestById("daily_visitor");
+                    completedQuests.push({
+                        questId: "daily_visitor",
+                        questName: questDef?.name,
+                        category: questDef?.category,
+                        reward: dailyResult.reward,
+                    });
+                }
+                if (dailyResult.metaAchievements && dailyResult.metaAchievements.length > 0) {
+                    completedQuests.push(...dailyResult.metaAchievements);
+                }
+
+                const weeklyResult = await updateQuestProgress(anonId, env, "weekly_visitor", 0);
+                if (weeklyResult.questCompleted) {
+                    const questDef = getQuestById("weekly_visitor");
+                    completedQuests.push({
+                        questId: "weekly_visitor",
+                        questName: questDef?.name,
+                        category: questDef?.category,
+                        reward: weeklyResult.reward,
+                    });
+                }
+                if (weeklyResult.metaAchievements && weeklyResult.metaAchievements.length > 0) {
+                    completedQuests.push(...weeklyResult.metaAchievements);
+                }
             }
 
             // Check all dragon quests to ensure they're up to date
@@ -283,7 +344,9 @@ export default async function handler(
 
             const emberQuests = [
                 { id: "ember_hoarder", check: profile.wallet.embers >= 10000 },
-                { id: "ember_tycoon", check: profile.wallet.totalEarned >= 30000 }
+                { id: "ember_startup", check: profile.wallet.totalEarned >= 10000 },
+                { id: "ember_tycoon", check: profile.wallet.totalEarned >= 30000 },
+                { id: "unemployed", check: profile.wallet.totalEarned >= 1000000 }
             ];
 
             for (const { id, check } of emberQuests) {
@@ -754,7 +817,9 @@ export default async function handler(
             
             const emberQuests = [
                 { id: "ember_hoarder", check: profile.wallet.embers >= 10000 },
-                { id: "ember_tycoon", check: profile.wallet.totalEarned >= 30000 }
+                { id: "ember_startup", check: profile.wallet.totalEarned >= 10000 },
+                { id: "ember_tycoon", check: profile.wallet.totalEarned >= 30000 },
+                { id: "unemployed", check: profile.wallet.totalEarned >= 1000000 }
             ];
 
             for (const { id, check } of emberQuests) {
