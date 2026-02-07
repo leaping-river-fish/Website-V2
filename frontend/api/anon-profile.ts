@@ -161,6 +161,24 @@ export default async function handler(
                 completedQuests.push(...firstVisitResult.metaAchievements);
             }
 
+            // Check all dragon quests to ensure they're up to date
+            const dragonQuests = ["first_dragon", "second_dragon", "five_dragons", "ten_dragons", "all_dragons", "all_legendary_dragons"];
+            for (const questId of dragonQuests) {
+                const result = await updateQuestProgress(anonId, env, questId, 0);
+                if (result.questCompleted) {
+                    const questDef = getQuestById(questId);
+                    completedQuests.push({
+                        questId,
+                        questName: questDef?.name,
+                        category: questDef?.category,
+                        reward: result.reward,
+                    });
+                }
+                if (result.metaAchievements && result.metaAchievements.length > 0) {
+                    completedQuests.push(...result.metaAchievements);
+                }
+            }
+
             return sendJSON(res, 200, {
                 ok: true,
                 profile: {
