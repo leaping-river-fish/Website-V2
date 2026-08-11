@@ -1,39 +1,41 @@
-// Add clouds for fog of war effect
-// timeline size on extremely large screens is not correct (may need refactor)
-// remove text box replace with lumie image
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
 import { usePageTracking } from "../components/quests/usePageTracking";
 
-import Chatbot from "../components/Chatbot";
+import AboutSection from "../components/about/AboutSection";
 import CareerTimeline from "../components/about/CareerTimeline";
 import MobileSwiper from "../components/about/MobileSwiper";
-
 import StaticFogOfWar from "../components/effects/StaticFogOfWar";
+
+import { aboutSections } from "../data/about/sections";
 
 function About() {
     usePageTracking("about");
-    
+
     return (
         <div className="bg-[#1A1410] min-h-screen text-white overflow-hidden">
-            
             <NavbarSpacer />
 
-            <Chatbot />
-            
-            <div className="relative w-full py-12">
+            {/* Custom sections — edit data/about/sections.ts */}
+            <div className="relative w-full">
+                {aboutSections.map((section) => (
+                    <AboutSection key={section.id} section={section} />
+                ))}
+            </div>
 
-                {/* MOBILE SWIPER */}
+            {/* Career timeline — always last */}
+            <div className="relative w-full py-8 sm:py-12">
                 <MobileSwiper />
 
-                {/* DESKTOP TIMELINE */}
                 <div className="hidden laptop:block">
                     <CareerTimeline />
                 </div>
             </div>
 
-            <StaticFogOfWar height={300} />
+            <div className="relative z-40 mt-16 pointer-events-none">
+                <StaticFogOfWar height={300} />
+            </div>
         </div>
     );
 }
 
-export default About
+export default About;
