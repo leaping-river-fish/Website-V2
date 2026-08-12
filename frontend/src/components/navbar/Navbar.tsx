@@ -98,10 +98,10 @@ export const Navbar = () => {
                     "
                 >
                     {/* LOGO */}
-                    <Link to="/home" className="shrink-0">
+                    <Link to="/" className="shrink-0">
                         <motion.div
                             className={`h-10 w-10 transition-all duration-300 ease-out ${
-                                currentRoute === "/home" ? "flame-glow" : ""
+                                currentRoute === "/" ? "flame-glow" : ""
                             }`}
                             animate={{ scale: [1, 1.15, 1] }}
                             transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 2, ease: "easeInOut" }}
@@ -125,7 +125,6 @@ export const Navbar = () => {
                         <Link to="/about" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/about" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}>About</Link>
                         <Link to="/projects" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/projects" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}>Projects</Link>
                         <Link to="/gallery" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/gallery" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}>Gallery</Link>
-                        <Link to="/contact" className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/contact" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}>Contact</Link>
                         <Link 
                             to="/achievements" 
                             className={`px-4 py-2 rounded-full font-semibold cursor-pointer ${currentRoute === "/achievements" ? "flame-gradient-text" : "text-white hover:bg-gray-600"}`}
@@ -224,10 +223,10 @@ export const Navbar = () => {
             {/* Mobile */}
             <nav className="md:hidden bg-[#1A1410] text-white shadow-md relative z-50">
                 <div className="flex h-16 items-center px-4 justify-between">
-                    <Link to="/home" className="shrink-0">
+                    <Link to="/" className="shrink-0">
                         <motion.div
                             className={`h-10 w-10 transition-all duration-300 ease-out ${
-                                currentRoute === "/home" ? "flame-glow" : ""
+                                currentRoute === "/" ? "flame-glow" : ""
                             }`}
                             animate={{ scale: [1, 1.15, 1] }}
                             transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 2, ease: "easeInOut" }}
@@ -342,11 +341,10 @@ export const Navbar = () => {
                                 `}
                             >
                                 {[
-                                    { label: "Home", to: "/home" },
+                                    { label: "Home", to: "/" },
                                     { label: "About", to: "/about" },
                                     { label: "Projects", to: "/projects" },
                                     { label: "Gallery", to: "/gallery" },
-                                    { label: "Contact", to: "/contact" },
                                 ].map(item => (
                                     <Link
                                         key={item.to}

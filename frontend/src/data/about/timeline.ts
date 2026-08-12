@@ -46,14 +46,17 @@ export const timelineEvents: TimelineEvent[] = [
         role: "VR Game Developer",
         paragraphs: [
             [
+                { type: "text", text: "I found myself at " },
+                { type: "link", text: "LiftWerx", href: "https://liftwerx.com/" },
                 {
                     type: "text",
-                    text: "I found myself at LiftWerx for my third internship. I worked as a VR game developer, developing a engineering simulation tool using Unity and C#. I designed the UI on Figma, and implemented game features like poseable dummies. Worked on maintaining parity between VR and Desktop versions of the game ensuring the best user experience for each platform. I was also the QA engineer for the project writing up test cases for future automation.",
+                    text: " for my third internship. I worked as a VR game developer, developing a engineering simulation tool using Unity and C#. I designed the UI on Figma, and implemented game features like poseable dummies. Worked on maintaining parity between VR and Desktop versions of the game ensuring the best user experience for each platform. I was also the QA engineer for the project writing up test cases for future automation.",
                 },
             ],
         ],
         // TODO: replace with the real logo
         image: "/images/timeline_imgs/liftwerx_logo.png",
+        href: "https://liftwerx.com/",
         color: "#96C11F",
         imageSide: "right",
     },

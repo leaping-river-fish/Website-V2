@@ -13,6 +13,8 @@ import { DialogueBox } from '../components/DialogueBox';
 import { homeDialogue } from '../dialogue/home-dialogue';
 
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
 export const Home = () => {
     
     const { showDialogue, registerTutorial, unregisterTutorial } = useDialogue();
@@ -23,10 +25,13 @@ export const Home = () => {
         
         // Check if user has completed tutorial
         const checkTutorial = async () => {
+            if (tutorialChecked) return;
+
             try {
-                const response = await fetch('/api/anon-profile', {
+                const response = await fetch(`${API_BASE}/anon-profile`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify({ action: 'get-wallet' })
                 });
                 
@@ -39,7 +44,7 @@ export const Home = () => {
                 const data = await response.json();
                 
                 // Auto-start tutorial for new users
-                if (!data.tutorialCompleted && !tutorialChecked) {
+                if (!data.tutorialCompleted) {
                     showDialogue(homeDialogue.nodes.welcome);
                 }
                 setTutorialChecked(true);

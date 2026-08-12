@@ -66,6 +66,7 @@ export interface StateRefs {
 
     /* ----------------------- NAVIGATION ----------------------- */
     navigate: (path: string) => void;
+    onIntroComplete?: () => void;
     
     /* ----------------------- QUEST TRACKING ----------------------- */
     processCompletedQuests: (completedQuests: any[]) => Promise<void>;
@@ -279,6 +280,7 @@ export async function handleClickPhase4(state: StateRefs) {
         
         if (res.ok) {
             const data = await res.json();
+            state.onIntroComplete?.();
             
             // Process completed quests to show toast notifications
             if (data.completedQuests && data.completedQuests.length > 0) {
@@ -291,5 +293,5 @@ export async function handleClickPhase4(state: StateRefs) {
         if (import.meta.env.DEV) console.warn("Failed to mark intro as completed", err);
     }
 
-    state.navigate("/home");
+    state.navigate("/projects");
 }

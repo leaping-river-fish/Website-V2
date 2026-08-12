@@ -19,6 +19,27 @@ const hardcodedProjects = [
     },
     {
         id: "h2",
+        name: "Handheld Console Design",
+        description: "Enclosure designed in Autodesk Fusion 360. Soldering and wiring done by me. Troubleshooting screen rendering issues. The console that runs SYDEQuest The Game.",
+        image: "/images/project_imgs/FinalF.jpeg",
+        tags: ["autodeskfusion", "design", "group", "soldering", "wiring", "3dprinting", "hardware"],
+        showcaseimages: [
+            "/images/project_imgs/Prototype.jpeg",
+            "/images/project_imgs/FinalF.jpeg",
+            "/images/project_imgs/FinalB.jpeg",
+            "/images/project_imgs/Debugging1.jpeg",
+            "/images/project_imgs/Debugging2.jpeg",
+            "/images/project_imgs/Debugging3.jpeg",
+            "/images/project_imgs/Debugging4.jpeg",
+            "/images/project_imgs/Debugging5.jpeg",
+            "/images/project_imgs/Debugging6.jpeg",
+            "/images/project_imgs/FinalAcrylicLaserCut .png",
+            "/images/project_imgs/3DEnclosureSide.png"
+        ],
+        files: [],
+    },
+    {
+        id: "h3",
         name: "Solar-powered Car Design",
         description: "Car designed and assembled in SolidWorks",
         image: "/images/project_imgs/solidworks_car.png",
@@ -28,7 +49,7 @@ const hardcodedProjects = [
         modelPath: "/3d_models/car.glb",
     },
     {
-        id: "h3",
+        id: "h4",
         name: "Nintendo Switch Recreation",
         description: "Solidworks recreation test with an image reference",
         image: "/images/project_imgs/nintendo.png",
@@ -38,7 +59,7 @@ const hardcodedProjects = [
         modelPath: "/3d_models/nintendo.glb",
     },
     {
-        id: "h4",
+        id: "h5",
         name: "Puzzle Project",
         description: "Trillium Flower Popper",
         image: "/images/project_imgs/puzzle.png",
@@ -46,7 +67,7 @@ const hardcodedProjects = [
         showcaseimages: [],
         files: [],
         modelPath: "/3d_models/puzzle.glb",
-    }
+    },
 ];
 
 export default function LocalProjects({ onSelectProject }: { onSelectProject: (project: any) => void }) {

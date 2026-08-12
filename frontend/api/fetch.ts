@@ -69,7 +69,8 @@ async function handleGithubProjects(res: ServerResponse) {
 
         const projects: GitProject[] = await Promise.all(
             repos
-                .filter((repo: any) => repo.name)
+                // Skip the special GitHub profile README repo (same name as the username)
+                .filter((repo: any) => repo.name && repo.name !== username)
                 .map(async (repo: any) => {
                     const topicRes = await fetch(`https://api.github.com/repos/${username}/${repo.name}/topics`, {
                         headers: {
@@ -103,7 +104,7 @@ async function handleGetImages(res: ServerResponse, category: string | undefined
 
     try {
         const result = await cloudinary.search
-            .expression(`tags=${category}`)
+            .expression(`tags="${category}"`)
             .sort_by('created_at', 'desc')
             .max_results(40)
             .execute();

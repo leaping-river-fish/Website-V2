@@ -1,16 +1,31 @@
-import React, { createContext, useContext } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { createContext, useContext, useMemo } from "react";
+import { useQueries } from "@tanstack/react-query";
 
-interface ImageData {
+export interface ImageData {
     src: string;
     alt: string;
     category: string;
 }
 
+/** Cloudinary tag + display title. Add entries here to introduce new gallery sections. */
+export const GALLERY_SECTIONS = [
+    { id: "art", title: "Art", category: "Art" },
+    { id: "sydequest-the-game", title: "SYDEQuest The Game", category: "SYDEQuest The Game" },
+    { id: "off-angle-affinity", title: "Off-Angle: Affinity", category: "Off-Angle: Affinity" },
+] as const;
+
+export type GallerySectionId = (typeof GALLERY_SECTIONS)[number]["id"];
+
+export interface GallerySection {
+    id: GallerySectionId;
+    title: string;
+    category: string;
+    images: ImageData[];
+}
+
 interface ImageContextType {
-    fundraisingImages: ImageData[];
-    eventImages: ImageData[];
-    artImages: ImageData[];
+    sections: GallerySection[];
+    allImages: ImageData[];
     isLoading: boolean;
 }
 
@@ -18,7 +33,7 @@ export const ImageContext = createContext<ImageContextType | undefined>(undefine
 
 export const useImageContext = () => {
     const ctx = useContext(ImageContext);
-    
+
     if (!ctx) {
         throw new Error("useImageContext must be used within an ImageProvider");
     }
@@ -28,43 +43,50 @@ export const useImageContext = () => {
 
 async function fetchImages(category: string): Promise<ImageData[]> {
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
-    const res = await fetch(`${API_BASE}/fetch?action=images&category=${category}`);
+    const res = await fetch(
+        `${API_BASE}/fetch?action=images&category=${encodeURIComponent(category)}`
+    );
     if (!res.ok) throw new Error("Failed to fetch images");
     return res.json();
 }
 
 export const ImageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const fundraising = useQuery({
-        queryKey: ["images", "fundraising"],
-        queryFn: () => fetchImages("Fundraising"),
-        staleTime: 1000 * 60 * 30,
-        gcTime: 1000 * 60 * 60,
+    const queries = useQueries({
+        queries: GALLERY_SECTIONS.map((section) => ({
+            queryKey: ["images", section.id],
+            queryFn: () => fetchImages(section.category),
+            staleTime: 1000 * 60 * 30,
+            gcTime: 1000 * 60 * 60,
+        })),
     });
 
-    const event = useQuery({
-        queryKey: ["images", "event"],
-        queryFn: () => fetchImages("Event-Advertising"),
-        staleTime: 1000 * 60 * 30,
-        gcTime: 1000 * 60 * 60,
-    });
+    const sections = useMemo<GallerySection[]>(
+        () =>
+            GALLERY_SECTIONS.map((section, i) => ({
+                id: section.id,
+                title: section.title,
+                category: section.category,
+                images: queries[i]?.data ?? [],
+            })),
+        [queries]
+    );
 
-    const art = useQuery({
-        queryKey: ["images", "art"],
-        queryFn: () => fetchImages("Art"),
-        staleTime: 1000 * 60 * 30,
-        gcTime: 1000 * 60 * 60,
-    });
+    const allImages = useMemo(
+        () => sections.flatMap((section) => section.images),
+        [sections]
+    );
+
+    const isLoading = queries.some((q) => q.isLoading);
 
     return (
-        <ImageContext.Provider 
+        <ImageContext.Provider
             value={{
-                fundraisingImages: fundraising.data ?? [],
-                eventImages: event.data ?? [],
-                artImages: art.data ?? [],
-                isLoading: fundraising.isLoading || event.isLoading || art.isLoading,
+                sections,
+                allImages,
+                isLoading,
             }}
         >
             {children}
         </ImageContext.Provider>
     );
-}
+};

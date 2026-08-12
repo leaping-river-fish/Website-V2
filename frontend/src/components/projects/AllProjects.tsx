@@ -11,7 +11,7 @@ const AllProjects = () => {
             {/* GitHub Projects Section */}
             <section>
                 <h2 className="text-white font-bold text-2xl mb-4">GitHub Projects</h2>
-                <GitProjects />
+                <GitProjects onSelectProject={setSelectedProject} />
             </section>
 
             {/* Local Projects Section */}
@@ -20,7 +20,6 @@ const AllProjects = () => {
                 <LocalProjects onSelectProject={setSelectedProject} />
             </section>
 
-            {/* Modal for Local Projects */}
             <ProjectModal
                 project={selectedProject}
                 onClose={() => setSelectedProject(null)}

@@ -7,6 +7,7 @@ async function markTutorialComplete() {
         const response = await fetch(`${API_BASE}/anon-profile`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ action: 'complete-tutorial' })
         });
         const data = await response.json();
@@ -27,6 +28,7 @@ async function markTutorialSkipped() {
         const response = await fetch(`${API_BASE}/anon-profile`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ action: 'skip-tutorial' })
         });
         const data = await response.json();

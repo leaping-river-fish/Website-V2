@@ -50,12 +50,6 @@ export const achievementDialogue: DialogueTree = {
             highlight: "ember-counter",
             next: "explain_coming_soon"
         },
-        explain_coming_soon: {
-            text: "Some achievements are still in development and will be added soon! Those are marked as 'Coming Soon'.",
-            emotion: "neutral",
-            highlight: "quest-list",
-            next: "explain_hidden"
-        },
         explain_hidden: {
             text: "Some achievements are hidden! They are blurred out with a question mark icon. You will not be told how to complete them, you will have to discover them yourself!",
             emotion: "neutral",

@@ -11,9 +11,10 @@ import { useQuestTracker } from "../components/quests/useQuestTracker";
 
 interface StartPageProps {
     profile?: { anonId: string; introGameCompleted: boolean } | null;
+    onIntroComplete?: () => void;
 }
 
-export default function StartPage({ profile }: StartPageProps) {
+export default function StartPage({ profile, onIntroComplete }: StartPageProps) {
     /* --------------------------- DEVELOPMENT -------------------------- */
     const isDev = import.meta.env.DEV;
 
@@ -119,6 +120,7 @@ export default function StartPage({ profile }: StartPageProps) {
         motionX,
         motionY,
         processCompletedQuests,
+        onIntroComplete,
     };
 
     /* ---------------- MOBILE CHECK ---------------- */
@@ -131,7 +133,7 @@ export default function StartPage({ profile }: StartPageProps) {
     useEffect(() => {
         if (isDesktop === false) {
             const timer = setTimeout(() => {
-                navigate("/home");
+                navigate("/projects");
             }, 800); 
 
             return () => clearTimeout(timer);
@@ -337,7 +339,7 @@ export default function StartPage({ profile }: StartPageProps) {
             {/* Only available in development */}
             {isDev && (
                 <button
-                    onClick={() => navigate("/home")}
+                    onClick={() => navigate("/projects")}
                     style={{
                         position: "fixed",
                         top: 20,
@@ -407,7 +409,7 @@ export default function StartPage({ profile }: StartPageProps) {
                                         if (choice.next === "__SKIP__") {
                                             setIsDialogueActive(false);
                                             setCurrentNode(null);
-                                            navigate("/home");
+                                            navigate("/projects");
                                             return;
                                         }
                                         if (choice.next) {

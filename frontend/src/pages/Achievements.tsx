@@ -1,4 +1,4 @@
-// Add Trigger: Hello World!, Conversationalist, Gallery views, visit projects on github
+// Add Trigger: Gallery views, visit projects on github
 
 // Test daily visit quests
 

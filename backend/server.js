@@ -57,7 +57,8 @@ app.get("/api/fetch", async (req, res) => {
 
             const projects = await Promise.all(
                 repos
-                    .filter(repo => repo.name)
+                    // Skip the special GitHub profile README repo (same name as the username)
+                    .filter(repo => repo.name && repo.name !== username)
                     .map(async (repo) => {
                         const topicRes = await fetch(`https://api.github.com/repos/${username}/${repo.name}/topics`, {
                             headers: {
@@ -91,7 +92,7 @@ app.get("/api/fetch", async (req, res) => {
 
         try {
             const result = await cloudinary.search
-                .expression(`tags=${category}`)
+                .expression(`tags="${category}"`)
                 .sort_by("created_at", "desc")
                 .max_results(40)
                 .execute();
@@ -110,38 +111,6 @@ app.get("/api/fetch", async (req, res) => {
     }
 
     return res.status(400).json({ error: "Invalid action. Use ?action=github or ?action=images&category=..." });
-});
-
-{/* Email post for contact */}
-app.post("/api/send", async (req, res) => {
-    const { name, email, subject, message } = req.body;
-
-    if (!name || !email || !subject || !message) {
-        return res.status(400).json({ error: "All fields are required." });
-    }
-
-    const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-            user: process.env.GMAIL_USER,
-            pass: process.env.GMAIL_PASS,
-        },
-    });
-
-    const mailOptions = {
-        from: process.env.GMAIL_USER,
-        to: process.env.RECEIVER_EMAIL,
-        subject: `New Contact Form Submission: ${subject}`,
-        text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-
-        res.status(200).json({ message: "Email sent successfully!" });
-    } catch (error) {
-        res.status(500).json({ error: "Failed to send email. Check server logs." });
-    }
 });
 
 app.listen(PORT, () => {

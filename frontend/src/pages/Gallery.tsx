@@ -1,6 +1,6 @@
 // Spin images animation for loading?
 import React, { useState, useEffect, useMemo } from "react";
-import { useImageContext } from "../contexts/ImageContext";
+import { useImageContext, type ImageData } from "../contexts/ImageContext";
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
 import { usePageTracking } from "../components/quests/usePageTracking";
 import GalleryImage from "../components/gallery/GalleryImage";
@@ -14,7 +14,7 @@ import "yet-another-react-lightbox/plugins/captions.css";
 
 const Gallery: React.FC = () => {
     usePageTracking("gallery");
-    const { fundraisingImages, eventImages, artImages, isLoading } = useImageContext();
+    const { sections, allImages, isLoading } = useImageContext();
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState<number | null>(null);
     const [hasEntered, setHasEntered] = useState(false);
@@ -22,11 +22,6 @@ const Gallery: React.FC = () => {
     useEffect(() => {
         setHasEntered(true);
     }, []);
-
-    const allImages = useMemo(
-        () => [...artImages, ...fundraisingImages, ...eventImages],
-        [artImages, fundraisingImages, eventImages]
-    );
 
     const slides = useMemo(
         () =>
@@ -44,9 +39,9 @@ const Gallery: React.FC = () => {
             setCurrentIndex(index);
             setIsLightboxOpen(true);
         }
-    }
+    };
 
-    const Section = (props: { title: string; images: any[] }) => (
+    const Section = (props: { title: string; images: ImageData[] }) => (
         <div className="mb-16 w-full">
             <h2 className="text-3xl font-bold mb-6 text-white text-center">{props.title}</h2>
 
@@ -76,9 +71,9 @@ const Gallery: React.FC = () => {
             <div className="max-w-6xl mx-auto pt-10 pb-20 px-4">
                 <NavbarSpacer />
 
-                <Section title="Art" images={artImages} />
-                <Section title="Fundraising" images={fundraisingImages} />
-                <Section title="Event Advertising" images={eventImages} />
+                {sections.map((section) => (
+                    <Section key={section.id} title={section.title} images={section.images} />
+                ))}
 
                 {isLightboxOpen && currentIndex !== null && (
                     <Lightbox
@@ -92,6 +87,6 @@ const Gallery: React.FC = () => {
             </div>
         </div>
     );
-}
+};
 
-export default Gallery
+export default Gallery;

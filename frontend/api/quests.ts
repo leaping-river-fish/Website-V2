@@ -76,16 +76,6 @@ const questDefinitions: QuestDefinition[] = [
         comingSoon: false,
     },
     {
-        id: "visit_gallery",
-        name: "Art Enthusiast",
-        description: "Visit the gallery page",
-        category: QUEST_CATEGORIES.EXPLORATION,
-        requirement: 1,
-        reward: 200,
-        hidden: false,
-        comingSoon: false,
-    },
-    {
         id: "visit_projects",
         name: "Code Explorer",
         description: "Check out the projects page",
@@ -175,16 +165,6 @@ const questDefinitions: QuestDefinition[] = [
         reward: 7000,
         hidden: false,
         comingSoon: false,
-    },
-    {
-        id: "gallery_views",
-        name: "Gallery Enthusiast",
-        description: "View all the gallery images",
-        category: QUEST_CATEGORIES.ENGAGEMENT,
-        requirement: 35,
-        reward: 500,
-        hidden: false,
-        comingSoon: true,
     },
     {
         id: "complete_tutorial",

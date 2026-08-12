@@ -243,6 +243,7 @@ export function DialogueBox({ nodes, onContinue, onChoiceSelect }: DialogueBoxPr
                                 const response = await fetch(`${API_BASE}/anon-profile`, {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
+                                    credentials: 'include',
                                     body: JSON.stringify({ action: 'skip-tutorial' })
                                 });
                                 const data = await response.json();

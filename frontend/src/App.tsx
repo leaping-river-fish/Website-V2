@@ -7,7 +7,6 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Projects from "./pages/Projects";
 import Gallery from "./pages/Gallery";
-import Contact from "./pages/Contact";
 import Shop from "./pages/Shop";
 import Achievements from "./pages/Achievements";
 
@@ -34,7 +33,7 @@ export default function App() {
   const { hydrateTheme } = useFlameTheme();
   const { processCompletedQuests } = useQuestTracker();
   const { setIsAuthenticated } = useQuestContext();
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState<{ anonId: string; introGameCompleted: boolean } | null>(null);
   const [profileReady, setProfileReady] = useState(false);
   const [hasIdentified, setHasIdentified] = useState(false);
   
@@ -132,16 +131,12 @@ export default function App() {
         />
       )}
       
+      {!profileReady ? (
+        <LoadingScreen />
+      ) : (
       <Routes location={{ pathname: displayedPath }}>
         <Route
           path="/"
-          element={
-            profileReady ? <StartPage profile={profile} /> : <LoadingScreen />
-          }
-        />
-       
-        <Route
-          path="/home"
           element={
             <>
               <Navbar />
@@ -153,7 +148,14 @@ export default function App() {
         <Route
           path="/start"
           element={
-            profileReady ? <StartPage profile={profile} /> : <LoadingScreen />
+            <StartPage
+              profile={profile}
+              onIntroComplete={() =>
+                setProfile((prev) =>
+                  prev ? { ...prev, introGameCompleted: true } : prev
+                )
+              }
+            />
           }
         />
 
@@ -188,16 +190,6 @@ export default function App() {
         />
 
         <Route
-          path="/contact"
-          element={
-            <>
-              <Navbar />
-              <Contact />
-            </>
-          }
-        />
-
-        <Route
           path="/achievements"
           element={
             <>
@@ -217,6 +209,7 @@ export default function App() {
           }
         />
       </Routes>
+      )}
     </div>
   );
 }

@@ -335,7 +335,6 @@ export async function trackPageVisit(anonId, env, pageName) {
         about: "visit_about",
         gallery: "visit_gallery",
         projects: "visit_projects",
-        contact: "visit_contact",
         achievements: "visit_achievements",
         shop: "visit_shop", 
     };
