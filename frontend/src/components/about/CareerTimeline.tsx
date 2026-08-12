@@ -3,6 +3,7 @@ import { useRef, useState, useEffect, useLayoutEffect } from "react";
 
 import { timelineEvents } from "../../data/about/timeline";
 import type { TimelineEvent } from "../../data/about/types";
+import AppLink from "../reusable_misc/AppLink";
 import RichText from "./RichText";
 import TextImageBlock from "./TextImageBlock";
 
@@ -56,10 +57,8 @@ function TimelineEventSection({
             style={{ x: imageX }}
         >
             {event.href ? (
-                <a
+                <AppLink
                     href={event.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="pointer-events-auto"
                 >
                     <img
@@ -73,7 +72,7 @@ function TimelineEventSection({
                         "
                         alt={`${event.company} logo`}
                     />
-                </a>
+                </AppLink>
             ) : (
                 <img
                     src={event.image}

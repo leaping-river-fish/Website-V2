@@ -1,4 +1,5 @@
 import type { InlineSpan } from "../../data/about/types";
+import AppLink from "../reusable_misc/AppLink";
 
 type RichTextProps = {
     paragraphs: InlineSpan[][];
@@ -20,15 +21,13 @@ export default function RichText({
                 <p key={pIdx} className={paragraphClassName}>
                     {spans.map((span, sIdx) =>
                         span.type === "link" ? (
-                            <a
+                            <AppLink
                                 key={sIdx}
                                 href={span.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
                                 className={linkClassName}
                             >
                                 {span.text}
-                            </a>
+                            </AppLink>
                         ) : (
                             <span key={sIdx}>{span.text}</span>
                         )

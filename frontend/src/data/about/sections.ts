@@ -42,7 +42,7 @@ export const aboutSections: AboutSectionData[] = [
                     {
                         type: "link",
                         text: "projects page",
-                        href: "https://asklumie.me/projects",
+                        href: "/projects",
                     },
                     {
                         type: "text",
@@ -60,7 +60,7 @@ export const aboutSections: AboutSectionData[] = [
                     {
                         type: "link",
                         text: "gallery page",
-                        href: "https://asklumie.me/gallery",
+                        href: "/gallery",
                     },
                     {
                         type: "text",
@@ -78,7 +78,7 @@ export const aboutSections: AboutSectionData[] = [
                     {
                         type: "link",
                         text: "shop",
-                        href: "https://asklumie.me/shop",
+                        href: "/shop",
                     },
                     {
                         type: "text",
@@ -87,7 +87,7 @@ export const aboutSections: AboutSectionData[] = [
                     {
                         type: "link",
                         text: "achievements page",
-                        href: "https://asklumie.me/achievements",
+                        href: "/achievements",
                     },
                     {
                         type: "text",

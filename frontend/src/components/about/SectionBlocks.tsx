@@ -1,4 +1,5 @@
 import type { ContentBlock } from "../../data/about/types";
+import AppLink from "../reusable_misc/AppLink";
 import RichText from "./RichText";
 
 type SectionBlocksProps = {
@@ -48,14 +49,12 @@ function ImageBlock({
     return (
         <figure className={figureClass}>
             {block.href ? (
-                <a
+                <AppLink
                     href={block.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="block w-full transition-transform duration-300 hover:-translate-y-0.5"
                 >
                     {img}
-                </a>
+                </AppLink>
             ) : (
                 img
             )}

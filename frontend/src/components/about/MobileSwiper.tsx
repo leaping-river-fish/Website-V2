@@ -5,6 +5,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 
 import { timelineEvents } from "../../data/about/timeline";
+import AppLink from "../reusable_misc/AppLink";
 import RichText from "./RichText";
 
 export default function MobileSwiper() {
@@ -52,14 +53,12 @@ export default function MobileSwiper() {
                                 />
 
                                 {event.href && (
-                                    <a
+                                    <AppLink
                                         href={event.href}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
                                         className="text-white underline underline-offset-2 font-semibold"
                                     >
                                         Visit Website →
-                                    </a>
+                                    </AppLink>
                                 )}
                             </div>
                         </SwiperSlide>
