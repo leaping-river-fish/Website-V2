@@ -17,7 +17,6 @@ export const questDefinitions = [
         requirement: 1,
         reward: 10,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "visit_home",
@@ -27,7 +26,6 @@ export const questDefinitions = [
         requirement: 1,
         reward: 200,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "visit_about",
@@ -37,7 +35,6 @@ export const questDefinitions = [
         requirement: 1,
         reward: 200,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "visit_gallery",
@@ -47,7 +44,6 @@ export const questDefinitions = [
         requirement: 1,
         reward: 200,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "visit_projects",
@@ -57,7 +53,6 @@ export const questDefinitions = [
         requirement: 1,
         reward: 200,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "visit_achievements",
@@ -67,7 +62,6 @@ export const questDefinitions = [
         requirement: 1,
         reward: 200,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "visit_shop",
@@ -77,7 +71,6 @@ export const questDefinitions = [
         requirement: 1,
         reward: 200,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "explore_all_pages",
@@ -87,7 +80,6 @@ export const questDefinitions = [
         requirement: 6,
         reward: 1000,
         hidden: false,
-        comingSoon: false,
     },
 
     // ENGAGEMENT QUESTS
@@ -99,7 +91,6 @@ export const questDefinitions = [
         requirement: 3,
         reward: 3000,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "weekly_visitor",
@@ -109,7 +100,6 @@ export const questDefinitions = [
         requirement: 7,
         reward: 7000,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "dragon_embers",
@@ -119,7 +109,6 @@ export const questDefinitions = [
         requirement: 1,
         reward: 500,
         hidden: false,
-        comingSoon: false,
     },
 
     // COLLECTION QUESTS
@@ -131,7 +120,6 @@ export const questDefinitions = [
         requirement: 1,
         reward: 1000,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "collector",
@@ -141,7 +129,6 @@ export const questDefinitions = [
         requirement: 3,
         reward: 1000,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "completionist",
@@ -151,7 +138,6 @@ export const questDefinitions = [
         requirement: 6,
         reward: 2000,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "ember_hoarder",
@@ -161,7 +147,6 @@ export const questDefinitions = [
         requirement: 10000,
         reward: 1000,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "ember_startup",
@@ -171,7 +156,6 @@ export const questDefinitions = [
         requirement: 10000,
         reward: 500,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "ember_tycoon",
@@ -181,7 +165,6 @@ export const questDefinitions = [
         requirement: 30000,
         reward: 2000,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "unemployed",
@@ -191,7 +174,6 @@ export const questDefinitions = [
         requirement: 1000000,
         reward: 10000,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "first_dragon",
@@ -201,7 +183,6 @@ export const questDefinitions = [
         requirement: 1,
         reward: 100,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "second_dragon",
@@ -211,7 +192,6 @@ export const questDefinitions = [
         requirement: 2,
         reward: 1000,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "five_dragons",
@@ -221,7 +201,6 @@ export const questDefinitions = [
         requirement: 5,
         reward: 1000,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "ten_dragons",
@@ -231,7 +210,6 @@ export const questDefinitions = [
         requirement: 10,
         reward: 1000,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "all_dragons",
@@ -241,7 +219,6 @@ export const questDefinitions = [
         requirement: 13,
         reward: 1000,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "all_legendary_dragons",
@@ -251,7 +228,6 @@ export const questDefinitions = [
         requirement: 5,
         reward: 5000,
         hidden: false,
-        comingSoon: false,
     },
 
     // HIDDEN QUESTS
@@ -263,7 +239,6 @@ export const questDefinitions = [
         requirement: 1,
         reward: 1000,
         hidden: true,
-        comingSoon: false,
     },
 
     // MASTERY QUESTS
@@ -275,7 +250,6 @@ export const questDefinitions = [
         requirement: 1,
         reward: 500,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "complete_intro",
@@ -285,7 +259,6 @@ export const questDefinitions = [
         requirement: 1,
         reward: 1000,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "upgrade_dragon",
@@ -295,7 +268,6 @@ export const questDefinitions = [
         requirement: 1,
         reward: 500,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "style_switcher",
@@ -305,7 +277,6 @@ export const questDefinitions = [
         requirement: 3,
         reward: 300,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "achievement_25",
@@ -315,7 +286,6 @@ export const questDefinitions = [
         requirement: 25,
         reward: 1000,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "achievement_50",
@@ -325,7 +295,6 @@ export const questDefinitions = [
         requirement: 50,
         reward: 2500,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "achievement_75",
@@ -335,7 +304,6 @@ export const questDefinitions = [
         requirement: 75,
         reward: 5000,
         hidden: false,
-        comingSoon: false,
     },
     {
         id: "achievement_100",
@@ -345,7 +313,6 @@ export const questDefinitions = [
         requirement: 100,
         reward: 10000,
         hidden: false,
-        comingSoon: false,
     },
 ];
 

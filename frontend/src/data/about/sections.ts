@@ -100,7 +100,16 @@ export const aboutSections: AboutSectionData[] = [
                 spans: [
                     {
                         type: "text",
-                        text: "Are you still reading? If you want to know more about me, you can keep scrolling to find out more about my hobbies and career below.",
+                        text: "Are you still reading? If you want to know more about me, you can keep scrolling to find out more about my hobbies and career below. Check out my ",
+                    },
+                    {
+                        type: "link",
+                        text: "LinkedIn",
+                        href: "https://www.linkedin.com/in/zheng-nick1/",
+                    },
+                    {
+                        type: "text",
+                        text: " too!",
                     },
                 ],
             },

@@ -2,7 +2,7 @@
 
 // Test daily visit quests
 
-import { Trophy, Lock, CheckCircle2, Award, TrendingUp } from "lucide-react";
+import { Trophy, CheckCircle2, Award, TrendingUp } from "lucide-react";
 import { NavbarSpacer } from "../components/reusable_misc/NavbarSpacer";
 import { usePageTracking } from "../components/quests/usePageTracking";
 import EmberIcon from "../components/navbar/EmberIcon";
@@ -22,7 +22,6 @@ interface Quest {
     requirement: number;
     reward: number;
     hidden: boolean;
-    comingSoon: boolean;
     progress: number;
     completed: boolean;
     completedAt?: string;
@@ -235,8 +234,6 @@ export default function Achievements() {
             <div className="max-w-6xl mx-auto px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-tutorial-id="quest-list">
                 {filteredQuests.map((quest) => {
-                    // Coming Soon: fully censored with golden badge
-                    const isComingSoon = quest.comingSoon && !quest.completed;
                     // Hidden: text blurred with question mark icon
                     const isHidden = quest.category === "hidden" && !quest.completed;
                     
@@ -260,23 +257,12 @@ export default function Achievements() {
                                     e.currentTarget.style.borderColor = 'var(--achievement-border)';
                                 }
                             }}
-                        >   
-                            {/* Coming Soon Badge - fully censors the quest */}
-                            {isComingSoon && (
-                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                                    <div className="bg-yellow-500/20 border border-yellow-500/50 px-4 py-2 rounded-full backdrop-blur-sm">
-                                        <span className="text-yellow-400 text-sm font-bold">Coming Soon</span>
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className={`flex gap-4 ${isComingSoon ? 'blur-sm select-none' : ''}`}>
+                        >
+                            <div className="flex gap-4">
                                 {/* Icon */}
                                 <div className={`text-4xl shrink-0 ${quest.completed ? "" : "grayscale opacity-50"}`}>
                                     {quest.completed ? (
                                         <CheckCircle2 className="text-green-400" size={48} />
-                                    ) : isComingSoon ? (
-                                        <Lock className="text-gray-500" size={48} />
                                     ) : isHidden ? (
                                         <span className="text-4xl">❓</span>
                                     ) : (
@@ -288,20 +274,20 @@ export default function Achievements() {
                                 <div className="grow min-w-0">
                                     <div className="flex items-start justify-between gap-2 mb-2">
                                         <h3 className={`font-bold text-lg ${quest.completed ? "text-green-400" : "text-white"} ${isHidden ? 'blur-sm' : ''}`}>
-                                            {isComingSoon ? "???" : quest.name}
+                                            {quest.name}
                                         </h3>
                                         <div className={`flex items-center gap-1 font-bold shrink-0 ${isHidden ? 'blur-sm' : ''}`} style={{ color: 'var(--achievement-primary)' }}>
                                             <EmberIcon size={20} />
-                                            <span>{isComingSoon ? "?" : quest.reward}</span>
+                                            <span>{quest.reward}</span>
                                         </div>
                                     </div>
 
                                     <p className={`text-gray-400 text-sm mb-3 ${isHidden ? 'blur-sm' : ''}`}>
-                                        {isComingSoon ? "???" : quest.description}
+                                        {quest.description}
                                     </p>
 
                                     {/* Progress Bar */}
-                                    {!quest.completed && !isComingSoon && !isHidden && (
+                                    {!quest.completed && !isHidden && (
                                         <div className="space-y-1">
                                             <div className="flex justify-between text-xs text-gray-500">
                                                 <span>Progress</span>

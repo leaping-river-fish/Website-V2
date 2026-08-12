@@ -48,7 +48,7 @@ export const achievementDialogue: DialogueTree = {
             text: "When you complete an achievement, you'll earn ember rewards. You can use these embers to purchase items in the shop.",
             emotion: "greedy",
             highlight: "ember-counter",
-            next: "explain_coming_soon"
+            next: "explain_hidden"
         },
         explain_hidden: {
             text: "Some achievements are hidden! They are blurred out with a question mark icon. You will not be told how to complete them, you will have to discover them yourself!",
